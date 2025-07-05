@@ -13,45 +13,45 @@ export class PublicacionesController {
 
   // ------ Proyectos ------
 
-  @Get('proyectos')
+  @Get('getProyectos')
   findAllProyectos(): Promise<Proyectos[]> {
     return this.publicacionesService.findAllProyectos();
   }
 
-  @Post('proyectos')
+  @Post('createProyectos')
   createProyecto(@Body() proyectoDto: ProyectoDto): Promise<Proyectos> {
     return this.publicacionesService.createProyecto(proyectoDto);
   }
 
-  @Put('proyectos/:id')
+  @Put('updateProyectos/:id')
   updateProyecto(@Param() id: number, @Body() updateProyectoDto: updateProyectoDto,): Promise<Proyectos> {
     return this.publicacionesService.updateProyecto(id, updateProyectoDto);
   }
 
-  @Delete('proyectos/:id')
+  @Delete('removeProyectos/:id')
   removeProyecto(@Param() id: number): Promise<void> {
     return this.publicacionesService.removeProyecto(id);
   }
 
   // ------ Donaciones ------
 
-  @Get('donaciones')
+  @Get('getDonaciones')
   findAllDonacion(): Promise<Donacion[]> {
     return this.publicacionesService.findAllDonacion();
   }
 
-  @Post('donaciones')
+  @Post('createDonaciones')
   createDonaciones(@Body() donacionDto: DonacionDto): Promise<Donacion> {
     return this.publicacionesService.createDoanciones(donacionDto);
   }
 
-  @Put('donaciones/:id')
+  @Put('updateDonaciones/:id')
   updateDonacion(@Param() id: number, @Body() updateDonacionDto: updateDonacionDto,
   ): Promise<Donacion> {
     return this.publicacionesService.updateDonacion(id, updateDonacionDto);
   }
 
-  @Delete('donaciones/:id')
+  @Delete('removeDonaciones/:id')
   removeDonacion(@Param() id: number): Promise<void> {
     return this.publicacionesService.removeDonacion(id);
   }
