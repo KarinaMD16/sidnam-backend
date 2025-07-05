@@ -13,5 +13,9 @@ export class updateEventosDto {
   @IsNotEmpty()
   Descripcion: string;
 
+  @IsOptional()
+  @IsString()
+  imagenUrl: string;
+
 
 }

@@ -13,5 +13,7 @@ export class DonacionDto {
   @IsNotEmpty()
   Descripcion: string;
 
-
+  @IsOptional()
+  @IsString()
+  imagenUrl: string;
 }

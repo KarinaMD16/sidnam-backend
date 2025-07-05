@@ -10,4 +10,8 @@ export class EventoDto {
   @IsString()
   Descripcion: string;
 
+  @IsOptional()
+  @IsString()
+  imagenUrl: string;
+
 }

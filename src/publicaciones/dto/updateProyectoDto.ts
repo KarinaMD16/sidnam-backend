@@ -10,4 +10,8 @@ export class updateProyectoDto {
   @IsString()
   Descripcion: string;
 
+  @IsOptional()
+  @IsString()
+  imagenUrl: string;
+
 }

@@ -14,6 +14,9 @@ export class Eventos {
   @Column()
   Descripcion: string;
 
+  @Column({ nullable: true })
+  imagenUrl: string;
+
   @Column({ default: true })
   isActive: boolean;
 }

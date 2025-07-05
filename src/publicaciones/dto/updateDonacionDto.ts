@@ -13,5 +13,9 @@ export class updateDonacionDto {
   @IsNotEmpty()
   Descripcion: string;
 
+  @IsOptional()
+  @IsString()
+  imagenUrl: string;
+
 
 }
