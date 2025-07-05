@@ -8,6 +8,8 @@ import { ProyectoDto } from './dto/createProyectosDto';
 import { updateDonacionDto } from './dto/updateDonacionDto';
 import { updateProyectoDto } from './dto/updateProyectoDto';
 import { DonacionDto } from './dto/createDonacionDto';
+import { EventoDto } from './dto/createEventosDto';
+import { updateEventosDto } from './dto/updateEventosDto';
 
 @Injectable()
 export class PublicacionesService {
@@ -60,7 +62,7 @@ export class PublicacionesService {
 
         const donacionActualizada = await this.donacionesRepository.findOneBy({ id });
             if (!donacionActualizada) {
-                throw new NotFoundException(`Proyecto con id ${id} no encontrado`);
+                throw new NotFoundException(`Donacion con id ${id} no encontrado`);
             }
 
         return donacionActualizada;
@@ -74,6 +76,29 @@ export class PublicacionesService {
         return this.donacionesRepository.find();
     }
 
+    //Eventos
 
+    async createEventos(createEventos: EventoDto): Promise<Eventos> {
+        const nuevoEvento = this.eventosRepository.create(createEventos);
+        return await this.eventosRepository.save(nuevoEvento);
+    }
 
+   async updateEventos(id: number, updateEvento: updateEventosDto): Promise<Eventos> {
+        await this.eventosRepository.update(id, updateEvento);
+
+        const eventoActualizado = await this.eventosRepository.findOneBy({ id });
+            if (!eventoActualizado) {
+                throw new NotFoundException(`Evento con id ${id} no encontrado`);
+            }
+
+        return eventoActualizado;
+    }
+
+    async removeEventos(id: number): Promise<void> {
+        await this.eventosRepository.delete(id);
+    }
+
+    findAllEventos(): Promise<Eventos[]> {
+        return this.eventosRepository.find();
+    }
 }
