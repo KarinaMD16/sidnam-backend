@@ -28,10 +28,12 @@ export class GaleriaController {
         return this.galeriaService.findAllImagenes();
     }
 
-    @Get('categoria/:id')
-    findByCategoria(@Param() id: number){
-        return this.galeriaService.findByCategoriaId(id);
+   @Get('categoria/:id')
+   findImagenesByCategoria(@Param('id') id: string) {
+        const categoriaId = parseInt(id);
+        return this.galeriaService.findByCategoriaId(categoriaId);
     }
+
 
 }
 

@@ -47,12 +47,22 @@ export class GaleriaService {
         return this.galeriaRepository.find();
     }
 
-    async findByCategoriaId(categoriaId: number): Promise<Galeria[]>{
-        return this.galeriaRepository.find({
-            where:{
-                categoria: {id: categoriaId},
-            },
-            relations: ['categoria'],
-        });
-    }
+    async findByCategoriaId(categoriaId: number): Promise<Galeria[]> {
+  const categoria = await this.categoriaRepository.findOne({
+    where: { id: categoriaId },
+  });
+
+  if (!categoria) {
+    throw new NotFoundException(`Categoría con id ${categoriaId} no encontrada`);
+  }
+
+  return this.galeriaRepository.find({
+    where: {
+      categoria: { id: categoriaId },
+    },
+    relations: ['categoria'],
+  });
+}
+
+
 }
