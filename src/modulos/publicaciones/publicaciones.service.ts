@@ -72,7 +72,16 @@ export class PublicacionesService {
         await this.donacionesRepository.delete(id);
     }
 
-    findAllDonacion(): Promise<Donacion[]> {
+    findAllDonacion(page?: number, limit?: number): Promise<Donacion[]> {
+
+        if (page && limit) {
+            return this.donacionesRepository.find({
+                skip: (page - 1) * limit,
+                take: limit,
+                order: { id: 'DESC' },
+                select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
+            });
+        }
         return this.donacionesRepository.find();
     }
 

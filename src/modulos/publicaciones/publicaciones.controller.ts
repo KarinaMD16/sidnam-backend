@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, Query } from '@nestjs/common';
 import { PublicacionesService } from './publicaciones.service';
 import { ProyectoDto } from './dto/createProyectosDto';
 import { updateProyectoDto } from './dto/updateProyectoDto';
@@ -39,7 +39,14 @@ export class PublicacionesController {
   // ------ Donaciones ------
 
   @Get('getDonaciones')
-  findAllDonacion(): Promise<Donacion[]> {
+  findAllDonacion(
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+  ): Promise<Donacion[]> {
+
+    if (page && limit) {
+      return this.publicacionesService.findAllDonacion(page, limit);
+    }
     return this.publicacionesService.findAllDonacion();
   }
 
