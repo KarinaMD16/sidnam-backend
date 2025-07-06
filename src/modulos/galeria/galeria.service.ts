@@ -57,12 +57,11 @@ export class GaleriaService {
   }
 
   return this.galeriaRepository.find({
-    where: {
-      categoria: { id: categoriaId },
-    },
-    relations: ['categoria'],
+    where: { categoriaId },
+
   });
 }
+
 
 
 }
