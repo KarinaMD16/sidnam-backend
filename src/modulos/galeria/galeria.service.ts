@@ -43,7 +43,17 @@ export class GaleriaService {
         return this.galeriaRepository.save(nuevaImagen);
     }
 
-    async findAllImagenes():Promise<Galeria[]>{
+    async findAllImagenes(page?: number, limit?: number): Promise<Galeria[]>{
+
+        if (page && limit) {
+            return this.galeriaRepository.find({
+                skip: (page - 1) * limit,
+                take: limit,
+                order: { id: 'DESC' },
+                select: ['id', 'imagenUrl'],
+            });
+        }
+        
         return this.galeriaRepository.find();
     }
 
