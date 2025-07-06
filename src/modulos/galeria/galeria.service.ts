@@ -18,7 +18,7 @@ export class GaleriaService {
         
     ){}
 
-
+    //Categorias
     async createCategoria(createCAtegoria: CategoriaDto): Promise<Categoria> {
         const nuevaCategoria = this.categoriaRepository.create(createCAtegoria);
         return await this.categoriaRepository.save(nuevaCategoria);
@@ -27,7 +27,7 @@ export class GaleriaService {
     async findAllCategorias(): Promise<Categoria[]> {
         return this.categoriaRepository.find();
     }
-
+    //Imagenes
     async createImagen(createGaleria: GaleriaDto): Promise<Galeria>{
         const categoria = await this.categoriaRepository.findOne({
             where: {id: createGaleria.categoriaId},
@@ -48,20 +48,23 @@ export class GaleriaService {
     }
 
     async findByCategoriaId(categoriaId: number): Promise<Galeria[]> {
-  const categoria = await this.categoriaRepository.findOne({
-    where: { id: categoriaId },
-  });
+        const categoria = await this.categoriaRepository.findOne({
+          where: { id: categoriaId },
+        });
 
-  if (!categoria) {
-    throw new NotFoundException(`Categoría con id ${categoriaId} no encontrada`);
-  }
+      if (!categoria) {
+        throw new NotFoundException(`Categoría con id ${categoriaId} no encontrada`);
+      }
 
-  return this.galeriaRepository.find({
-    where: { categoriaId },
+      return this.galeriaRepository.find({
+        where: { categoriaId },
 
-  });
-}
+      });   
+    }
 
+    async removeImagen(id: number): Promise<void> {
+        await this.galeriaRepository.delete(id);
+    }
 
 
 }
