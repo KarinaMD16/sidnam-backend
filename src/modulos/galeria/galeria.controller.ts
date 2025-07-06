@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Optional, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { GaleriaService } from './galeria.service';
 import { CategoriaDto } from './dto/createCategoriaDto';
 import { GaleriaDto } from './dto/createGaleriaDto';
@@ -22,15 +22,22 @@ export class GaleriaController {
 
     //Imagenes
 
-    @Post('createImagenes')
+    @Post('createImagen')
     createImagenes(@Body() createImagenes: GaleriaDto){
         return this.galeriaService.createImagen(createImagenes);
     }
 
     @Get('getImagenes')
-    findAllImagenes(){
+    findAllImagenes(
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    ) {
+        if (page && limit) {
+            return this.galeriaService.findAllImagenes(page, limit);
+        }
         return this.galeriaService.findAllImagenes();
     }
+
 
    @Get('categoria/:id')
    findImagenesByCategoria(@Param('id') id: string) {
@@ -38,7 +45,7 @@ export class GaleriaController {
         return this.galeriaService.findByCategoriaId(categoriaId);
     }
     
-    @Delete('removeImagenes/:id')
+    @Delete('removeImagen/:id')
       removeImagen(@Param() id: number): Promise<void> {
         return this.galeriaService.removeImagen(id);
     }
