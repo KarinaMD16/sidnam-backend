@@ -57,7 +57,7 @@ export class GaleriaService {
         return this.galeriaRepository.find();
     }
 
-    async findByCategoriaId(categoriaId: number): Promise<Galeria[]> {
+    async findByCategoriaId(categoriaId: number, page?: number, limit?: number): Promise<Galeria[]> {
         const categoria = await this.categoriaRepository.findOne({
           where: { id: categoriaId },
         });
@@ -66,6 +66,16 @@ export class GaleriaService {
         throw new NotFoundException(`Categoría con id ${categoriaId} no encontrada`);
       }
 
+        if (page && limit) {
+            return this.galeriaRepository.find({
+                where: { categoriaId },
+                skip: (page - 1) * limit,
+                take: limit,
+                order: { id: 'DESC' },
+                select: ['id', 'imagenUrl'],
+            });
+        }
+      
       return this.galeriaRepository.find({
         where: { categoriaId },
 

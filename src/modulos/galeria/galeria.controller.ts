@@ -40,8 +40,15 @@ export class GaleriaController {
 
 
    @Get('categoria/:id')
-   findImagenesByCategoria(@Param('id') id: string) {
+   findImagenesByCategoria(
+        @Param('id') id: string,
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    ) {
         const categoriaId = parseInt(id);
+        if (page && limit) {
+            return this.galeriaService.findByCategoriaId(categoriaId, page, limit);
+        }
         return this.galeriaService.findByCategoriaId(categoriaId);
     }
     
