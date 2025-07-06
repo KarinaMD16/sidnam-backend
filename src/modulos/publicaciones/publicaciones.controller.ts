@@ -17,7 +17,13 @@ export class PublicacionesController {
   // ------ Proyectos ------
 
   @Get('getProyectos')
-  findAllProyectos(): Promise<Proyectos[]> {
+  findAllProyectos(
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+  ): Promise<Proyectos[]> {
+    if (page && limit) {
+      return this.publicacionesService.findAllProyectos(page, limit);
+    }
     return this.publicacionesService.findAllProyectos();
   }
 
@@ -69,7 +75,13 @@ export class PublicacionesController {
    // ------ Eventos ------
 
    @Get('getEventos')
-  findAllEventos(): Promise<Eventos[]> {
+  findAllEventos(
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+  ): Promise<Eventos[]> {
+    if(page && limit){
+      return this.publicacionesService.findAllEventos(page, limit);
+    }
     return this.publicacionesService.findAllEventos();
   }
 

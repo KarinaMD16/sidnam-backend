@@ -46,7 +46,15 @@ export class PublicacionesService {
         await this.proyectosRepository.delete(id);
     }
 
-    findAllProyectos(): Promise<Proyectos[]> {
+    findAllProyectos(page?: number, limit?: number): Promise<Proyectos[]> {
+        if (page && limit) {
+            return this.proyectosRepository.find({
+                skip: (page - 1) * limit,
+                take: limit,
+                order: { id: 'DESC' },
+                select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
+            });
+        }
         return this.proyectosRepository.find();
     }
 
@@ -107,7 +115,15 @@ export class PublicacionesService {
         await this.eventosRepository.delete(id);
     }
 
-    findAllEventos(): Promise<Eventos[]> {
+    findAllEventos(page?: number, limit?: number): Promise<Eventos[]> {
+        if (page && limit) {
+            return this.eventosRepository.find({
+                skip: (page - 1) * limit,
+                take: limit,
+                order: { id: 'DESC' },
+                select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
+            });
+        }
         return this.eventosRepository.find();
     }
 }
