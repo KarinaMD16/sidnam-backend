@@ -80,17 +80,19 @@ export class PublicacionesService {
         await this.donacionesRepository.delete(id);
     }
 
-    findAllDonacion(page?: number, limit?: number): Promise<Donacion[]> {
-
+    async findAllDonacion(page?: number, limit?: number): Promise<{ data: Donacion[]; total: number }> {
         if (page && limit) {
-            return this.donacionesRepository.find({
+            const [data, total] = await this.donacionesRepository.findAndCount({
                 skip: (page - 1) * limit,
                 take: limit,
                 order: { id: 'DESC' },
                 select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
-            });
+        });
+
+        return { data, total };
         }
-        return this.donacionesRepository.find();
+
+        throw new Error('Los parámetros page y limit son requeridos');
     }
 
     //Eventos
