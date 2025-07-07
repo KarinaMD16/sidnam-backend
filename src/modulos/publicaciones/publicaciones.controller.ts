@@ -73,7 +73,7 @@ export class PublicacionesController {
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
   ): Promise<{ data: Eventos[]; total: number }> {
-    return this.publicacionesService.findlAllEventos(page, limit);
+    return this.publicacionesService.findAllEventos(page, limit);
   }
 
   @Post('createEvento')
