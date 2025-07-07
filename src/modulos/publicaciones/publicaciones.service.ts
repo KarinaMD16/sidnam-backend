@@ -47,18 +47,21 @@ export class PublicacionesService {
     }
 
     async findAllProyectos(page?: number, limit?: number): Promise<{ data: Proyectos[]; total: number }> {
-        if (page && limit) {
-            const [data, total] = await this.proyectosRepository.findAndCount({
-                skip: (page - 1) * limit,
-                take: limit,
-                order: { id: 'DESC' },
-                select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
+
+        if (!page || !limit) throw new Error('Los parámetros page y limit son requeridos');
+
+        const [data, total] = await this.proyectosRepository.findAndCount({
+            skip: (page - 1) * limit,
+            take: limit,
+            order: { id: 'DESC' },
+            select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
         });
 
-        return { data, total };
+        if ((page - 1) * limit >= total) {
+            return { data: [], total }; 
         }
 
-        throw new Error('Los parámetros page y limit son requeridos');
+        return { data, total };
     }
 
     //Donaciones
@@ -84,18 +87,21 @@ export class PublicacionesService {
     }
 
     async findAllDonacion(page?: number, limit?: number): Promise<{ data: Donacion[]; total: number }> {
-        if (page && limit) {
-            const [data, total] = await this.donacionesRepository.findAndCount({
-                skip: (page - 1) * limit,
-                take: limit,
-                order: { id: 'DESC' },
-                select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
+
+        if (!page || !limit) throw new Error('Los parámetros page y limit son requeridos');
+
+        const [data, total] = await this.donacionesRepository.findAndCount({
+            skip: (page - 1) * limit,
+            take: limit,
+            order: { id: 'DESC' },
+            select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
         });
 
-        return { data, total };
+        if ((page - 1) * limit >= total) {
+            return { data: [], total }; 
         }
 
-        throw new Error('Los parámetros page y limit son requeridos');
+        return { data, total };
     }
 
     //Eventos
@@ -120,18 +126,21 @@ export class PublicacionesService {
         await this.eventosRepository.delete(id);
     }
 
-    async findlAllEventos(page?: number, limit?: number): Promise<{ data: Eventos[]; total: number }> {
-        if (page && limit) {
-            const [data, total] = await this.eventosRepository.findAndCount({
-                skip: (page - 1) * limit,
-                take: limit,
-                order: { id: 'DESC' },
-                select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
+    async findAllEventos(page?: number, limit?: number): Promise<{ data: Eventos[]; total: number }> {
+
+        if (!page || !limit) throw new Error('Los parámetros page y limit son requeridos');
+
+        const [data, total] = await this.eventosRepository.findAndCount({
+            skip: (page - 1) * limit,
+            take: limit,
+            order: { id: 'DESC' },
+            select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
         });
 
-        return { data, total };
+        if ((page - 1) * limit >= total) {
+            return { data: [], total }; 
         }
 
-        throw new Error('Los parámetros page y limit son requeridos');
+        return { data, total };
     }
 }
