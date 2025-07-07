@@ -46,15 +46,12 @@ export class PublicacionesController {
 
   @Get('getDonaciones')
   findAllDonacion(
-    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
-  ): Promise<Donacion[]> {
-
-    if (page && limit) {
-      return this.publicacionesService.findAllDonacion(page, limit);
-    }
-    return this.publicacionesService.findAllDonacion();
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ): Promise<{ data: Donacion[]; total: number }> {
+    return this.publicacionesService.findAllDonacion(page, limit);
   }
+
 
   @Post('createDonacion')
   createDonaciones(@Body() donacionDto: DonacionDto): Promise<Donacion> {
