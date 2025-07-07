@@ -46,16 +46,19 @@ export class PublicacionesService {
         await this.proyectosRepository.delete(id);
     }
 
-    findAllProyectos(page?: number, limit?: number): Promise<Proyectos[]> {
+    async findAllProyectos(page?: number, limit?: number): Promise<{ data: Proyectos[]; total: number }> {
         if (page && limit) {
-            return this.proyectosRepository.find({
+            const [data, total] = await this.proyectosRepository.findAndCount({
                 skip: (page - 1) * limit,
                 take: limit,
                 order: { id: 'DESC' },
                 select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
-            });
+        });
+
+        return { data, total };
         }
-        return this.proyectosRepository.find();
+
+        throw new Error('Los parámetros page y limit son requeridos');
     }
 
     //Donaciones
@@ -117,15 +120,18 @@ export class PublicacionesService {
         await this.eventosRepository.delete(id);
     }
 
-    findAllEventos(page?: number, limit?: number): Promise<Eventos[]> {
+    async findlAllEventos(page?: number, limit?: number): Promise<{ data: Eventos[]; total: number }> {
         if (page && limit) {
-            return this.eventosRepository.find({
+            const [data, total] = await this.eventosRepository.findAndCount({
                 skip: (page - 1) * limit,
                 take: limit,
                 order: { id: 'DESC' },
                 select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
-            });
+        });
+
+        return { data, total };
         }
-        return this.eventosRepository.find();
+
+        throw new Error('Los parámetros page y limit son requeridos');
     }
 }
