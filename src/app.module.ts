@@ -9,6 +9,9 @@ import { Proyectos } from './modulos/publicaciones/entities/proyectos.entity';
 import { GaleriaModule } from './modulos/galeria/galeria.module';
 import { Galeria } from './modulos/galeria/entities/galeria.entity';
 import { Categoria } from './modulos/galeria/entities/categoria.entity';
+import { GestionUsuarioModule } from './modulos/gestion-usuario/gestion-usuario.module';
+import { Usuario } from './modulos/gestion-usuario/entities/usuario.entity';
+import { AutenticacionModule } from './modulos/autenticacion/autenticacion.module';
 
 @Module({
   imports: [
@@ -20,10 +23,12 @@ import { Categoria } from './modulos/galeria/entities/categoria.entity';
       username: 'root',
       password: 'root',
       database: 'SIDNAMDB',
-      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria],
+      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario],
       synchronize: false,
     }),
     GaleriaModule,
+    GestionUsuarioModule,
+    AutenticacionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
