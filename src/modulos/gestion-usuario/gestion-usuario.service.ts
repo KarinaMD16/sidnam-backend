@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from './entities/usuario.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUsuarioDto';
+import { UpdateUsuarioDto } from './dto/updateUsuarioDto';
 
 @Injectable()
 export class GestionUsuarioService {
@@ -12,13 +13,27 @@ export class GestionUsuarioService {
         private readonly usuariosRepository: Repository<Usuario>
     ){}
 
-    async createUsuarioAdministrador(createUserDto: CreateUserDto){
+    async createUsuario(createUserDto: CreateUserDto){
         return await this.usuariosRepository.save(createUserDto);
     }
 
-    async findOneByEmail(cedula: string){
+    async findOneByCedula(cedula: string){
         return await this.usuariosRepository.findOneBy({cedula});
     }
 
+    async findOneByEmail(email: string){
+        return await this.usuariosRepository.findOneBy({email});
+    }
+
+    async eliminarUsuario(cedula: string): Promise<void>{
+
+        const usuario = await this.usuariosRepository.findOneBy({cedula});
+        
+        if(!usuario){
+            throw new NotFoundException('Usuario no encontrado')
+        }
+
+        await this.usuariosRepository.delete({ cedula });
+    }
 
 }

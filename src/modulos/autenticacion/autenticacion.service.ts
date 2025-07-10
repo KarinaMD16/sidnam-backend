@@ -5,6 +5,7 @@ import * as bcryptjs from 'bcryptjs';
 import { Rol } from 'src/common/enums/rol.enum';
 import { LoginDto } from './dto/loginDto';
 import { JwtService } from '@nestjs/jwt';
+import { RouteParamtypes } from '@nestjs/common/enums/route-paramtypes.enum';
 
 
 @Injectable()
@@ -15,21 +16,32 @@ export class AutenticacionService {
         private readonly jwtService: JwtService
     ){}
 
-    async crearUsuarioAdministrador({cedula, email, password}: RegisterDto){
+    async crearUsuario({cedula, email, password}: RegisterDto, rol: string){
 
-        const usuario = await this.gestionUsuarios.findOneByEmail(cedula);
+        const rolValido = Object.values(Rol).includes(rol as Rol);
+        if (!rolValido) {
+            throw new BadRequestException("Rol inválido");
+        }
+
+        const usuario = await this.gestionUsuarios.findOneByCedula(cedula);
 
         if(usuario){
             throw new BadRequestException("La cedula ya se encuentra registrada");
         }
 
+        const correo  = await this.gestionUsuarios.findOneByEmail(email);
+
+        if(correo){
+            throw new BadRequestException("El correo ya se encuentra registrado");
+        }
+
         const hashedPassword = await bcryptjs.hash(password, 10);
 
-        await this.gestionUsuarios.createUsuarioAdministrador({
+        await this.gestionUsuarios.createUsuario({
             cedula,
             email,
             password: hashedPassword,
-            role: Rol.ADMIN
+            role: rol as Rol
         });
 
         return {
@@ -38,7 +50,7 @@ export class AutenticacionService {
     }
 
     async login({cedula, password}: LoginDto){
-        const user = await this.gestionUsuarios.findOneByEmail(cedula);
+        const user = await this.gestionUsuarios.findOneByCedula(cedula);
 
         if(!user){
             throw new UnauthorizedException("Cedula invalida");
@@ -56,6 +68,7 @@ export class AutenticacionService {
 
         return{
             token: token,
+            id: user.id
         };
     }
 }

@@ -1,4 +1,7 @@
 export enum Rol {
   ADMIN = 'ADMIN',
+  TERAPIA = 'TERAPIA',
+  NUTRICION = 'NUTRICION',
+  ENFERMERIA = 'ENFERMERIA',
   USER = 'USER',
 }
