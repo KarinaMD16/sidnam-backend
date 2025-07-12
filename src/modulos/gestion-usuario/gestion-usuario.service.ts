@@ -46,6 +46,4 @@ export class GestionUsuarioService {
         await this.usuariosRepository.update({email}, {password});
     }
 
-    
-
 }

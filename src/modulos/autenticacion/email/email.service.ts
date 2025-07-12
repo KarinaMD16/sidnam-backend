@@ -121,4 +121,4 @@
         throw new BadRequestException('Bad confirmation token');
         }
     }
-    }
+}
