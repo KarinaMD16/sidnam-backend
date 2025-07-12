@@ -48,28 +48,49 @@
         const url = `${this.configService.get<string>('EMAIL_RESET_PASSWORD_URL')}?token=${token}`;
 
         const html = `
-    <div style="font-family: Arial, sans-serif; color: #333;">
-        <h2>Reestablece tu contraseña</h2>
-        <p>Hola ${user.cedula || ''},</p>
-        <p>Hemos recibido una solicitud para reestablecer tu contraseña. Haz click acá para proceder:</p>
-        <p>
-        <a href="${url}" style="
-            background-color: #007bff;
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 5px;
-            display: inline-block;
-        ">
-            Reestablecer contraseña
-        </a>
-        </p>
+        <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 24px;">
+            <h2 style="color: #E52B50;">Restablece tu contraseña</h2>
 
-        <p>Si no hiciste esta solicitud puedes ignorarla</p>
-        <hr>
-        <small>Este link será inválido dentro de tres horas</small>
-    </div>
-    `;
+            <p style="font-size: 16px;">Hola ${user.cedula || ''},</p>
+
+            <p style="font-size: 16px; line-height: 1.5;">
+            Hemos recibido una solicitud para restablecer tu contraseña. Haz clic en el botón a continuación para continuar:
+            </p>
+
+            <p style="text-align: center; margin: 30px 0;">
+            <a href="${url}" style="
+                background-color: #8F1047;
+                color: white;
+                padding: 10px 20px;
+                font-size: 16px;
+                font-family: 'Poppins', Arial, sans-serif;
+                font-weight: 500;
+                border-radius: 32px;
+                text-decoration: none;
+                display: inline-block;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                white-space: nowrap;
+                max-width: 250px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            ">
+                Restablecer contraseña
+            </a>
+            </p>
+
+            <p style="font-size: 14px; color: #555;">
+            Si no solicitaste este cambio, puedes ignorar este mensaje. Tu contraseña permanecerá segura.
+            </p>
+
+            <hr style="margin: 30px 0;">
+
+            <p style="font-size: 12px; color: #999; text-align: center;">
+            Este enlace caduca en 3 horas.
+            </p>
+        </div>
+        `;
+
+
 
         return this.sendMail({
         to: email,
