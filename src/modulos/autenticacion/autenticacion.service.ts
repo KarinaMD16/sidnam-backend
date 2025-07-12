@@ -1,11 +1,13 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { GestionUsuarioService } from '../gestion-usuario/gestion-usuario.service';
 import { RegisterDto } from './dto/registerDto';
 import * as bcryptjs from 'bcryptjs';
 import { Rol } from 'src/common/enums/rol.enum';
 import { LoginDto } from './dto/loginDto';
 import { JwtService } from '@nestjs/jwt';
-import { RouteParamtypes } from '@nestjs/common/enums/route-paramtypes.enum';
+import { EmailService } from './email/email.service';
+
+
 
 
 @Injectable()
@@ -13,7 +15,8 @@ export class AutenticacionService {
 
     constructor(
         private readonly gestionUsuarios: GestionUsuarioService,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private readonly emailService: EmailService
     ){}
 
     async crearUsuario({cedula, email, password}: RegisterDto, rol: string){
@@ -50,6 +53,7 @@ export class AutenticacionService {
     }
 
     async login({cedula, password}: LoginDto){
+        
         const user = await this.gestionUsuarios.findOneByCedula(cedula);
 
         if(!user){
@@ -70,5 +74,27 @@ export class AutenticacionService {
             token: token,
             id: user.id
         };
+    }
+
+    async forgotPassword(email: string): Promise<void> {
+        const user = await this.gestionUsuarios.findOneByEmail(email)
+        if (!user) {
+            throw new NotFoundException(`No user found for email: ${email}`);
+        }
+        await this.emailService.sendResetPasswordLink(email);
+    }
+
+    async resetPassword(token: string, password: string): Promise<void> {
+        const email = await this.emailService.decodeConfirmationToken(token);
+
+        const user = await this.gestionUsuarios.findOneByEmail(email);
+        if (!user) {
+            throw new NotFoundException(`No user found for email: ${email}`);
+        }
+
+         const hashedPassword = await bcryptjs.hash(password, 10);
+
+         await this.gestionUsuarios.updateUsuario(email, hashedPassword)
+        
     }
 }

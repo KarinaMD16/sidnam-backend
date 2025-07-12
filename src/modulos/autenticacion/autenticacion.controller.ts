@@ -14,8 +14,6 @@ export class AutenticacionController {
 
     
     @Post("register/:rol")
-    @Roles(Rol.ADMIN)
-    @UseGuards(AuthGuard, RolesGuard)
     registerAdministrador(@Body() registerDto: RegisterDto, @Param('rol') rol: string){
         return this.authService.crearUsuario(registerDto, rol.toUpperCase());
     }   
@@ -26,4 +24,16 @@ export class AutenticacionController {
         return this.authService.login(loginDto);
     }
     
+    @Post('forgot-password')
+        async forgotPassword(@Body() { email }: { email: string }): Promise<void> {
+        return this.authService.forgotPassword(email);
+    }
+
+    @Post('reset-password')
+        async resetPassword(
+        @Body() body: { token: string; password: string }
+        ): Promise<void> {
+        return this.authService.resetPassword(body.token, body.password);
+    }
+
 }
