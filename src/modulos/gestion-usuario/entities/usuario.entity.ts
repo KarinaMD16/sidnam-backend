@@ -14,9 +14,6 @@ export class Usuario {
   @Column({ nullable: false })
   password: string;
 
-  @Column({ nullable: true })
-  resetToken?: string;
-
   @Column({ default: "user" })
   role: string;
 
