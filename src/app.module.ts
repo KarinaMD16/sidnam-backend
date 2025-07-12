@@ -13,6 +13,9 @@ import { GestionUsuarioModule } from './modulos/gestion-usuario/gestion-usuario.
 import { Usuario } from './modulos/gestion-usuario/entities/usuario.entity';
 import { AutenticacionModule } from './modulos/autenticacion/autenticacion.module';
 import { ConfigModule } from '@nestjs/config';
+import { reporteDonacion } from './modulos/reporte-donacion/entities/reporte-donacion.entity';
+import { reporteDonacionModule } from './modulos/reporte-donacion/reporte-donacion.module';
+import { tipoDonacion } from './modulos/tipo-donacion/entities/tipo-donacion.entity';
 
 @Module({
   imports: [
@@ -27,12 +30,14 @@ import { ConfigModule } from '@nestjs/config';
       username: 'root',
       password: 'root',
       database: 'SIDNAMDB',
-      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario],
+      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, reporteDonacion, tipoDonacion],
       synchronize: false,
     }),
     GaleriaModule,
     GestionUsuarioModule,
     AutenticacionModule,
+    reporteDonacionModule,
+    
   ],
   controllers: [AppController],
   providers: [AppService],
