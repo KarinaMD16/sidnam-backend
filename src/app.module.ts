@@ -12,9 +12,13 @@ import { Categoria } from './modulos/galeria/entities/categoria.entity';
 import { GestionUsuarioModule } from './modulos/gestion-usuario/gestion-usuario.module';
 import { Usuario } from './modulos/gestion-usuario/entities/usuario.entity';
 import { AutenticacionModule } from './modulos/autenticacion/autenticacion.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true, 
+    }),
     PublicacionesModule,
     TypeOrmModule.forRoot({
       type: 'mysql',

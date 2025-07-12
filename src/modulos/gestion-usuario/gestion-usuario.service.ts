@@ -36,4 +36,17 @@ export class GestionUsuarioService {
         await this.usuariosRepository.delete({ cedula });
     }
 
+    async updateUsuario(email: string, password: string): Promise<void>{
+
+        const usuario = await this.usuariosRepository.findOneBy({email});
+        
+        if(!usuario){
+            throw new NotFoundException('Usuario no encontrado')
+        }
+
+        await this.usuariosRepository.update({email}, {password});
+    }
+
+    
+
 }
