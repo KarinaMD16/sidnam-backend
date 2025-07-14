@@ -8,7 +8,7 @@ export class tipoDonacion {
   @PrimaryGeneratedColumn()
   idTipo: number;
 
-  @Column({length: 30})
+  @Column({length: 30, unique: true})
   tipoDonacion: string;
 
   @OneToMany (() => reporteDonacion, (reporteDonacion) => reporteDonacion.tipoDonacion)

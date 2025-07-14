@@ -16,6 +16,7 @@ import { ConfigModule } from '@nestjs/config';
 import { reporteDonacion } from './modulos/reporte-donacion/entities/reporte-donacion.entity';
 import { reporteDonacionModule } from './modulos/reporte-donacion/reporte-donacion.module';
 import { tipoDonacion } from './modulos/tipo-donacion/entities/tipo-donacion.entity';
+import { tipoDonacionModule } from './modulos/tipo-donacion/tipo-donacion.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { tipoDonacion } from './modulos/tipo-donacion/entities/tipo-donacion.ent
     GestionUsuarioModule,
     AutenticacionModule,
     reporteDonacionModule,
+    tipoDonacionModule,
     
   ],
   controllers: [AppController],
