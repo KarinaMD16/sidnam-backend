@@ -54,6 +54,9 @@ async create(data: CreateTipoDonacionDto): Promise<ResponseTipoDonacionDto> {
       const donacion = await this.tipoDonacionRepo.findOneBy({ 
         idTipo: id 
       });
+       if (donacion) {
+        throw new ConflictException(`El tipo de donación ${data.tipoDonacion} ya existe`);
+      }
 
       if (!donacion) {
         throw new NotFoundException(`Donación con el ID ${id} no encontrado`);
