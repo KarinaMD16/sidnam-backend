@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from './entities/usuario.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUsuarioDto';
+import { GetRolesDto } from './dto/response-role';
+import { Rol } from 'src/common/enums/rol.enum';
 
 @Injectable()
 export class GestionUsuarioService {
@@ -44,6 +46,15 @@ export class GestionUsuarioService {
         }
 
         await this.usuariosRepository.update({email}, {password});
+    }
+
+    async getRoles(): Promise<GetRolesDto[]> {
+        const roles = Object.values(Rol);
+
+        return roles.map((rol, index) => ({
+            id: index + 1,
+            rol: rol,
+        }));
     }
 
 }
