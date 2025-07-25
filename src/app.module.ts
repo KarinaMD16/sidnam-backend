@@ -17,6 +17,10 @@ import { reporteDonacion } from './modulos/reporte-donacion/entities/reporte-don
 import { reporteDonacionModule } from './modulos/reporte-donacion/reporte-donacion.module';
 import { tipoDonacion } from './modulos/tipo-donacion/entities/tipo-donacion.entity';
 import { tipoDonacionModule } from './modulos/tipo-donacion/tipo-donacion.module';
+import { ReporteVoluntario } from './modulos/reporte-voluntario/entities/reporte-voluntario.entity';
+import { reporteVoluntarioModule } from './modulos/reporte-voluntario/reporte-voluntario.module';
+import { tipoVoluntarioModule } from './modulos/tipo-voluntario/tipo-voluntario.module';
+import { tipoVoluntario } from './modulos/tipo-voluntario/entities/tipo-voluntario.entity';
 
 @Module({
   imports: [
@@ -29,16 +33,20 @@ import { tipoDonacionModule } from './modulos/tipo-donacion/tipo-donacion.module
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'root',
+      password: 'Adbf101123',
       database: 'SIDNAMDB',
-      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, reporteDonacion, tipoDonacion],
-      synchronize: false,
+      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, reporteDonacion, tipoDonacion, ReporteVoluntario, tipoVoluntario,],
+      synchronize: true,
+      dropSchema: true,
+
     }),
     GaleriaModule,
     GestionUsuarioModule,
     AutenticacionModule,
     reporteDonacionModule,
     tipoDonacionModule,
+    reporteVoluntarioModule,
+    tipoVoluntarioModule,
     
   ],
   controllers: [AppController],

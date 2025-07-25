@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { EstadoDonacion } from 'src/common/enums/estado-donacion.enum';
+import { EstadoSolicitudes} from 'src/common/enums/estado-solicitudes.enum';
 import { tipoDonacion } from 'src/modulos/tipo-donacion/entities/tipo-donacion.entity';
 
 @Entity('reporte_donacion')
@@ -26,8 +26,8 @@ export class reporteDonacion {
   @Column({length: 15})
   telefono: string;
 
-  @Column({type: 'enum', enum: EstadoDonacion, default: EstadoDonacion.PENDIENTE})
-  estadoDonacion: EstadoDonacion;
+  @Column({type: 'enum', enum: EstadoSolicitudes, default: EstadoSolicitudes.PENDIENTE})
+  estadoDonacion: EstadoSolicitudes;
 
   @Column({length: 500, nullable: true})
   descripcion: string;    

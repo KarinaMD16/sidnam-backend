@@ -1,4 +1,4 @@
-export enum EstadoDonacion {
+export enum EstadoSolicitudes {
     PENDIENTE = 'PENDIENTE',
     APROBADA = 'APROBADA',
     RECHAZADA = 'RECHAZADA',

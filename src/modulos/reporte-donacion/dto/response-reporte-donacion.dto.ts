@@ -1,4 +1,4 @@
-import { EstadoDonacion } from "src/common/enums/estado-donacion.enum";
+import { EstadoSolicitudes } from "src/common/enums/estado-solicitudes.enum";
 
 export class ResponseReporteDonacionDto {
  
@@ -9,7 +9,7 @@ export class ResponseReporteDonacionDto {
   cedula: string;
   correo: string;
   telefono: string;
-  estadoDonacion?: EstadoDonacion;
+  estadoDonacion?: EstadoSolicitudes;
   descripcion: string;    
   monto: number;
   fechaDonacion: Date;
