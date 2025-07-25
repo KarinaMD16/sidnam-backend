@@ -27,7 +27,8 @@ export class AutenticacionController {
     }
     
     @Post('forgot-password')
-        async forgotPassword(@Body() { email }: { email: string }): Promise<void> {
+    @HttpCode(200)
+        async forgotPassword(@Body() { email }: { email: string }): Promise<{ message: string }>  {
         return this.authService.forgotPassword(email);
     }
 

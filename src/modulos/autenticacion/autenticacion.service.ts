@@ -76,13 +76,18 @@ export class AutenticacionService {
         };
     }
 
-    async forgotPassword(email: string): Promise<void> {
-        const user = await this.gestionUsuarios.findOneByEmail(email)
-        if (!user) {
-            throw new NotFoundException(`No user found for email: ${email}`);
+    async forgotPassword(email: string): Promise<{ message: string }> {
+        const user = await this.gestionUsuarios.findOneByEmail(email);
+        
+        if (user?.email?.trim()) {
+            await this.emailService.sendResetPasswordLink(user.email.trim());
         }
-        await this.emailService.sendResetPasswordLink(email);
+
+        return {
+            message: 'Si este correo está vinculado a una cuenta, podrás restablecer tu contraseña.'
+        };
     }
+
 
     async resetPassword(token: string, password: string): Promise<void> {
         const email = await this.emailService.decodeConfirmationToken(token);

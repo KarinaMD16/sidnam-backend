@@ -1,4 +1,4 @@
-import { Controller, Delete, Param, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { GestionUsuarioService } from './gestion-usuario.service';
 import { Roles } from '../autenticacion/decorators/roles.decorator';
 import { Rol } from 'src/common/enums/rol.enum';
@@ -15,6 +15,11 @@ export class GestionUsuarioController {
     @UseGuards(AuthGuard, RolesGuard)
     eliminarUsuario(@Param('cedula') cedula: string){
         return this.userService.eliminarUsuario(cedula);
+    }
+
+    @Get('getRoles')
+    getRoles(){
+        return this.userService.getRoles()
     }
 
 
