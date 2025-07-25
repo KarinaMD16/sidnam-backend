@@ -4,3 +4,9 @@ export enum Rol {
   NUTRICION = 'NUTRICION',
   ENFERMERIA = 'ENFERMERIA'
 }
+
+
+export enum Sexo {
+    M = 'M',
+    F = 'F',
+}
