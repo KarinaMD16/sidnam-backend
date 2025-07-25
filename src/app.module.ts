@@ -13,6 +13,8 @@ import { GestionUsuarioModule } from './modulos/gestion-usuario/gestion-usuario.
 import { Usuario } from './modulos/gestion-usuario/entities/usuario.entity';
 import { AutenticacionModule } from './modulos/autenticacion/autenticacion.module';
 import { ConfigModule } from '@nestjs/config';
+import { VoluntariosModule } from './modulos/voluntarios/voluntarios.module';
+import { Voluntarios } from './modulos/voluntarios/entities/voluntarios.entity';
 
 @Module({
   imports: [
@@ -25,14 +27,16 @@ import { ConfigModule } from '@nestjs/config';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'root',
+      password: 'Rafaeli06.',
       database: 'SIDNAMDB',
-      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario],
-      synchronize: false,
+      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, Voluntarios],
+      synchronize: true,
+      dropSchema: true,
     }),
     GaleriaModule,
     GestionUsuarioModule,
     AutenticacionModule,
+    VoluntariosModule
   ],
   controllers: [AppController],
   providers: [AppService],
