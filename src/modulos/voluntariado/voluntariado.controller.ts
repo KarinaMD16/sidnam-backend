@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { VoluntariadoService } from './voluntariado.service';
 import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
 import { SolicitudPendiente } from './entities/solicitudPendiente.entity';
@@ -18,6 +18,11 @@ export class VoluntariadoController {
     @Post('tipo-Voluntariado')
     crearTipoVoluntario(@Body() crearTipoVoluntario: TipoVoluntarioDto){
         return this.voluntariadoService.crearTipoVoluntario(crearTipoVoluntario);
+    }
+
+    @Get('getTipoVoluntario')
+    getAllTipoVoluntario(){
+        return this.voluntariadoService.getAllTipoVoluntario()
     }
 
     

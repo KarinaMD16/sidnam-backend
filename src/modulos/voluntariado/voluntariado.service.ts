@@ -52,4 +52,8 @@ export class VoluntariadoService {
         return await this.tipoVoluntariado.save(nuevoTipo);
     }
 
+    async getAllTipoVoluntario(): Promise<TipoVoluntarioDto[]>{
+        return await this.tipoVoluntariado.find()
+    }
+
 }

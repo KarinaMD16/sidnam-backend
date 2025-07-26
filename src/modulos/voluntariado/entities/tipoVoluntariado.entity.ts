@@ -10,9 +10,6 @@ export class Tipo_voluntariado{
   @Column()
   nombre: string; 
 
-  @CreateDateColumn()
-  aprobadaEn: Date;
-
   @OneToMany(() => SolicitudAprobada, solicitud => solicitud.tipoVoluntariado)
   solicitudes: SolicitudAprobada[];
 }
