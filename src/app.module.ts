@@ -38,7 +38,7 @@ import { HorarioPendiente } from './modulos/voluntariado/entities/horarioPendien
       password: 'root',
       database: 'SIDNAMDB',
       entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario],
-      synchronize: false,
+      synchronize: true,
     }),
     GaleriaModule,
     GestionUsuarioModule,
