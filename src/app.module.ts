@@ -13,8 +13,16 @@ import { GestionUsuarioModule } from './modulos/gestion-usuario/gestion-usuario.
 import { Usuario } from './modulos/gestion-usuario/entities/usuario.entity';
 import { AutenticacionModule } from './modulos/autenticacion/autenticacion.module';
 import { ConfigModule } from '@nestjs/config';
-import { VoluntariosModule } from './modulos/voluntarios/voluntarios.module';
-import { Voluntarios } from './modulos/voluntarios/entities/voluntarios.entity';
+import { VoluntariadoModule } from './modulos/voluntariado/voluntariado.module';
+import { Contacto_emergencia } from './modulos/voluntariado/entities/contactoEmergencia.entity';
+import { Horario } from './modulos/voluntariado/entities/horario.entity';
+import { SolicitudAprobada } from './modulos/voluntariado/entities/solicitudAprobada.entity';
+import { SolicitudPendiente } from './modulos/voluntariado/entities/solicitudPendiente.entity';
+import { Tipo_voluntariado } from './modulos/voluntariado/entities/tipoVoluntariado.entity';
+import { Voluntario } from './modulos/voluntariado/entities/voluntariado.entity';
+import { ContactoEmergenciaPendiente } from './modulos/voluntariado/entities/contactoEmergenciaPendiente';
+import { HorarioPendiente } from './modulos/voluntariado/entities/horarioPendiente.entity';
+
 
 @Module({
   imports: [
@@ -29,14 +37,14 @@ import { Voluntarios } from './modulos/voluntarios/entities/voluntarios.entity';
       username: 'root',
       password: 'Rafaeli06.',
       database: 'SIDNAMDB',
-      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, Voluntarios],
-      synchronize: true,
+      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente],
+      synchronize: false,
       dropSchema: true,
     }),
     GaleriaModule,
     GestionUsuarioModule,
     AutenticacionModule,
-    VoluntariosModule
+    VoluntariadoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
