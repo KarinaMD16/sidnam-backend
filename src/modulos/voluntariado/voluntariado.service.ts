@@ -5,6 +5,8 @@ import { SolicitudPendiente } from './entities/solicitudPendiente.entity';
 import { Tipo_voluntariado } from './entities/tipoVoluntariado.entity';
 import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
 import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
+import { verSolicitudPendiente } from './dto/verSolicitudPendientoDto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class VoluntariadoService {
@@ -54,6 +56,19 @@ export class VoluntariadoService {
 
     async getAllTipoVoluntario(): Promise<TipoVoluntarioDto[]>{
         return await this.tipoVoluntariado.find()
+    }
+
+    async getAllSolicitudes(): Promise<verSolicitudPendiente[]> {
+    
+        const solicitudes = await this.solicitudPendiente.find({
+            relations: ['horarios'], 
+        });
+
+        const dto = plainToInstance(verSolicitudPendiente, solicitudes, {
+            excludeExtraneousValues: true, 
+        });
+
+        return dto;
     }
 
 }
