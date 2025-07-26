@@ -25,6 +25,10 @@ export class VoluntariadoController {
         return this.voluntariadoService.getAllTipoVoluntario()
     }
 
+    @Get('getTodasSolicitudes')
+    getAllSolicitudes(){
+        return this.voluntariadoService.getAllSolicitudes()
+    }
     
     
 
