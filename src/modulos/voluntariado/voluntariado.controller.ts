@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { VoluntariadoService } from './voluntariado.service';
 import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
 import { SolicitudPendiente } from './entities/solicitudPendiente.entity';
@@ -29,7 +29,17 @@ export class VoluntariadoController {
     getAllSolicitudes(){
         return this.voluntariadoService.getAllSolicitudes()
     }
-    
-    
 
+    @Get('getPreviewSolicitudes')
+    getPreviewSolicitudes(
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    ){
+        if (page && limit) {
+            return this.voluntariadoService.findAllPreviews(page, limit);
+        }
+        return this.voluntariadoService.findAllPreviews();
+    }
+
+    
 }

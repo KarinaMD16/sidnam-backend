@@ -7,6 +7,7 @@ import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
 import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
 import { verSolicitudPendiente } from './dto/verSolicitudPendientoDto';
 import { plainToInstance } from 'class-transformer';
+import { SolicitudPreviewDto } from './dto/solicitudPreviewDto';
 
 @Injectable()
 export class VoluntariadoService {
@@ -70,5 +71,19 @@ export class VoluntariadoService {
 
         return dto;
     }
+
+    async findAllPreviews(page?: number, limit?: number): Promise<{ data: SolicitudPreviewDto[]; total: number }> {
+        const [data, total] = await this.solicitudPendiente.findAndCount({
+            skip: page && limit ? (page - 1) * limit : 0,
+            take: limit,
+            order: { id: 'DESC' },
+            select: ['id', 'nombre', 'apellido1', 'apellido2', 'creadoEn', 'estado'],
+        });
+
+        const dtos = plainToInstance(SolicitudPreviewDto, data, { excludeExtraneousValues: true });
+
+        return { data: dtos, total };
+    }
+
 
 }
