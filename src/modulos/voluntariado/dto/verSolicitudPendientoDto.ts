@@ -3,7 +3,7 @@ import { IsArray, IsOptional, ValidateNested } from 'class-validator';
 import { HorarioPendienteDto } from './horarioPendienteDto';
 import { Sexo } from 'src/common/enums/rol.enum';
 
-export class verSolicitudPendiente {
+export class verSolicitud{
   
   @Expose()
   id: number;
