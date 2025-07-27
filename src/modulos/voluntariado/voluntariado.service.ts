@@ -59,19 +59,6 @@ export class VoluntariadoService {
         return await this.tipoVoluntariado.find()
     }
 
-    async getAllSolicitudes(): Promise<verSolicitudPendiente[]> {
-    
-        const solicitudes = await this.solicitudPendiente.find({
-            relations: ['horarios'], 
-        });
-
-        const dto = plainToInstance(verSolicitudPendiente, solicitudes, {
-            excludeExtraneousValues: true, 
-        });
-
-        return dto;
-    }
-
     async findAllPreviews(page?: number, limit?: number): Promise<{ data: SolicitudPreviewDto[]; total: number }> {
         const [data, total] = await this.solicitudPendiente.findAndCount({
             skip: page && limit ? (page - 1) * limit : 0,
@@ -85,5 +72,38 @@ export class VoluntariadoService {
         return { data: dtos, total };
     }
 
+    async findSolicitudById(id: number): Promise<verSolicitudPendiente> {
+        const solicitud = await this.solicitudPendiente.findOne({
+            where: { id },
+            select: [
+            'id',
+            'cedula',
+            'nombre',
+            'apellido1',
+            'apellido2',
+            'email',
+            'telefono',
+            'ocupacion',
+            'direccion',
+            'sexo',
+            'experienciaLaboral',
+            'tipoVoluntariado',
+            'creadoEn',
+            'estado',
+            ],
+            relations: ['horarios'], 
+        });
+
+        if (!solicitud) {
+            throw new Error(`No se encontró la solicitud con id ${id}`);
+            
+        }
+
+        const dto = plainToInstance(verSolicitudPendiente, solicitud, {
+            excludeExtraneousValues: true,
+        });
+
+        return dto;
+    }
 
 }

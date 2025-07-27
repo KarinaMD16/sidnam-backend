@@ -25,11 +25,6 @@ export class VoluntariadoController {
         return this.voluntariadoService.getAllTipoVoluntario()
     }
 
-    @Get('getTodasSolicitudes')
-    getAllSolicitudes(){
-        return this.voluntariadoService.getAllSolicitudes()
-    }
-
     @Get('getPreviewSolicitudes')
     getPreviewSolicitudes(
         @Query('page', new ParseIntPipe({ optional: true })) page?: number,
@@ -40,6 +35,11 @@ export class VoluntariadoController {
         }
         return this.voluntariadoService.findAllPreviews();
     }
+
+    @Get('getSolicitudById/:id')
+    getSolicitudesById(@Param('id') id: number){
+        return this.voluntariadoService.findSolicitudById(id);
+    }   
 
     
 }

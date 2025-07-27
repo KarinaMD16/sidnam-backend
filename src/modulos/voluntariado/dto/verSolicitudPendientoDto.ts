@@ -59,7 +59,7 @@ export class verSolicitudPendiente {
     const anio = fecha.getFullYear();
     return `${dia}/${mes}/${anio}`;
   })
-  creadoEn: Date;
+  creadoEn: string;
 
   @Expose()
   estado: 'pendiente' | 'aprobada' | 'rechazada';
