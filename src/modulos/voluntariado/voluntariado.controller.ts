@@ -41,5 +41,16 @@ export class VoluntariadoController {
         return this.voluntariadoService.findSolicitudById(id);
     }   
 
+    @Get('getEstadoSolicitud')
+    getEstadosSolicitd(){
+        return this.voluntariadoService.getEstadosSolicitud()
+    }
+
+    @Get('getFiltoSolicitudes/:id')
+    getFiltro(@Param('id', ParseIntPipe) id: number){
+        return this.voluntariadoService.getFiltosEstados(id)
+    }
+
+
     
 }

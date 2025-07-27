@@ -5,10 +5,13 @@ import { SolicitudPendiente } from './entities/solicitudPendiente.entity';
 import { Tipo_voluntariado } from './entities/tipoVoluntariado.entity';
 import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
 import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
-import { verSolicitudPendiente } from './dto/verSolicitudPendientoDto';
 import { plainToInstance } from 'class-transformer';
 import { SolicitudPreviewDto } from './dto/solicitudPreviewDto';
 import { VoluntariadoGateway } from './voluntariado.gateway';
+import { verSolicitud } from './dto/verSolicitudPendientoDto';
+import { EstadoSolicitud } from 'src/common/enums/estadosSolicitudes.enum';
+import { EstadoMap } from 'src/common/constants/estado.constant';
+
 
 @Injectable()
 export class VoluntariadoService {
@@ -80,7 +83,7 @@ export class VoluntariadoService {
         return { data: dtos, total };
     }
 
-    async findSolicitudById(id: number): Promise<verSolicitudPendiente> {
+    async findSolicitudById(id: number): Promise<verSolicitud> {
         const solicitud = await this.solicitudPendiente.findOne({
             where: { id },
             select: [
@@ -103,15 +106,43 @@ export class VoluntariadoService {
         });
 
         if (!solicitud) {
-            throw new Error(`No se encontró la solicitud con id ${id}`);
+            throw new NotFoundException(`No se encontró la solicitud con id ${id}`);
             
         }
 
-        const dto = plainToInstance(verSolicitudPendiente, solicitud, {
+        const dto = plainToInstance(verSolicitud, solicitud, {
             excludeExtraneousValues: true,
         });
 
         return dto;
+    }
+
+    async getEstadosSolicitud() {
+
+        const estados = Object.entries(EstadoSolicitud)
+        .filter(([key, value]) => typeof value === 'number') 
+        .map(([key, value]) => ({
+            id: value as number,
+            nombre: key,
+        }));
+
+        return estados;
+    }
+
+    async getFiltosEstados(id: number){
+
+        const estadoNombre = Object.values(EstadoSolicitud).filter(v => typeof v === 'number') as number[];
+
+        if (!estadoNombre.includes(id)) {
+            throw new NotFoundException('Estado no existente');
+        }
+
+        const estado = EstadoMap[id]
+
+        return await this.solicitudPendiente.find({
+            where: {estado},
+            select: ['id', 'nombre', 'apellido1', 'apellido2', 'creadoEn', 'estado'],
+        })
     }
 
 }
