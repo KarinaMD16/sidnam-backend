@@ -1,4 +1,4 @@
-import { Expose, Type } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import { IsArray, IsOptional, ValidateNested } from 'class-validator';
 import { HorarioPendienteDto } from './horarioPendienteDto';
 import { Sexo } from 'src/common/enums/rol.enum';
@@ -47,4 +47,22 @@ export class verSolicitudPendiente {
   @Type(() => HorarioPendienteDto)
   @Expose()
   horarios?: HorarioPendienteDto[];
+
+  @Expose()
+  @Transform(({ value }) => {
+    if (!value) return value;
+    // value es un objeto Date
+    const fecha = new Date(value);
+    // Formato: dd/mm/yyyy
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const anio = fecha.getFullYear();
+    return `${dia}/${mes}/${anio}`;
+  })
+  creadoEn: Date;
+
+  @Expose()
+  estado: 'pendiente' | 'aprobada' | 'rechazada';
+
+
 }
