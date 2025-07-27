@@ -10,11 +10,12 @@ import { Tipo_voluntariado } from './entities/tipoVoluntariado.entity';
 import { Voluntario } from './entities/voluntariado.entity';
 import { ContactoEmergenciaPendiente } from './entities/contactoEmergenciaPendiente';
 import { HorarioPendiente } from './entities/horarioPendiente.entity';
+import { VoluntariadoGateway } from './voluntariado.gateway';
 
 
 @Module({
   imports: [TypeOrmModule.forFeature([Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario])],
-  providers: [VoluntariadoService],
+  providers: [VoluntariadoService, VoluntariadoGateway],
   controllers: [VoluntariadoController]
 })
 export class VoluntariadoModule {}

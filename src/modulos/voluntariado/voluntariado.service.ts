@@ -8,6 +8,7 @@ import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
 import { verSolicitudPendiente } from './dto/verSolicitudPendientoDto';
 import { plainToInstance } from 'class-transformer';
 import { SolicitudPreviewDto } from './dto/solicitudPreviewDto';
+import { VoluntariadoGateway } from './voluntariado.gateway';
 
 @Injectable()
 export class VoluntariadoService {
@@ -17,7 +18,9 @@ export class VoluntariadoService {
         private readonly solicitudPendiente: Repository<SolicitudPendiente>,
 
         @InjectRepository(Tipo_voluntariado)
-        private readonly tipoVoluntariado: Repository<Tipo_voluntariado>
+        private readonly tipoVoluntariado: Repository<Tipo_voluntariado>,
+
+        private readonly voluntariadoGateway: VoluntariadoGateway,
     ){}
 
 
@@ -47,7 +50,12 @@ export class VoluntariadoService {
             horarios: solicitud.horarios ?? [],
         })
 
-         return await this.solicitudPendiente.save(crearSolicitud);
+         const solicitudPentiende = await this.solicitudPendiente.save(crearSolicitud);
+
+         const total = await this.solicitudPendiente.count({where: {estado: 'pendiente'}})
+         this.voluntariadoGateway.emitSolicitudesPendientesCount(total)
+
+         return solicitudPentiende
     }
 
     async crearTipoVoluntario(tipoDto: TipoVoluntarioDto): Promise<Tipo_voluntariado>{
