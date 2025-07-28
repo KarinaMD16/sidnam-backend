@@ -133,20 +133,28 @@ export class VoluntariadoService {
         return estados;
     }
 
-    async getFiltosEstados(id: number){
-
+    async getFiltosEstados(id: number, page?: number, limit?: number): Promise<{ data: SolicitudPreviewDto[]; total: number }> {
         const estadoNombre = Object.values(EstadoSolicitud).filter(v => typeof v === 'number') as number[];
 
         if (!estadoNombre.includes(id)) {
             throw new NotFoundException('Estado no existente');
         }
 
-        const estado = EstadoMap[id]
+        const estado = EstadoMap[id];
 
-        return await this.solicitudPendiente.find({
-            where: {estado},
+        const [data, total] = await this.solicitudPendiente.findAndCount({
+            where: { estado },
+            skip: page && limit ? (page - 1) * limit : 0,
+            take: limit,
+            order: { id: 'DESC' },
             select: ['id', 'nombre', 'apellido1', 'apellido2', 'creadoEn', 'estado'],
-        })
+        });
+
+        const dtos = plainToInstance(SolicitudPreviewDto, data, {
+            excludeExtraneousValues: true,
+        });
+
+        return { data: dtos, total };
     }
 
     async updateEstadoSolicitudes(idEstado: number, idSolicitud: number): Promise<SolicitudPendiente> {

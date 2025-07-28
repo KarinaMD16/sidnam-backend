@@ -46,8 +46,15 @@ export class VoluntariadoController {
     }
 
     @Get('getFiltoSolicitudes/:id')
-    getFiltro(@Param('id', ParseIntPipe) id: number){
-        return this.voluntariadoService.getFiltosEstados(id)
+    getFiltro(
+        @Param('id', ParseIntPipe) id: number,
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number, 
+    ){
+         if (page && limit) {
+             return this.voluntariadoService.getFiltosEstados(id, page, limit)
+        }
+         return this.voluntariadoService.getFiltosEstados(id)
     }
 
     @Patch('updateEstado/:idEstado/:idSoli')
