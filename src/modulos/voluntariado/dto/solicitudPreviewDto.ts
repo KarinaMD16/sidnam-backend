@@ -14,6 +14,7 @@ export class SolicitudPreviewDto {
   apellido2: string;
 
   @Expose()
+  @Transform(({ value }) => value.charAt(0).toUpperCase() + value.slice(1).toLowerCase())
   estado: string;
 
   @Expose()
