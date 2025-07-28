@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { SolicitudPendiente } from './entities/solicitudPendiente.entity';
@@ -181,6 +181,14 @@ export class VoluntariadoService {
             throw new NotFoundException(`Solicitud con id ${idSolicitud} no encontrada`);
         }
 
+        if(solicitud.estado == 'aprobada'){
+            throw new BadRequestException('Esta solicitud ya ha sido aprobada');
+        }
+
+        if(solicitud.estado == 'rechazada'){
+            throw new BadRequestException('Esta solicitud ya ha sido rechazada');
+        }
+
         const usuario = await this.gestionUsuario.findOneById(idUsuario)
 
         solicitud.estado = estado;
@@ -188,10 +196,12 @@ export class VoluntariadoService {
 
         if (estado === 'aprobada') {
             await this.crearSolicitudOficial(solicitud, usuario);
+            return {message: 'Esta solicitud ha sido aceptada'};
         }
 
         if (estado == 'rechazada') {
             await this.emailService.sendSolicitudRechazadaEmail(solicitud.email, solicitud.nombre)
+            return {message: 'Esta solicitud ha sido rechazada'};
         }
 
         const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
