@@ -19,7 +19,7 @@ export class AutenticacionService {
         private readonly emailService: EmailService
     ){}
 
-    async crearUsuario({cedula, email, password}: RegisterDto, rol: string){
+    async crearUsuario({cedula, email, name, password}: RegisterDto, rol: string){
 
         const rolValido = Object.values(Rol).includes(rol as Rol);
         if (!rolValido) {
@@ -43,6 +43,7 @@ export class AutenticacionService {
         await this.gestionUsuarios.createUsuario({
             cedula,
             email,
+            name,
             password: hashedPassword,
             role: rol as Rol
         });
@@ -66,7 +67,7 @@ export class AutenticacionService {
             throw new UnauthorizedException("Contraseña invalida");
         }
 
-        const payload = { id: user.id, email: user.email, role: user.role};
+        const payload = { id: user.id, email: user.email, role: user.role,  name: user.name};
 
         const token = await this.jwtService.signAsync(payload);
 
