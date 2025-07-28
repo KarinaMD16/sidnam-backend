@@ -13,14 +13,16 @@ import { GestionUsuarioModule } from './modulos/gestion-usuario/gestion-usuario.
 import { Usuario } from './modulos/gestion-usuario/entities/usuario.entity';
 import { AutenticacionModule } from './modulos/autenticacion/autenticacion.module';
 import { ConfigModule } from '@nestjs/config';
-import { reporteDonacion } from './modulos/reporte-donacion/entities/reporte-donacion.entity';
-import { reporteDonacionModule } from './modulos/reporte-donacion/reporte-donacion.module';
-import { tipoDonacion } from './modulos/tipo-donacion/entities/tipo-donacion.entity';
-import { tipoDonacionModule } from './modulos/tipo-donacion/tipo-donacion.module';
-import { ReporteVoluntario } from './modulos/reporte-voluntario/entities/reporte-voluntario.entity';
-import { reporteVoluntarioModule } from './modulos/reporte-voluntario/reporte-voluntario.module';
-import { tipoVoluntarioModule } from './modulos/tipo-voluntario/tipo-voluntario.module';
-import { tipoVoluntario } from './modulos/tipo-voluntario/entities/tipo-voluntario.entity';
+import { VoluntariadoModule } from './modulos/voluntariado/voluntariado.module';
+import { Contacto_emergencia } from './modulos/voluntariado/entities/contactoEmergencia.entity';
+import { Horario } from './modulos/voluntariado/entities/horario.entity';
+import { SolicitudAprobada } from './modulos/voluntariado/entities/solicitudAprobada.entity';
+import { SolicitudPendiente } from './modulos/voluntariado/entities/solicitudPendiente.entity';
+import { Tipo_voluntariado } from './modulos/voluntariado/entities/tipoVoluntariado.entity';
+import { Voluntario } from './modulos/voluntariado/entities/voluntariado.entity';
+import { ContactoEmergenciaPendiente } from './modulos/voluntariado/entities/contactoEmergenciaPendiente';
+import { HorarioPendiente } from './modulos/voluntariado/entities/horarioPendiente.entity';
+
 
 @Module({
   imports: [
@@ -35,19 +37,13 @@ import { tipoVoluntario } from './modulos/tipo-voluntario/entities/tipo-voluntar
       username: 'root',
       password: 'Adbf101123',
       database: 'SIDNAMDB',
-      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, reporteDonacion, tipoDonacion, ReporteVoluntario, tipoVoluntario,],
-      synchronize: true,
-      dropSchema: true,
-
+      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario],
+      synchronize: false,
     }),
     GaleriaModule,
     GestionUsuarioModule,
     AutenticacionModule,
-    reporteDonacionModule,
-    tipoDonacionModule,
-    reporteVoluntarioModule,
-    tipoVoluntarioModule,
-    
+    VoluntariadoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

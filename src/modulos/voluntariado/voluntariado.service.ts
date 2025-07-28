@@ -1,0 +1,117 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { SolicitudPendiente } from './entities/solicitudPendiente.entity';
+import { Tipo_voluntariado } from './entities/tipoVoluntariado.entity';
+import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
+import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
+import { verSolicitudPendiente } from './dto/verSolicitudPendientoDto';
+import { plainToInstance } from 'class-transformer';
+import { SolicitudPreviewDto } from './dto/solicitudPreviewDto';
+import { VoluntariadoGateway } from './voluntariado.gateway';
+
+@Injectable()
+export class VoluntariadoService {
+
+    constructor(
+        @InjectRepository(SolicitudPendiente)
+        private readonly solicitudPendiente: Repository<SolicitudPendiente>,
+
+        @InjectRepository(Tipo_voluntariado)
+        private readonly tipoVoluntariado: Repository<Tipo_voluntariado>,
+
+        private readonly voluntariadoGateway: VoluntariadoGateway,
+    ){}
+
+
+    async crearSolicitudPendiente(solicitud: CrearSolicitudPendienteDto): Promise<SolicitudPendiente>{
+
+        const voluntariado = await this.tipoVoluntariado.findOne({
+            where: {id: solicitud.tipoVoluntariado},
+        });
+
+        if(!voluntariado){
+            throw new NotFoundException(`Tipo de voluntariado con id ${solicitud.tipoVoluntariado} no encontrado`);
+        }
+
+        const crearSolicitud = this.solicitudPendiente.create({
+            cedula: solicitud.cedula,
+            nombre: solicitud.nombre,
+            apellido1: solicitud.apellido1,
+            apellido2: solicitud.apellido2,
+            email: solicitud.email,
+            telefono: solicitud.telefono,
+            ocupacion: solicitud.ocupacion,
+            direccion: solicitud.direccion,
+            sexo: solicitud.sexo,
+            experienciaLaboral: solicitud.experienciaLaboral,
+            tipoVoluntariado: solicitud.tipoVoluntariado, 
+            contactosEmergencia: solicitud.contactosEmergencia ?? [],
+            horarios: solicitud.horarios ?? [],
+        })
+
+         const solicitudPentiende = await this.solicitudPendiente.save(crearSolicitud);
+
+         const total = await this.solicitudPendiente.count({where: {estado: 'pendiente'}})
+         this.voluntariadoGateway.emitSolicitudesPendientesCount(total)
+
+         return solicitudPentiende
+    }
+
+    async crearTipoVoluntario(tipoDto: TipoVoluntarioDto): Promise<Tipo_voluntariado>{
+        const nuevoTipo = this.tipoVoluntariado.create(tipoDto);
+        return await this.tipoVoluntariado.save(nuevoTipo);
+    }
+
+    async getAllTipoVoluntario(): Promise<TipoVoluntarioDto[]>{
+        return await this.tipoVoluntariado.find()
+    }
+
+    async findAllPreviews(page?: number, limit?: number): Promise<{ data: SolicitudPreviewDto[]; total: number }> {
+        const [data, total] = await this.solicitudPendiente.findAndCount({
+            skip: page && limit ? (page - 1) * limit : 0,
+            take: limit,
+            order: { id: 'DESC' },
+            select: ['id', 'nombre', 'apellido1', 'apellido2', 'creadoEn', 'estado'],
+        });
+
+        const dtos = plainToInstance(SolicitudPreviewDto, data, { excludeExtraneousValues: true });
+
+        return { data: dtos, total };
+    }
+
+    async findSolicitudById(id: number): Promise<verSolicitudPendiente> {
+        const solicitud = await this.solicitudPendiente.findOne({
+            where: { id },
+            select: [
+            'id',
+            'cedula',
+            'nombre',
+            'apellido1',
+            'apellido2',
+            'email',
+            'telefono',
+            'ocupacion',
+            'direccion',
+            'sexo',
+            'experienciaLaboral',
+            'tipoVoluntariado',
+            'creadoEn',
+            'estado',
+            ],
+            relations: ['horarios'], 
+        });
+
+        if (!solicitud) {
+            throw new Error(`No se encontró la solicitud con id ${id}`);
+            
+        }
+
+        const dto = plainToInstance(verSolicitudPendiente, solicitud, {
+            excludeExtraneousValues: true,
+        });
+
+        return dto;
+    }
+
+}
