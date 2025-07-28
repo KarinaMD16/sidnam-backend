@@ -26,6 +26,20 @@ export class GestionUsuarioService {
         return await this.usuariosRepository.findOneBy({email});
     }
 
+    async findOneById(id: number): Promise<Usuario> {
+        const usuario = await this.usuariosRepository.findOne({
+            where: { id },
+            select: ['id', 'name'], 
+        });
+
+        if (!usuario) {
+            throw new NotFoundException('El usuario no se encuentra en los registros');
+        }
+
+        return usuario;
+    }
+
+
     async eliminarUsuario(cedula: string): Promise<void>{
 
         const usuario = await this.usuariosRepository.findOneBy({cedula});

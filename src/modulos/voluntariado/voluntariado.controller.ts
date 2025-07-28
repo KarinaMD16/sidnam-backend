@@ -57,9 +57,9 @@ export class VoluntariadoController {
          return this.voluntariadoService.getFiltosEstados(id)
     }
 
-    @Patch('updateEstado/:idEstado/:idSoli')
-    updateEstado( @Param('idEstado', ParseIntPipe)  idEstado: number, @Param('idSoli', ParseIntPipe) idSoli: number){
-        return this.voluntariadoService.updateEstadoSolicitudes(idEstado, idSoli)
+    @Patch('updateEstado/:idEstado/:idSoli/:idUsuario')
+    updateEstado( @Param('idEstado', ParseIntPipe)  idEstado: number, @Param('idSoli', ParseIntPipe) idSoli: number, @Param('idUsuario', ParseIntPipe) idUsuario: number){
+        return this.voluntariadoService.updateEstadoSolicitudes(idEstado, idSoli, idUsuario)
     }
 
 }

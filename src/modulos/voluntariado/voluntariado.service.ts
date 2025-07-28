@@ -13,6 +13,9 @@ import { EstadoSolicitud } from 'src/common/enums/estadosSolicitudes.enum';
 import { EstadoMap } from 'src/common/constants/estado.constant';
 import { SolicitudAprobada } from './entities/solicitudAprobada.entity';
 import { Voluntario } from './entities/voluntariado.entity';
+import { EmailService } from '../autenticacion/email/email.service';
+import { GestionUsuarioService } from '../gestion-usuario/gestion-usuario.service';
+import { Usuario } from '../gestion-usuario/entities/usuario.entity';
 
 
 @Injectable()
@@ -28,6 +31,10 @@ export class VoluntariadoService {
         private readonly voluntariadoGateway: VoluntariadoGateway,
 
         private readonly dataSource: DataSource,
+
+        private readonly emailService: EmailService,
+
+        private readonly gestionUsuario: GestionUsuarioService
     ){}
 
 
@@ -157,7 +164,7 @@ export class VoluntariadoService {
         return { data: dtos, total };
     }
 
-    async updateEstadoSolicitudes(idEstado: number, idSolicitud: number): Promise<SolicitudPendiente> {
+    async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: number): Promise<SolicitudPendiente> {
         const estadosValidos = Object.values(EstadoSolicitud).filter(v => typeof v === 'number') as number[];
         if (!estadosValidos.includes(idEstado)) {
             throw new NotFoundException('Estado no existente');
@@ -174,11 +181,13 @@ export class VoluntariadoService {
             throw new NotFoundException(`Solicitud con id ${idSolicitud} no encontrada`);
         }
 
+        const usuario = await this.gestionUsuario.findOneById(idUsuario)
+
         solicitud.estado = estado;
         await this.solicitudPendiente.save(solicitud);
 
         if (estado === 'aprobada') {
-            await this.crearSolicitudOficial(solicitud);
+            await this.crearSolicitudOficial(solicitud, usuario);
         }
 
         const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
@@ -187,7 +196,7 @@ export class VoluntariadoService {
         return solicitud;
     }
 
-    async crearSolicitudOficial(solicitud: SolicitudPendiente): Promise<void> {
+    async crearSolicitudOficial(solicitud: SolicitudPendiente, usuario: Usuario): Promise<void> {
         await this.dataSource.transaction(async manager => {
     
             const voluntario = manager.create(Voluntario, {
@@ -218,7 +227,7 @@ export class VoluntariadoService {
             const solicitudAprobada = manager.create(SolicitudAprobada, {
             voluntario,
             tipoVoluntariado,
-            datosExtra: 'Aprobada desde panel admin',
+            datosExtra: `Aprobada por: ${usuario.name}`,
             horarios: solicitud.horarios.map(h => ({
                 dia: h.dia,
                 horaInicio: h.horaInicio,
@@ -227,5 +236,7 @@ export class VoluntariadoService {
             });
             await manager.save(solicitudAprobada);
         });
+
+        await this.emailService.sendSolicitudAceptadaEmail(solicitud.email, solicitud.nombre);
     }
 }

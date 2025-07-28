@@ -121,4 +121,23 @@
         throw new BadRequestException('Bad confirmation token');
         }
     }
+
+    public async sendSolicitudAceptadaEmail(email: string, nombre: string): Promise<void> {
+        const html = `
+            <div style="font-family: 'Poppins', Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border-radius: 20px; border: 1px solid #ddd;">
+            <h2 style="color: #22c55e;">¡Tu solicitud ha sido aceptada!</h2>
+            <p>Hola ${nombre},</p>
+            <p>Nos complace informarte que tu solicitud de voluntariado ha sido <strong>aprobada</strong>.</p>
+            <p>Las actividades se asignarán en las instalaciones.</p>
+            <p style="margin-top: 30px;">¡Gracias por unirte a nuestra comunidad de voluntariado!</p>
+            </div>
+        `;
+
+        await this.sendMail({
+            to: email,
+            subject: 'Solicitud de voluntariado aceptada',
+            html,
+        });
+    }
+
 }
