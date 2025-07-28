@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { VoluntariadoService } from './voluntariado.service';
 import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
-import { SolicitudPendiente } from './entities/solicitudPendiente.entity';
 import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
 
 @Controller('voluntariado')
@@ -51,6 +50,9 @@ export class VoluntariadoController {
         return this.voluntariadoService.getFiltosEstados(id)
     }
 
+    @Patch('updateEstado/:idEstado/:idSoli')
+    updateEstado( @Param('idEstado', ParseIntPipe)  idEstado: number, @Param('idSoli', ParseIntPipe) idSoli: number){
+        return this.voluntariadoService.updateEstadoSolicitudes(idEstado, idSoli)
+    }
 
-    
 }

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { SolicitudPendiente } from './entities/solicitudPendiente.entity';
 import { Tipo_voluntariado } from './entities/tipoVoluntariado.entity';
 import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
@@ -11,6 +11,8 @@ import { VoluntariadoGateway } from './voluntariado.gateway';
 import { verSolicitud } from './dto/verSolicitudPendientoDto';
 import { EstadoSolicitud } from 'src/common/enums/estadosSolicitudes.enum';
 import { EstadoMap } from 'src/common/constants/estado.constant';
+import { SolicitudAprobada } from './entities/solicitudAprobada.entity';
+import { Voluntario } from './entities/voluntariado.entity';
 
 
 @Injectable()
@@ -24,6 +26,8 @@ export class VoluntariadoService {
         private readonly tipoVoluntariado: Repository<Tipo_voluntariado>,
 
         private readonly voluntariadoGateway: VoluntariadoGateway,
+
+        private readonly dataSource: DataSource,
     ){}
 
 
@@ -145,4 +149,75 @@ export class VoluntariadoService {
         })
     }
 
+    async updateEstadoSolicitudes(idEstado: number, idSolicitud: number): Promise<SolicitudPendiente> {
+        const estadosValidos = Object.values(EstadoSolicitud).filter(v => typeof v === 'number') as number[];
+        if (!estadosValidos.includes(idEstado)) {
+            throw new NotFoundException('Estado no existente');
+        }
+
+        const estado = EstadoMap[idEstado];
+
+        const solicitud = await this.solicitudPendiente.findOne({
+            where: { id: idSolicitud },
+            relations: ['contactosEmergencia', 'horarios'],
+        });
+
+        if (!solicitud) {
+            throw new NotFoundException(`Solicitud con id ${idSolicitud} no encontrada`);
+        }
+
+        solicitud.estado = estado;
+        await this.solicitudPendiente.save(solicitud);
+
+        if (estado === 'aprobada') {
+            await this.crearSolicitudOficial(solicitud);
+        }
+
+        const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
+        this.voluntariadoGateway.emitSolicitudesPendientesCount(totalPendientes);
+
+        return solicitud;
+    }
+
+    async crearSolicitudOficial(solicitud: SolicitudPendiente): Promise<void> {
+        await this.dataSource.transaction(async manager => {
+    
+            const voluntario = manager.create(Voluntario, {
+            cedula: solicitud.cedula,
+            nombre: solicitud.nombre,
+            apellido1: solicitud.apellido1,
+            apellido2: solicitud.apellido2,
+            email: solicitud.email,
+            telefono: solicitud.telefono,
+            ocupacion: solicitud.ocupacion,
+            direccion: solicitud.direccion,
+            sexo: solicitud.sexo,
+            experienciaLaboral: solicitud.experienciaLaboral,
+            contactosEmergencia: solicitud.contactosEmergencia.map(c => ({
+                nombre: c.nombre,
+                telefono: c.telefono,
+            })),
+            });
+            await manager.save(voluntario);
+
+            const tipoVoluntariado = await manager.findOne(Tipo_voluntariado, {
+            where: { id: solicitud.tipoVoluntariado as unknown as number },
+            });
+            if (!tipoVoluntariado) {
+            throw new NotFoundException(`Tipo de voluntariado no encontrado`);
+            }
+
+            const solicitudAprobada = manager.create(SolicitudAprobada, {
+            voluntario,
+            tipoVoluntariado,
+            datosExtra: 'Aprobada desde panel admin',
+            horarios: solicitud.horarios.map(h => ({
+                dia: h.dia,
+                horaInicio: h.horaInicio,
+                horaFin: h.horaFin,
+            })),
+            });
+            await manager.save(solicitudAprobada);
+        });
+    }
 }
