@@ -45,7 +45,7 @@ export class VoluntariadoController {
         return this.voluntariadoService.getEstadosSolicitud()
     }
 
-    @Get('getFiltoSolicitudes/:id')
+    @Get('getFiltroSolicitudes/:id')
     getFiltro(
         @Param('id', ParseIntPipe) id: number,
         @Query('page', new ParseIntPipe({ optional: true })) page?: number,
