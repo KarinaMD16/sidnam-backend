@@ -164,7 +164,7 @@ export class VoluntariadoService {
         return { data: dtos, total };
     }
 
-    async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: number): Promise<SolicitudPendiente> {
+    async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: number): Promise<{ message: string }> {
         const estadosValidos = Object.values(EstadoSolicitud).filter(v => typeof v === 'number') as number[];
         if (!estadosValidos.includes(idEstado)) {
             throw new NotFoundException('Estado no existente');
@@ -193,7 +193,7 @@ export class VoluntariadoService {
         const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
         this.voluntariadoGateway.emitSolicitudesPendientesCount(totalPendientes);
 
-        return solicitud;
+        return {message: 'Estado actualizado correctamente'};
     }
 
     async crearSolicitudOficial(solicitud: SolicitudPendiente, usuario: Usuario): Promise<void> {
