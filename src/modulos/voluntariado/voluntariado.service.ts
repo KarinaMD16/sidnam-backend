@@ -190,6 +190,10 @@ export class VoluntariadoService {
             await this.crearSolicitudOficial(solicitud, usuario);
         }
 
+        if (estado == 'rechazada') {
+            await this.emailService.sendSolicitudRechazadaEmail(solicitud.email, solicitud.nombre)
+        }
+
         const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
         this.voluntariadoGateway.emitSolicitudesPendientesCount(totalPendientes);
 

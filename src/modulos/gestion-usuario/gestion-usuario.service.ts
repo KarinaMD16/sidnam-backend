@@ -29,7 +29,7 @@ export class GestionUsuarioService {
     async findOneById(id: number): Promise<Usuario> {
         const usuario = await this.usuariosRepository.findOne({
             where: { id },
-            select: ['id', 'name'], 
+            select: ['id', 'name', 'email'], 
         });
 
         if (!usuario) {
