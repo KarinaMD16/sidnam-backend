@@ -16,6 +16,7 @@ import { Voluntario } from './entities/voluntariado.entity';
 import { EmailService } from '../autenticacion/email/email.service';
 import { GestionUsuarioService } from '../gestion-usuario/gestion-usuario.service';
 import { Usuario } from '../gestion-usuario/entities/usuario.entity';
+import { CrearExpediente } from './dto/crearExpedienteDto';
 
 
 @Injectable()
@@ -62,6 +63,7 @@ export class VoluntariadoService {
             tipoVoluntariado: solicitud.tipoVoluntariado, 
             contactosEmergencia: solicitud.contactosEmergencia ?? [],
             horarios: solicitud.horarios ?? [],
+            observaciones: solicitud.observaciones
         })
 
          const solicitudPentiende = await this.solicitudPendiente.save(crearSolicitud);
@@ -70,6 +72,70 @@ export class VoluntariadoService {
          this.voluntariadoGateway.emitSolicitudesPendientesCount(total)
 
          return solicitudPentiende
+    }
+
+    async crearExpediente(solicitud: CrearExpediente, idUsuario: number): Promise<{message: string}>{
+
+         const voluntariado = await this.tipoVoluntariado.findOne({
+            where: {id: solicitud.tipoVoluntariado},
+        });
+
+        if(!voluntariado){
+            throw new NotFoundException(`Tipo de voluntariado con id ${solicitud.tipoVoluntariado} no encontrado`);
+        }
+
+        const usuario = await this.gestionUsuario.findOneById(idUsuario)
+
+        await this.dataSource.transaction(async manager => {
+    
+            if (!solicitud.contactosEmergencia) {
+                throw new BadRequestException('Los contactos de emergencia son requeridos');
+            }
+
+           if(!solicitud.horarios){
+                throw new BadRequestException('Los horarios son requeridos')
+           }
+
+            const voluntario = manager.create(Voluntario, {
+            cedula: solicitud.cedula,
+            nombre: solicitud.nombre,
+            apellido1: solicitud.apellido1,
+            apellido2: solicitud.apellido2,
+            email: solicitud.email,
+            telefono: solicitud.telefono,
+            ocupacion: solicitud.ocupacion,
+            direccion: solicitud.direccion,
+            sexo: solicitud.sexo,
+            experienciaLaboral: solicitud.experienciaLaboral,
+            contactosEmergencia: solicitud.contactosEmergencia.map(c => ({
+                nombre: c.nombre,
+                telefono: c.telefono,
+            })),
+            });
+            await manager.save(voluntario);
+
+            const tipoVoluntariado = await manager.findOne(Tipo_voluntariado, {
+            where: { id: solicitud.tipoVoluntariado as unknown as number },
+            });
+            if (!tipoVoluntariado) {
+            throw new NotFoundException(`Tipo de voluntariado no encontrado`);
+            }
+
+            const solicitudAprobada = manager.create(SolicitudAprobada, {
+            voluntario,
+            tipoVoluntariado,
+            datosExtra: `Creado por: ${usuario.name}`,
+            observaciones: solicitud.observaciones,
+            horarios: solicitud.horarios.map(h => ({
+                dia: h.dia,
+                horaInicio: h.horaInicio,
+                horaFin: h.horaFin,
+            })),
+            });
+            await manager.save(solicitudAprobada);
+        });
+
+        return {message: 'Expediente creado correctamente'}
     }
 
     async crearTipoVoluntario(tipoDto: TipoVoluntarioDto): Promise<Tipo_voluntariado>{
@@ -112,6 +178,7 @@ export class VoluntariadoService {
             'tipoVoluntariado',
             'creadoEn',
             'estado',
+            'observaciones',
             ],
             relations: ['horarios'], 
         });
@@ -242,6 +309,7 @@ export class VoluntariadoService {
             voluntario,
             tipoVoluntariado,
             datosExtra: `Aprobada por: ${usuario.name}`,
+            observaciones: solicitud.observaciones,
             horarios: solicitud.horarios.map(h => ({
                 dia: h.dia,
                 horaInicio: h.horaInicio,
