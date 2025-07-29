@@ -64,5 +64,6 @@ export class verSolicitud{
   @Expose()
   estado: 'pendiente' | 'aprobada' | 'rechazada';
 
-
+  @Expose()
+  observaciones: string
 }

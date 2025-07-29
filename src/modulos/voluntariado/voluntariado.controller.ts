@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '
 import { VoluntariadoService } from './voluntariado.service';
 import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
 import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
+import { CrearExpediente } from './dto/crearExpedienteDto';
 
 @Controller('voluntariado')
 export class VoluntariadoController {
@@ -12,6 +13,11 @@ export class VoluntariadoController {
     @Post('crearSolicitudPendiente')
     crearSolicitudPendiente(@Body() SolicitudPendiente: CrearSolicitudPendienteDto){
         return this.voluntariadoService.crearSolicitudPendiente(SolicitudPendiente)
+    }
+
+    @Post('crearExpediente/:idUsuario')
+    crearExpediente(@Body() crearExp: CrearExpediente, @Param('idUsuario', ParseIntPipe) idUsuario: number){
+        return this.voluntariadoService.crearExpediente(crearExp, idUsuario)
     }
 
     @Post('tipo-Voluntariado')
