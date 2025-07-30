@@ -18,6 +18,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
   ],
   providers: [AutenticacionService, EmailService],
-  controllers: [AutenticacionController]
+  controllers: [AutenticacionController],
+  exports: [EmailService]
 })
 export class AutenticacionModule {}

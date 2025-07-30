@@ -12,6 +12,9 @@ export class SolicitudAprobada {
   @Column()
   datosExtra?: string; 
 
+  @Column()
+  observaciones: string;
+
   @CreateDateColumn()
   aprobadaEn: Date;
 

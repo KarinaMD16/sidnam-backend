@@ -4,7 +4,7 @@ import { Sexo } from "src/common/enums/rol.enum";
 import { ContactoEmergenciaPendienteDto } from "./ContactoEmergenciaPendienteDto";
 import { HorarioPendienteDto } from "./horarioPendienteDto";
 
-export class CrearSolicitudPendienteDto {
+export class CrearExpediente{
   @IsString()
   @IsNotEmpty()
   cedula: string;

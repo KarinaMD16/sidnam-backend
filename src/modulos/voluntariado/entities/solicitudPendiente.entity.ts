@@ -54,4 +54,7 @@ export class SolicitudPendiente {
   @OneToMany(() => HorarioPendiente, horario => horario.solicitudPendiente, { cascade: true })
   horarios: HorarioPendiente[];
 
+  @Column()
+  observaciones: string;
+
 }
