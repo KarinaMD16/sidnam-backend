@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PublicacionDonacion } from './entities/publicacionDonacion';
+import { Donacion } from './entities/donacion.entity';
 import { Repository } from 'typeorm';
 import { Eventos } from './entities/eventos.entity';
 import { Proyectos } from './entities/proyectos.entity';
@@ -15,8 +15,8 @@ import { updateEventosDto } from './dto/updateEventosDto';
 export class PublicacionesService {
 
     constructor(
-        @InjectRepository(PublicacionDonacion)
-        private donacionesRepository: Repository<PublicacionDonacion>,
+        @InjectRepository(Donacion)
+        private donacionesRepository: Repository<Donacion>,
 
         @InjectRepository(Eventos)
         private eventosRepository: Repository<Eventos>,
@@ -66,12 +66,12 @@ export class PublicacionesService {
 
     //Donaciones
 
-    async createPublicacionDonaciones(createDonaciones: DonacionDto): Promise<PublicacionDonacion> {
+    async createDoanciones(createDonaciones: DonacionDto): Promise<Donacion> {
         const nuevaDonacion = this.donacionesRepository.create(createDonaciones);
         return await this.donacionesRepository.save(nuevaDonacion);
     }
 
-   async updatePublicacionDonacion(id: number, updateDonacion: updateProyectoDto): Promise<PublicacionDonacion> {
+   async updateDonacion(id: number, updateDonacion: updateProyectoDto): Promise<Donacion> {
         await this.donacionesRepository.update(id, updateDonacion);
 
         const donacionActualizada = await this.donacionesRepository.findOneBy({ id });
@@ -82,11 +82,11 @@ export class PublicacionesService {
         return donacionActualizada;
     }
 
-    async removePublicacionDonacion(id: number): Promise<void> {
+    async removeDonacion(id: number): Promise<void> {
         await this.donacionesRepository.delete(id);
     }
 
-    async findAllPublicacionDonacion(page?: number, limit?: number): Promise<{ data: PublicacionDonacion[]; total: number }> {
+    async findAllDonacion(page?: number, limit?: number): Promise<{ data: Donacion[]; total: number }> {
 
         if (!page || !limit) throw new Error('Los parámetros page y limit son requeridos');
 

@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PublicacionesModule } from './modulos/publicaciones/publicaciones.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PublicacionDonacion } from './modulos/publicaciones/entities/publicacionDonacion';
+import { Donacion } from './modulos/publicaciones/entities/donacion.entity';
 import { Eventos } from './modulos/publicaciones/entities/eventos.entity';
 import { Proyectos } from './modulos/publicaciones/entities/proyectos.entity';
 import { GaleriaModule } from './modulos/galeria/galeria.module';
@@ -22,11 +22,6 @@ import { Tipo_voluntariado } from './modulos/voluntariado/entities/tipoVoluntari
 import { Voluntario } from './modulos/voluntariado/entities/voluntariado.entity';
 import { ContactoEmergenciaPendiente } from './modulos/voluntariado/entities/contactoEmergenciaPendiente';
 import { HorarioPendiente } from './modulos/voluntariado/entities/horarioPendiente.entity';
-import { RegistroDonacion } from './modulos/solicitud-donacion/entities/registroDonacion.entity';
-import { Solicitud_pendiente } from './modulos/solicitud-donacion/entities/solicitudPendiente.entity';
-import { Donacion } from './modulos/solicitud-donacion/entities/donacion.entity';
-import { Tipo_donacion } from './modulos/solicitud-donacion/entities/tipoDonacion.entity';
-import { SolicitudDonacionModule } from './modulos/solicitud-donacion/solicitudDonacion.module';
 
 
 @Module({
@@ -42,14 +37,13 @@ import { SolicitudDonacionModule } from './modulos/solicitud-donacion/solicitudD
       username: 'root',
       password: 'root',
       database: 'SIDNAMDB',
-      entities: [PublicacionDonacion, Eventos, Proyectos, Galeria, Categoria, Usuario, Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario, RegistroDonacion, Solicitud_pendiente, Donacion, Tipo_donacion],
+      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario],
       synchronize: false,
     }),
     GaleriaModule,
     GestionUsuarioModule,
     AutenticacionModule,
     VoluntariadoModule,
-    SolicitudDonacionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
