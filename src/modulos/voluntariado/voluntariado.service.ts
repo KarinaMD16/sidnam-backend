@@ -400,6 +400,8 @@ export class VoluntariadoService {
 
             horarios: expediente.horarios,
 
+            actividades: expediente.actividades,
+
             tipoVoluntariado: expediente.tipoVoluntariado
         }
     }
