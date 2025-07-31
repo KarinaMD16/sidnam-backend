@@ -22,6 +22,7 @@ import { Tipo_voluntariado } from './modulos/voluntariado/entities/tipoVoluntari
 import { Voluntario } from './modulos/voluntariado/entities/voluntariado.entity';
 import { ContactoEmergenciaPendiente } from './modulos/voluntariado/entities/contactoEmergenciaPendiente';
 import { HorarioPendiente } from './modulos/voluntariado/entities/horarioPendiente.entity';
+import { Actividades } from './modulos/voluntariado/entities/actividades.entity';
 
 
 @Module({
@@ -37,7 +38,7 @@ import { HorarioPendiente } from './modulos/voluntariado/entities/horarioPendien
       username: 'root',
       password: 'root',
       database: 'SIDNAMDB',
-      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario],
+      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario, Actividades],
       synchronize: false,
     }),
     GaleriaModule,

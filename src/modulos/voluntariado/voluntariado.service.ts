@@ -17,6 +17,8 @@ import { EmailService } from '../autenticacion/email/email.service';
 import { GestionUsuarioService } from '../gestion-usuario/gestion-usuario.service';
 import { Usuario } from '../gestion-usuario/entities/usuario.entity';
 import { CrearExpediente } from './dto/crearExpedienteDto';
+import { ExpedientePreviewDto } from './dto/expedientePreviewDto';
+import { CrearACtividadesDto } from './dto/crearActividadesDto';
 
 
 @Injectable()
@@ -28,6 +30,9 @@ export class VoluntariadoService {
 
         @InjectRepository(Tipo_voluntariado)
         private readonly tipoVoluntariado: Repository<Tipo_voluntariado>,
+
+        @InjectRepository(SolicitudAprobada)
+        private readonly solicitudAprobada: Repository<SolicitudAprobada>,
 
         private readonly voluntariadoGateway: VoluntariadoGateway,
 
@@ -320,5 +325,30 @@ export class VoluntariadoService {
         });
 
         await this.emailService.sendSolicitudAceptadaEmail(solicitud.email, solicitud.nombre);
+    }
+
+     async findAllPreviewsExpedientes(page?: number, limit?: number): Promise<{ data: ExpedientePreviewDto[]; total: number }> {
+        const [data, total] = await this.solicitudAprobada.findAndCount({
+            skip: page && limit ? (page - 1) * limit : 0,
+            take: limit,
+            order: { id: 'DESC' },
+            relations: ['voluntario'], 
+        });
+
+        const dtos = plainToInstance(ExpedientePreviewDto, data, { excludeExtraneousValues: true });
+
+        return { data: dtos, total };
+    }
+
+    async createActividades(actividades: CrearACtividadesDto, idExpediente: number): Promise<{message: string}>{
+
+        const expediente = await this.solicitudAprobada.findOne({
+            where: {id: idExpediente},
+        })
+
+
+
+
+        return {message: 'Actividad agregada correctamente'}
     }
 }

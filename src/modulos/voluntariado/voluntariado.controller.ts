@@ -68,4 +68,15 @@ export class VoluntariadoController {
         return this.voluntariadoService.updateEstadoSolicitudes(idEstado, idSoli, idUsuario)
     }
 
+    @Get('getPreviewExpedientes')
+    getPreviewExpedientes(
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    ){
+        if (page && limit) {
+            return this.voluntariadoService.findAllPreviewsExpedientes(page, limit);
+        }
+        return this.voluntariadoService.findAllPreviewsExpedientes();
+    }
+
 }

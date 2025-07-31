@@ -13,11 +13,12 @@ import { HorarioPendiente } from './entities/horarioPendiente.entity';
 import { VoluntariadoGateway } from './voluntariado.gateway';
 import { AutenticacionModule } from '../autenticacion/autenticacion.module';
 import { GestionUsuarioModule } from '../gestion-usuario/gestion-usuario.module';
+import { Actividades } from './entities/actividades.entity';
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario]),
+    TypeOrmModule.forFeature([Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario, Actividades]),
   AutenticacionModule,
   GestionUsuarioModule],
   providers: [VoluntariadoService, VoluntariadoGateway],
