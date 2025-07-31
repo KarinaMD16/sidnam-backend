@@ -20,6 +20,7 @@ import { CrearExpediente } from './dto/crearExpedienteDto';
 import { ExpedientePreviewDto } from './dto/expedientePreviewDto';
 import { CrearACtividadesDto } from './dto/crearActividadesDto';
 import { Actividades } from './entities/actividades.entity';
+import { ExpedienteAprobadoDto } from './dto/expedienteDto';
 
 
 @Injectable()
@@ -189,7 +190,7 @@ export class VoluntariadoService {
             'estado',
             'observaciones',
             ],
-            relations: ['horarios'], 
+            relations: ['horarios', 'contactosEmergencia']
         });
 
         if (!solicitud) {
@@ -365,45 +366,27 @@ export class VoluntariadoService {
         return { message: 'Actividad agregada correctamente' };
     }
 
-    async getByIdExpediente(id: number){
-
+    async getByIdExpediente(id: number): Promise<ExpedienteAprobadoDto> {
         const expediente = await this.solicitudAprobada.findOne({
-            where: {id},
-            relations: ['voluntario', 'voluntario.contactosEmergencia', 'horarios', 'actividades', 'tipoVoluntariado']
+            where: { id },
+            relations: [
+            'voluntario',
+            'voluntario.contactosEmergencia',
+            'horarios',
+            'actividades',
+            'tipoVoluntariado'
+            ]
         });
 
-        if(!expediente){
+        if (!expediente) {
             throw new NotFoundException('Solicitud aprobada no encontrada');
         }
 
-        return {
+        const dto = plainToInstance(ExpedienteAprobadoDto, expediente, {
+            excludeExtraneousValues: true,
+        });
 
-            id: expediente.id,
-            datosExtra: expediente.datosExtra,
-            observaciones: expediente.observaciones,
-
-            voluntario: {
-                id: expediente.voluntario.id,
-                cedula: expediente.voluntario.cedula,
-                nombre: expediente.voluntario.nombre,
-                apellido1: expediente.voluntario.apellido1,
-                apellido2: expediente.voluntario.apellido2,
-                email: expediente.voluntario.email,
-                telefono: expediente.voluntario.telefono,
-                ocupacion: expediente.voluntario.ocupacion,
-                direccion: expediente.voluntario.direccion,
-                sexo: expediente.voluntario.sexo,
-                experienciaLaboral: expediente.voluntario.experienciaLaboral,
-                creadoEn: expediente.voluntario.creadoEn,
-                contactosEmergencia: expediente.voluntario.contactosEmergencia,
-            },
-
-            horarios: expediente.horarios,
-
-            actividades: expediente.actividades,
-
-            tipoVoluntariado: expediente.tipoVoluntariado
-        }
+        return dto;
     }
 
 }
