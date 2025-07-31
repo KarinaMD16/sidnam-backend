@@ -3,6 +3,7 @@ import { VoluntariadoService } from './voluntariado.service';
 import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
 import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
 import { CrearExpediente } from './dto/crearExpedienteDto';
+import { CrearACtividadesDto } from './dto/crearActividadesDto';
 
 @Controller('voluntariado')
 export class VoluntariadoController {
@@ -77,6 +78,16 @@ export class VoluntariadoController {
             return this.voluntariadoService.findAllPreviewsExpedientes(page, limit);
         }
         return this.voluntariadoService.findAllPreviewsExpedientes();
+    }
+
+    @Post('crearActividad/:idSolicitud')
+    createActividad(@Body() crearActividad: CrearACtividadesDto, @Param('idSolicitud') idSolicitud: number){
+        return this.voluntariadoService.createActividades(crearActividad, idSolicitud);
+    }
+
+    @Get('getExpedienteById/:idExpediente')
+    getExpedienteById(@Param('idExpediente') idExpediente: number){
+        return this.voluntariadoService.getByIdExpediente(idExpediente);
     }
 
 }

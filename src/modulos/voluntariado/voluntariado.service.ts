@@ -19,6 +19,7 @@ import { Usuario } from '../gestion-usuario/entities/usuario.entity';
 import { CrearExpediente } from './dto/crearExpedienteDto';
 import { ExpedientePreviewDto } from './dto/expedientePreviewDto';
 import { CrearACtividadesDto } from './dto/crearActividadesDto';
+import { Actividades } from './entities/actividades.entity';
 
 
 @Injectable()
@@ -33,6 +34,9 @@ export class VoluntariadoService {
 
         @InjectRepository(SolicitudAprobada)
         private readonly solicitudAprobada: Repository<SolicitudAprobada>,
+
+        @InjectRepository(Actividades)
+        private readonly actividadesRepository: Repository<Actividades>,
 
         private readonly voluntariadoGateway: VoluntariadoGateway,
 
@@ -340,15 +344,64 @@ export class VoluntariadoService {
         return { data: dtos, total };
     }
 
-    async createActividades(actividades: CrearACtividadesDto, idExpediente: number): Promise<{message: string}>{
+    async createActividades(crearActividades: CrearACtividadesDto, idExpediente: number): Promise<{ message: string }> {
+        const expediente = await this.solicitudAprobada.findOne({
+            where: { id: idExpediente },
+        });
+
+        if (!expediente) {
+            throw new NotFoundException('Expediente no encontrado');
+        }
+
+        const nuevaActividad = this.actividadesRepository.create({
+            fecha: crearActividades.fecha,
+            cantidadHoras: crearActividades.cantidadHoras,
+            actividades: crearActividades.actividades,
+            solicitud: expediente,
+        });
+
+        await this.actividadesRepository.save(nuevaActividad);
+
+        return { message: 'Actividad agregada correctamente' };
+    }
+
+    async getByIdExpediente(id: number){
 
         const expediente = await this.solicitudAprobada.findOne({
-            where: {id: idExpediente},
-        })
+            where: {id},
+            relations: ['voluntario', 'voluntario.contactosEmergencia', 'horarios', 'actividades', 'tipoVoluntariado']
+        });
 
+        if(!expediente){
+            throw new NotFoundException('Solicitud aprobada no encontrada');
+        }
 
+        return {
 
+            id: expediente.id,
+            datosExtra: expediente.datosExtra,
+            observaciones: expediente.observaciones,
 
-        return {message: 'Actividad agregada correctamente'}
+            voluntario: {
+                id: expediente.voluntario.id,
+                cedula: expediente.voluntario.cedula,
+                nombre: expediente.voluntario.nombre,
+                apellido1: expediente.voluntario.apellido1,
+                apellido2: expediente.voluntario.apellido2,
+                email: expediente.voluntario.email,
+                telefono: expediente.voluntario.telefono,
+                ocupacion: expediente.voluntario.ocupacion,
+                direccion: expediente.voluntario.direccion,
+                sexo: expediente.voluntario.sexo,
+                experienciaLaboral: expediente.voluntario.experienciaLaboral,
+                creadoEn: expediente.voluntario.creadoEn,
+                contactosEmergencia: expediente.voluntario.contactosEmergencia,
+            },
+
+            horarios: expediente.horarios,
+
+            tipoVoluntariado: expediente.tipoVoluntariado
+        }
     }
+
 }
