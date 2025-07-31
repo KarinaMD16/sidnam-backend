@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Tipo_donacion } from "./tipoDonacion.entity";
-import { Donacion } from "./Donacion.entity";
+import { Donacion } from "./donacion.entity";
 
 
 @Entity()
