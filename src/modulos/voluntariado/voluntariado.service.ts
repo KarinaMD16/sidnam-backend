@@ -237,7 +237,7 @@ export class VoluntariadoService {
             throw new NotFoundException('Estado no existente');
         }
 
-        const estado = EstadoMap[idEstado];
+        const estado = EstadoMap[idEstado]; 
 
         const solicitud = await this.solicitudPendiente.findOne({
             where: { id: idSolicitud },
