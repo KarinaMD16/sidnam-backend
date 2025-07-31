@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, Jo
 import { Voluntario } from './voluntariado.entity';
 import { Tipo_voluntariado } from './tipoVoluntariado.entity';
 import { Horario } from './horario.entity';
+import { Actividades } from './actividades.entity';
 
 
 @Entity()
@@ -28,4 +29,8 @@ export class SolicitudAprobada {
 
   @OneToMany(() => Horario, horario => horario.solicitud, { cascade: true })
   horarios: Horario[];
+
+  @OneToMany(() => Actividades, acti => acti.solicitud, { cascade: true })
+  actividades: Actividades[];
+
 }
