@@ -5,7 +5,7 @@ import { updateProyectoDto } from './dto/updateProyectoDto';
 import { DonacionDto } from './dto/createDonacionDto';
 import { updateDonacionDto } from './dto/updateDonacionDto';
 import { Proyectos } from './entities/proyectos.entity';
-import { PublicacionDonacion } from './entities/publicacionDonacion';
+import { Donacion } from './entities/donacion.entity';
 import { updateEventosDto } from './dto/updateEventosDto';
 import { Eventos } from './entities/eventos.entity';
 import { EventoDto } from './dto/createEventosDto';
@@ -45,25 +45,25 @@ export class PublicacionesController {
   findAllDonacion(
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
-  ): Promise<{ data: PublicacionDonacion[]; total: number }> {
-    return this.publicacionesService.findAllPublicacionDonacion(page, limit);
+  ): Promise<{ data: Donacion[]; total: number }> {
+    return this.publicacionesService.findAllDonacion(page, limit);
   }
 
 
   @Post('createDonacion')
-  createDonaciones(@Body() donacionDto: DonacionDto): Promise<PublicacionDonacion> {
-    return this.publicacionesService.createPublicacionDonaciones(donacionDto);
+  createDonaciones(@Body() donacionDto: DonacionDto): Promise<Donacion> {
+    return this.publicacionesService.createDoanciones(donacionDto);
   }
 
   @Put('updateDonacion/:id')
   updateDonacion(@Param() id: number, @Body() updateDonacionDto: updateDonacionDto,
-  ): Promise<PublicacionDonacion> {
-    return this.publicacionesService.updatePublicacionDonacion(id, updateDonacionDto);
+  ): Promise<Donacion> {
+    return this.publicacionesService.updateDonacion(id, updateDonacionDto);
   }
 
   @Delete('removeDonacion/:id')
   removeDonacion(@Param() id: number): Promise<void> {
-    return this.publicacionesService.removePublicacionDonacion(id);
+    return this.publicacionesService.removeDonacion(id);
   }
 
    // ------ Eventos ------
