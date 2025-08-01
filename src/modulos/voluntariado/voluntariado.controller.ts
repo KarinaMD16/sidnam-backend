@@ -90,4 +90,10 @@ export class VoluntariadoController {
         return this.voluntariadoService.getByIdExpediente(idExpediente);
     }
 
+    @Get('getExpedientesByCedula/:cedula')
+    getExpedientesByCedula(
+        @Param('cedula') cedula: string,
+    ){
+        return this.voluntariadoService.getExpedienteByCedula(cedula);
+    }
 }
