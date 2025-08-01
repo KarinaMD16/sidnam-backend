@@ -21,6 +21,7 @@ import { ExpedientePreviewDto } from './dto/expedientePreviewDto';
 import { CrearACtividadesDto } from './dto/crearActividadesDto';
 import { Actividades } from './entities/actividades.entity';
 import { ExpedienteAprobadoDto } from './dto/expedienteDto';
+import { throwError } from 'rxjs';
 
 
 @Injectable()
@@ -38,6 +39,9 @@ export class VoluntariadoService {
 
         @InjectRepository(Actividades)
         private readonly actividadesRepository: Repository<Actividades>,
+
+        @InjectRepository(Voluntario)
+        private readonly voluntarioRepository: Repository<Voluntario>,
 
         private readonly voluntariadoGateway: VoluntariadoGateway,
 
@@ -389,4 +393,27 @@ export class VoluntariadoService {
         return dto;
     }
 
+   async getExpedienteByCedula(cedula: string): Promise<ExpedientePreviewDto[]> {
+        const voluntario = await this.voluntarioRepository.findOneBy({ cedula });
+
+        if (!voluntario) {
+            throw new NotFoundException('Cédula inexistente');
+        }
+
+        const expedientes = await this.solicitudAprobada.createQueryBuilder('expediente')
+            .leftJoinAndSelect('expediente.voluntario', 'voluntario')
+            .where('voluntario.cedula = :cedula', { cedula })
+            .orderBy('expediente.id', 'DESC')
+            .getMany();
+
+        if (expedientes.length === 0) {
+            throw new NotFoundException('No se encontraron expedientes para esta cédula');
+        }
+
+        const dtos = plainToInstance(ExpedientePreviewDto, expedientes, {
+            excludeExtraneousValues: true,
+        });
+
+        return dtos;
+    }
 }
