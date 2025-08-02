@@ -301,16 +301,18 @@ export class VoluntariadoService {
 
         const usuario = await this.gestionUsuario.findOneById(idUsuario)
 
-        solicitud.estado = estado;
-        await this.solicitudPendiente.save(solicitud);
 
         if (estado === 'aprobada') {
             await this.crearSolicitudOficial(solicitud, usuario);
+            solicitud.estado = estado;
+            await this.solicitudPendiente.save(solicitud);
             return {message: 'Esta solicitud ha sido aceptada'};
         }
 
         if (estado == 'rechazada') {
             await this.emailService.sendSolicitudRechazadaEmail(solicitud.email, solicitud.nombre)
+            solicitud.estado = estado;
+            await this.solicitudPendiente.save(solicitud);
             return {message: 'Esta solicitud ha sido rechazada'};
         }
 
@@ -321,8 +323,23 @@ export class VoluntariadoService {
     }
 
     async crearSolicitudOficial(solicitud: SolicitudPendiente, usuario: Usuario): Promise<void> {
+
         await this.dataSource.transaction(async manager => {
-    
+
+            const expediente = await this.solicitudAprobada.findOne({
+            where: {
+                estado: 'Activo',
+                voluntario: {
+                    cedula: solicitud.cedula
+                }
+            },
+            relations: ['voluntario']
+            });
+
+            if (expediente) {
+                throw new BadRequestException('Hay expedientes activos, no se puede aceptar la solicitud');
+            }
+        
             let voluntario = await this.voluntarioRepository.findOne({
                 where: { cedula: solicitud.cedula },
                 relations: ['contactosEmergencia'],
