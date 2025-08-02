@@ -91,8 +91,8 @@ export class VoluntariadoController {
     }
 
     @Get('getExpedientesActivosByCedula/:cedula')
-    getExpedientesByCedula(@Param('cedula') cedula: string,  @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number ){
-        return this.voluntariadoService.getExpedientesActivosByCedula(cedula, page, limit);
+    getExpedientesByCedula(@Param('cedula') cedula: string ){
+        return this.voluntariadoService.getExpedienteActivoByCedula(cedula);
     }
 
     @Patch('updateEstadoAInactivo/:idSolicitud')
