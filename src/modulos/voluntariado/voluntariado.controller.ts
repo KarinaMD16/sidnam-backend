@@ -96,4 +96,14 @@ export class VoluntariadoController {
     ){
         return this.voluntariadoService.getExpedienteByCedula(cedula);
     }
+
+    @Patch('updateEstadoAInactivo/:idSolicitud')
+    updateEstadoExpediente(@Param('idSolicitud', ParseIntPipe) idSolicitud: number){
+        return this.voluntariadoService.updateEstadoAInactivo(idSolicitud);
+    }
+
+    @Get('getExpedientesActivos')
+    getExpedientesActivos(){
+        return this.voluntariadoService.getExpedientesActivos()
+    }
 }
