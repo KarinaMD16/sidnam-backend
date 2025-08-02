@@ -1,11 +1,9 @@
 import { Expose, Transform, Type } from 'class-transformer';
-import { IsArray, IsOptional, ValidateNested } from 'class-validator';
-import { HorarioPendienteDto } from './horarioPendienteDto';
 import { Sexo } from 'src/common/enums/rol.enum';
 import { ContactoEmergenciaDto } from './verContactoEmergenciaDto';
 
-export class verSolicitud{
-  
+
+export class VoluntarioExpedienteDto {
   @Expose()
   id: number;
 
@@ -40,21 +38,9 @@ export class verSolicitud{
   experienciaLaboral?: string;
 
   @Expose()
-  tipoVoluntariado: number;
-
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => HorarioPendienteDto)
-  @Expose()
-  horarios?: HorarioPendienteDto[];
-
-  @Expose()
   @Transform(({ value }) => {
-    if (!value) return value;
-    // value es un objeto Date
+    if (!value) return null;
     const fecha = new Date(value);
-    // Formato: dd/mm/yyyy
     const dia = String(fecha.getDate()).padStart(2, '0');
     const mes = String(fecha.getMonth() + 1).padStart(2, '0');
     const anio = fecha.getFullYear();
@@ -63,14 +49,6 @@ export class verSolicitud{
   creadoEn: string;
 
   @Expose()
-  estado: 'pendiente' | 'aprobada' | 'rechazada';
-
- @IsArray()
-  @ValidateNested({ each: true })
   @Type(() => ContactoEmergenciaDto)
-  @Expose()
   contactosEmergencia: ContactoEmergenciaDto[];
-
-  @Expose()
-  observaciones: string;
 }

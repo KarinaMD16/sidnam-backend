@@ -20,10 +20,17 @@ import { SolicitudAprobada } from './modulos/voluntariado/entities/solicitudApro
 import { SolicitudPendiente } from "./modulos/voluntariado/entities/solicitudPendiente.entity";
 import { ContactoEmergenciaPendiente } from "./modulos/voluntariado/entities/contactoEmergenciaPendiente";
 import { HorarioPendiente } from "./modulos/voluntariado/entities/horarioPendiente.entity";
-
-import * as dotenv from "dotenv";
 import { Voluntario } from './modulos/voluntariado/entities/voluntariado.entity';
 import { Tipo_voluntariado } from './modulos/voluntariado/entities/tipoVoluntariado.entity';
+import { Actividades } from './modulos/voluntariado/entities/actividades.entity';
+import { SolicitudDonacionModule } from './modulos/solicitud-donacion/solicitudDonacion.module';
+import { RegistroDonacion } from './modulos/solicitud-donacion/entities/registroDonacion.entity';
+import { SolicitudDonacion } from './modulos/solicitud-donacion/entities/solicitudDonacion.entity';
+import { Solicitud_pendiente } from './modulos/solicitud-donacion/entities/solicitudPendiente.entity';
+import { Tipo_donacion } from './modulos/solicitud-donacion/entities/tipoDonacion.entity';
+import * as dotenv from "dotenv";
+
+
 dotenv.config();
 @Module({
   imports: [
@@ -52,7 +59,12 @@ dotenv.config();
         SolicitudAprobada,
         SolicitudPendiente,
         Voluntario,
-        Tipo_voluntariado
+        Tipo_voluntariado,
+        Actividades,
+        RegistroDonacion,
+        SolicitudDonacion,
+        Solicitud_pendiente,
+        Tipo_donacion
       ],
       synchronize: true,
       dropSchema: true,
@@ -61,6 +73,7 @@ dotenv.config();
     GestionUsuarioModule,
     AutenticacionModule,
     VoluntariadoModule,
+    SolicitudDonacionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -3,6 +3,7 @@ import { VoluntariadoService } from './voluntariado.service';
 import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
 import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
 import { CrearExpediente } from './dto/crearExpedienteDto';
+import { CrearACtividadesDto } from './dto/crearActividadesDto';
 
 @Controller('voluntariado')
 export class VoluntariadoController {
@@ -68,4 +69,41 @@ export class VoluntariadoController {
         return this.voluntariadoService.updateEstadoSolicitudes(idEstado, idSoli, idUsuario)
     }
 
+    @Get('getPreviewExpedientes')
+    getPreviewExpedientes(
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    ){
+        if (page && limit) {
+            return this.voluntariadoService.findAllPreviewsExpedientes(page, limit);
+        }
+        return this.voluntariadoService.findAllPreviewsExpedientes();
+    }
+
+    @Post('crearActividad/:idSolicitud')
+    createActividad(@Body() crearActividad: CrearACtividadesDto, @Param('idSolicitud') idSolicitud: number){
+        return this.voluntariadoService.createActividades(crearActividad, idSolicitud);
+    }
+
+    @Get('getExpedienteById/:idExpediente')
+    getExpedienteById(@Param('idExpediente') idExpediente: number){
+        return this.voluntariadoService.getByIdExpediente(idExpediente);
+    }
+
+    @Get('getExpedientesByCedula/:cedula')
+    getExpedientesByCedula(
+        @Param('cedula') cedula: string,
+    ){
+        return this.voluntariadoService.getExpedienteByCedula(cedula);
+    }
+
+    @Patch('updateEstadoAInactivo/:idSolicitud')
+    updateEstadoExpediente(@Param('idSolicitud', ParseIntPipe) idSolicitud: number){
+        return this.voluntariadoService.updateEstadoAInactivo(idSolicitud);
+    }
+
+    @Get('getExpedientesActivos')
+    getExpedientesActivos(){
+        return this.voluntariadoService.getExpedientesActivos()
+    }
 }
