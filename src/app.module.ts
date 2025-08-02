@@ -22,6 +22,8 @@ import { ContactoEmergenciaPendiente } from "./modulos/voluntariado/entities/con
 import { HorarioPendiente } from "./modulos/voluntariado/entities/horarioPendiente.entity";
 
 import * as dotenv from "dotenv";
+import { Voluntario } from './modulos/voluntariado/entities/voluntariado.entity';
+import { Tipo_voluntariado } from './modulos/voluntariado/entities/tipoVoluntariado.entity';
 dotenv.config();
 @Module({
   imports: [
@@ -49,6 +51,8 @@ dotenv.config();
         HorarioPendiente,
         SolicitudAprobada,
         SolicitudPendiente,
+        Voluntario,
+        Tipo_voluntariado
       ],
       synchronize: true,
       dropSchema: true,
