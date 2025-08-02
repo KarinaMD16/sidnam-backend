@@ -22,6 +22,8 @@ import { CrearACtividadesDto } from './dto/crearActividadesDto';
 import { Actividades } from './entities/actividades.entity';
 import { ExpedienteAprobadoDto } from './dto/expedienteDto';
 import { throwError } from 'rxjs';
+import { EstadoExpediente } from 'src/common/enums/estadosExpedientes.enum';
+import { VerExpedientesActivosDto } from './dto/verExpedientesActivosDto';
 
 
 @Injectable()
@@ -94,6 +96,21 @@ export class VoluntariadoService {
             where: {id: solicitud.tipoVoluntariado},
         });
 
+        const expediente = await this.solicitudAprobada.findOne({
+            where: {
+                estado: 'Activo',
+                voluntario: {
+                    cedula: solicitud.cedula
+                }
+            },
+            relations: ['voluntario']
+        });
+
+       if (expediente) {
+            return { message: 'No puedes registrar este expediente, hay expedientes activos' };
+       }
+
+
         if(!voluntariado){
             throw new NotFoundException(`Tipo de voluntariado con id ${solicitud.tipoVoluntariado} no encontrado`);
         }
@@ -101,6 +118,12 @@ export class VoluntariadoService {
         const usuario = await this.gestionUsuario.findOneById(idUsuario)
 
         await this.dataSource.transaction(async manager => {
+
+            let voluntario = await this.voluntarioRepository.findOne({
+                where: { cedula: solicitud.cedula },
+                relations: ['contactosEmergencia'],
+            });
+
     
             if (!solicitud.contactosEmergencia) {
                 throw new BadRequestException('Los contactos de emergencia son requeridos');
@@ -110,7 +133,18 @@ export class VoluntariadoService {
                 throw new BadRequestException('Los horarios son requeridos')
            }
 
-            const voluntario = manager.create(Voluntario, {
+           if(voluntario){
+                await manager.delete('Contacto_emergencia', { voluntario: voluntario.id });
+
+                const nuevosContactos = solicitud.contactosEmergencia.map(c => ({
+                    nombre: c.nombre,
+                    telefono: c.telefono,
+                    voluntario,
+                }));
+                await manager.save('Contacto_emergencia', nuevosContactos);
+           }
+           else{
+            voluntario = manager.create(Voluntario, {
             cedula: solicitud.cedula,
             nombre: solicitud.nombre,
             apellido1: solicitud.apellido1,
@@ -127,17 +161,11 @@ export class VoluntariadoService {
             })),
             });
             await manager.save(voluntario);
-
-            const tipoVoluntariado = await manager.findOne(Tipo_voluntariado, {
-            where: { id: solicitud.tipoVoluntariado as unknown as number },
-            });
-            if (!tipoVoluntariado) {
-            throw new NotFoundException(`Tipo de voluntariado no encontrado`);
-            }
+           }
 
             const solicitudAprobada = manager.create(SolicitudAprobada, {
             voluntario,
-            tipoVoluntariado,
+            tipoVoluntariado: voluntariado,
             datosExtra: `Creado por: ${usuario.name}`,
             observaciones: solicitud.observaciones,
             horarios: solicitud.horarios.map(h => ({
@@ -294,23 +322,10 @@ export class VoluntariadoService {
     async crearSolicitudOficial(solicitud: SolicitudPendiente, usuario: Usuario): Promise<void> {
         await this.dataSource.transaction(async manager => {
     
-            const voluntario = manager.create(Voluntario, {
-            cedula: solicitud.cedula,
-            nombre: solicitud.nombre,
-            apellido1: solicitud.apellido1,
-            apellido2: solicitud.apellido2,
-            email: solicitud.email,
-            telefono: solicitud.telefono,
-            ocupacion: solicitud.ocupacion,
-            direccion: solicitud.direccion,
-            sexo: solicitud.sexo,
-            experienciaLaboral: solicitud.experienciaLaboral,
-            contactosEmergencia: solicitud.contactosEmergencia.map(c => ({
-                nombre: c.nombre,
-                telefono: c.telefono,
-            })),
+            let voluntario = await this.voluntarioRepository.findOne({
+                where: { cedula: solicitud.cedula },
+                relations: ['contactosEmergencia'],
             });
-            await manager.save(voluntario);
 
             const tipoVoluntariado = await manager.findOne(Tipo_voluntariado, {
             where: { id: solicitud.tipoVoluntariado as unknown as number },
@@ -319,6 +334,36 @@ export class VoluntariadoService {
             throw new NotFoundException(`Tipo de voluntariado no encontrado`);
             }
 
+            if(voluntario){
+                await manager.delete('Contacto_emergencia', { voluntario: voluntario.id });
+
+                const nuevosContactos = solicitud.contactosEmergencia.map(c => ({
+                    nombre: c.nombre,
+                    telefono: c.telefono,
+                    voluntario,
+                }));
+                await manager.save('Contacto_emergencia', nuevosContactos);
+            }
+            else{
+                voluntario = manager.create(Voluntario, {
+                cedula: solicitud.cedula,
+                nombre: solicitud.nombre,
+                apellido1: solicitud.apellido1,
+                apellido2: solicitud.apellido2,
+                email: solicitud.email,
+                telefono: solicitud.telefono,
+                ocupacion: solicitud.ocupacion,
+                direccion: solicitud.direccion,
+                sexo: solicitud.sexo,
+                experienciaLaboral: solicitud.experienciaLaboral,
+                contactosEmergencia: solicitud.contactosEmergencia.map(c => ({
+                    nombre: c.nombre,
+                    telefono: c.telefono,
+                })),
+                });
+                await manager.save(voluntario);
+            }            
+        
             const solicitudAprobada = manager.create(SolicitudAprobada, {
             voluntario,
             tipoVoluntariado,
@@ -415,5 +460,38 @@ export class VoluntariadoService {
         });
 
         return dtos;
+    }
+
+    async updateEstadoAInactivo(idSolicitud: number): Promise<{message: string}>{
+
+        const expediente = await this.solicitudAprobada.findOne({
+            where: {id: idSolicitud}
+        })
+
+        if(!expediente){
+            throw new NotFoundException('Expediente no encontrado');
+        }
+
+        expediente.estado = EstadoExpediente.Inactivo
+
+        await this.solicitudAprobada.save(expediente);
+
+        return {message: 'El expediente se ha inactivado con exito'}
+    }
+
+    async getExpedientesActivos(): Promise<VerExpedientesActivosDto[]>{
+
+
+        const expediente = await this.solicitudAprobada.find({
+            where: {estado: EstadoExpediente.Activo},
+            select: ['id'],
+            relations: ['voluntario']
+        })
+
+        const dto = plainToInstance(VerExpedientesActivosDto, expediente, {
+            excludeExtraneousValues: true,
+        });
+
+        return dto;
     }
 }

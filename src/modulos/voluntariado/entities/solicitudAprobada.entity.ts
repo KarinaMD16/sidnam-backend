@@ -16,6 +16,9 @@ export class SolicitudAprobada {
   @Column()
   observaciones: string;
 
+  @Column({ default: 'Activo' })
+  estado: 'Activo' | 'Inactivo';
+
   @CreateDateColumn()
   aprobadaEn: Date;
 
