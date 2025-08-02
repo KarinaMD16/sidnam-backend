@@ -438,20 +438,22 @@ export class VoluntariadoService {
         return dto;
     }
 
-   async getExpedienteByCedula(cedula: string): Promise<ExpedientePreviewDto[]> {
+   async getExpedientesActivosByCedula(cedula: string,page = 1,limit = 10,): Promise<{ data: ExpedientePreviewDto[]; total: number}> {
         const voluntario = await this.voluntarioRepository.findOneBy({ cedula });
 
         if (!voluntario) {
             throw new NotFoundException('Cédula inexistente');
         }
 
-        const expedientes = await this.solicitudAprobada.createQueryBuilder('expediente')
+        const [expedientes, total] = await this.solicitudAprobada.createQueryBuilder('expediente')
             .leftJoinAndSelect('expediente.voluntario', 'voluntario')
             .where('voluntario.cedula = :cedula', { cedula })
             .orderBy('expediente.id', 'DESC')
-            .getMany();
+            .skip((page - 1) * limit)
+            .take(limit)
+            .getManyAndCount();
 
-        if (expedientes.length === 0) {
+        if (total === 0) {
             throw new NotFoundException('No se encontraron expedientes para esta cédula');
         }
 
@@ -459,8 +461,11 @@ export class VoluntariadoService {
             excludeExtraneousValues: true,
         });
 
-        return dtos;
+        return {
+            data: dtos, total
+        };
     }
+
 
     async updateEstadoAInactivo(idSolicitud: number): Promise<{message: string}>{
 
@@ -479,19 +484,51 @@ export class VoluntariadoService {
         return {message: 'El expediente se ha inactivado con exito'}
     }
 
-    async getExpedientesActivos(): Promise<VerExpedientesActivosDto[]>{
+    async getExpedientesActivos(page?: number, limit?: number): Promise<{data: VerExpedientesActivosDto[]; total: number}>{
 
-
-        const expediente = await this.solicitudAprobada.find({
+        const [expediente, total] = await this.solicitudAprobada.findAndCount({
+            skip: page && limit ? (page - 1) * limit : 0,
             where: {estado: EstadoExpediente.Activo},
+            take: limit,
+            order: { id: 'DESC' },
             select: ['id'],
-            relations: ['voluntario']
-        })
+            relations: ['voluntario'], 
+        });
 
-        const dto = plainToInstance(VerExpedientesActivosDto, expediente, {
+        const dtos = plainToInstance(VerExpedientesActivosDto, expediente, { excludeExtraneousValues: true });
+
+        return { data: dtos, total };
+    }
+
+    async getAllExpedientesByCedula(cedula: string,page = 1,limit = 10,): Promise<{ data: VerExpedientesActivosDto[]; total: number }> {
+        const voluntario = await this.voluntarioRepository.findOneBy({ cedula });
+
+        if (!voluntario) {
+            throw new NotFoundException('Cédula inexistente');
+        }
+
+        const [expedientes, total] = await this.solicitudAprobada.createQueryBuilder('expediente')
+            .leftJoinAndSelect('expediente.voluntario', 'voluntario')
+            .where('voluntario.cedula = :cedula', { cedula })
+            .orderBy('expediente.id', 'DESC')
+            .skip((page - 1) * limit)
+            .take(limit)
+            .getManyAndCount();
+
+        if (total === 0) {
+            throw new NotFoundException('No se encontraron expedientes para esta cédula');
+        }
+
+        const dtos = plainToInstance(VerExpedientesActivosDto, expedientes, {
             excludeExtraneousValues: true,
         });
 
-        return dto;
+        return {
+            data: dtos,
+            total,
+        };
     }
+
+
+
 }

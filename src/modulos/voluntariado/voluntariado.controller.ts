@@ -90,11 +90,9 @@ export class VoluntariadoController {
         return this.voluntariadoService.getByIdExpediente(idExpediente);
     }
 
-    @Get('getExpedientesByCedula/:cedula')
-    getExpedientesByCedula(
-        @Param('cedula') cedula: string,
-    ){
-        return this.voluntariadoService.getExpedienteByCedula(cedula);
+    @Get('getExpedientesActivosByCedula/:cedula')
+    getExpedientesByCedula(@Param('cedula') cedula: string,  @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number ){
+        return this.voluntariadoService.getExpedientesActivosByCedula(cedula, page, limit);
     }
 
     @Patch('updateEstadoAInactivo/:idSolicitud')
@@ -103,7 +101,12 @@ export class VoluntariadoController {
     }
 
     @Get('getExpedientesActivos')
-    getExpedientesActivos(){
-        return this.voluntariadoService.getExpedientesActivos()
+    getExpedientesActivos( @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
+        return this.voluntariadoService.getExpedientesActivos(page, limit)
+    }
+
+    @Get('getAllExpedientesByCedula/:cedula')
+    getAllExpedientesByCedula( @Param('cedula') cedula: string, @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
+        return this.voluntariadoService.getAllExpedientesByCedula(cedula, page, limit)
     }
 }
