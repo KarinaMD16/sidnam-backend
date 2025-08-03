@@ -47,6 +47,9 @@ export class CrearExpediente{
   @IsNumber()
   tipoVoluntariado: number;
 
+  @IsNumber()
+  cantidadHoras: number
+
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

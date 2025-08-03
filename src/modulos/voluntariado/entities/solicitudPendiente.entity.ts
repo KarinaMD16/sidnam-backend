@@ -41,6 +41,9 @@ export class SolicitudPendiente {
 
   @Column()
   tipoVoluntariado: number
+
+  @Column()
+  cantidadHoras: number
   
   @Column({ default: 'pendiente' })
   estado: 'pendiente' | 'aprobada' | 'rechazada';

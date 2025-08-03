@@ -42,6 +42,9 @@ export class verSolicitud{
   @Expose()
   tipoVoluntariado: number;
 
+  @Expose()
+  cantidadHoras: number;
+
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

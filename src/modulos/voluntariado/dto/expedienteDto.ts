@@ -35,4 +35,10 @@ export class ExpedienteAprobadoDto {
   @Expose()
   @Type(() => ContactoEmergenciaDto)
   contactoEmergencia: ContactoEmergenciaDto;
+
+  @Expose()
+  cantidadHoras;
+
+  @Expose()
+  estado;
 }

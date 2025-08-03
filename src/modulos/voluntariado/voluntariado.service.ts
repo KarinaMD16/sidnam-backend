@@ -80,6 +80,7 @@ export class VoluntariadoService {
             sexo: solicitud.sexo,
             experienciaLaboral: solicitud.experienciaLaboral,
             tipoVoluntariado: solicitud.tipoVoluntariado, 
+            cantidadHoras: solicitud.cantidadHoras,
             contactosEmergencia: solicitud.contactosEmergencia ?? [],
             horarios: solicitud.horarios ?? [],
             observaciones: solicitud.observaciones
@@ -95,7 +96,7 @@ export class VoluntariadoService {
 
     async crearExpediente(solicitud: CrearExpediente, idUsuario: number): Promise<{message: string}>{
 
-         const voluntariado = await this.tipoVoluntariado.findOne({
+        const voluntariado = await this.tipoVoluntariado.findOne({
             where: {id: solicitud.tipoVoluntariado},
         });
 
@@ -171,6 +172,7 @@ export class VoluntariadoService {
             tipoVoluntariado: voluntariado,
             datosExtra: `Creado por: ${usuario.name}`,
             observaciones: solicitud.observaciones,
+            cantidadHoras: solicitud.cantidadHoras,
             horarios: solicitud.horarios.map(h => ({
                 dia: h.dia,
                 horaInicio: h.horaInicio,
@@ -224,6 +226,7 @@ export class VoluntariadoService {
             'creadoEn',
             'estado',
             'observaciones',
+            'cantidadHoras'
             ],
             relations: ['horarios', 'contactosEmergencia']
         });
@@ -389,6 +392,7 @@ export class VoluntariadoService {
             tipoVoluntariado,
             datosExtra: `Aprobada por: ${usuario.name}`,
             observaciones: solicitud.observaciones,
+            cantidadHoras: solicitud.cantidadHoras,
             horarios: solicitud.horarios.map(h => ({
                 dia: h.dia,
                 horaInicio: h.horaInicio,

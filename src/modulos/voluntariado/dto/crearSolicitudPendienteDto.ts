@@ -47,12 +47,15 @@ export class CrearSolicitudPendienteDto {
   @IsNumber()
   tipoVoluntariado: number;
 
+  @IsNumber()
+  cantidadHoras: number
+
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ContactoEmergenciaPendienteDto)
   contactosEmergencia?: ContactoEmergenciaPendienteDto[];
-
+  
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
