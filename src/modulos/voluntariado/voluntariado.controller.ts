@@ -109,4 +109,9 @@ export class VoluntariadoController {
     getAllExpedientesByCedula( @Param('cedula') cedula: string, @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
         return this.voluntariadoService.getAllExpedientesByCedula(cedula, page, limit)
     }
+
+    @Get('getAllActividades/:idExpediente')
+    getAllExpediente( @Param('idExpediente', new ParseIntPipe) idExpediente: number, @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
+        return this.voluntariadoService.getActividades(idExpediente, page, limit)
+    }
 }
