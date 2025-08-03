@@ -42,7 +42,7 @@ export class SolicitudPendiente {
   @Column()
   tipoVoluntariado: number
 
-  @Column()
+  @Column({ nullable: true })
   cantidadHoras: number
   
   @Column({ default: 'pendiente' })
