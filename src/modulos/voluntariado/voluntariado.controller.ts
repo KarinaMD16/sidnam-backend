@@ -4,6 +4,7 @@ import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
 import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
 import { CrearExpediente } from './dto/crearExpedienteDto';
 import { CrearACtividadesDto } from './dto/crearActividadesDto';
+import { ActualizarExpedienteDto } from './dto/actulizarExpedienteDto';
 
 @Controller('voluntariado')
 export class VoluntariadoController {
@@ -111,7 +112,12 @@ export class VoluntariadoController {
     }
 
     @Get('getAllActividades/:idExpediente')
-    getAllExpediente( @Param('idExpediente', new ParseIntPipe) idExpediente: number, @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
+    getAllActividades( @Param('idExpediente', new ParseIntPipe) idExpediente: number, @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
         return this.voluntariadoService.getActividades(idExpediente, page, limit)
+    }
+
+    @Patch('updateExpediente/:idExpediente')
+    async updateExpediente(@Body() actualizar: ActualizarExpedienteDto, @Param('idExpediente', new ParseIntPipe) idExpediente: number){
+        return this.voluntariadoService.updateExpediente(idExpediente, actualizar);
     }
 }

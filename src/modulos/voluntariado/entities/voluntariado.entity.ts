@@ -18,7 +18,7 @@ export class Voluntario {
   @Column()
   apellido1: string;
   
-  @Column()
+  @Column({nullable: true})
   apellido2: string;
 
   @Column()

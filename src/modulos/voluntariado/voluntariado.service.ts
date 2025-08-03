@@ -27,6 +27,8 @@ import { VerExpedientesActivosDto } from './dto/verExpedientesActivosDto';
 import { verExpedientesByCedula } from './dto/verExpedientesByCedulaDto';
 import { verActividadesDto } from './dto/verActividadesDto';
 import { escape } from 'querystring';
+import { ActualizarExpedienteDto } from './dto/actulizarExpedienteDto';
+import { Contacto_emergencia } from './entities/contactoEmergencia.entity';
 
 
 @Injectable()
@@ -47,6 +49,9 @@ export class VoluntariadoService {
 
         @InjectRepository(Voluntario)
         private readonly voluntarioRepository: Repository<Voluntario>,
+
+        @InjectRepository(Contacto_emergencia)
+        private readonly contactoRepository: Repository<Contacto_emergencia>,
 
         private readonly voluntariadoGateway: VoluntariadoGateway,
 
@@ -580,6 +585,63 @@ export class VoluntariadoService {
         return { data, total };
     }
 
+
+    async updateExpediente(id: number, actualizarExpediente: Partial<ActualizarExpedienteDto>): Promise<{message: string}>{
+
+        const expediente = await this.solicitudAprobada.findOne({
+            where: {id},
+            relations: ['voluntario', 'horarios', 'voluntario.contactosEmergencia', 'actividades']
+        })
+
+
+        if(!expediente){
+            throw new NotFoundException('Expediente no registrado');
+        }
+
+        const voluntario = expediente.voluntario;
+
+        if(actualizarExpediente.cedula) voluntario.cedula = actualizarExpediente.cedula;
+        
+        if(actualizarExpediente.nombre) voluntario.nombre = actualizarExpediente.nombre;
+
+        if(actualizarExpediente.apellido1) voluntario.apellido1 = actualizarExpediente.apellido1;
+
+        if(actualizarExpediente.apellido2) voluntario.apellido2 = actualizarExpediente.apellido2;
+
+        if(actualizarExpediente.email) voluntario.email = actualizarExpediente.email;
+
+        if(actualizarExpediente.telefono) voluntario.telefono = actualizarExpediente.telefono;
+
+        if(actualizarExpediente.ocupacion) voluntario.ocupacion = actualizarExpediente.ocupacion;
+
+        if(actualizarExpediente.direccion) voluntario.direccion = actualizarExpediente.direccion;
+
+        if(actualizarExpediente.sexo) voluntario.sexo = actualizarExpediente.sexo;
+
+        if(actualizarExpediente.experienciaLaboral) voluntario.experienciaLaboral = actualizarExpediente.experienciaLaboral;
+
+        if(actualizarExpediente.cantidadHoras) expediente.cantidadHoras = actualizarExpediente.cantidadHoras;
+
+        if (actualizarExpediente.contactosEmergencia) {
+
+            await this.contactoRepository.delete({ voluntario: { id: voluntario.id } });
+
+            const nuevosContactos = actualizarExpediente.contactosEmergencia.map(contacto =>
+                this.contactoRepository.create({
+                ...contacto,
+                voluntario: voluntario,
+                })
+            );
+
+            voluntario.contactosEmergencia = nuevosContactos;
+        }
+        if(actualizarExpediente.observaciones) expediente.observaciones = actualizarExpediente.observaciones;
+
+        await this.voluntarioRepository.save(voluntario);
+        await this.solicitudAprobada.save(expediente);
+
+        return {message: 'Expediente actualizado con exito'}
+    }
 
 
 }
