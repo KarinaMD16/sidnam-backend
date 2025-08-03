@@ -110,7 +110,7 @@ export class VoluntariadoService {
         });
 
        if (expediente) {
-            return { message: 'No puedes registrar este expediente, hay expedientes activos' };
+            throw new BadRequestException('No puedes registrar este expediente, hay expedientes activos')
        }
 
 
