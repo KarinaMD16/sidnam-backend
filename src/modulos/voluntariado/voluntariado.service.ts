@@ -25,6 +25,8 @@ import { throwError } from 'rxjs';
 import { EstadoExpediente } from 'src/common/enums/estadosExpedientes.enum';
 import { VerExpedientesActivosDto } from './dto/verExpedientesActivosDto';
 import { verExpedientesByCedula } from './dto/verExpedientesByCedulaDto';
+import { verActividadesDto } from './dto/verActividadesDto';
+import { escape } from 'querystring';
 
 
 @Injectable()
@@ -413,12 +415,18 @@ export class VoluntariadoService {
     }
 
     async createActividades(crearActividades: CrearACtividadesDto, idExpediente: number): Promise<{ message: string }> {
+
+
         const expediente = await this.solicitudAprobada.findOne({
             where: { id: idExpediente },
         });
 
         if (!expediente) {
             throw new NotFoundException('Expediente no encontrado');
+        }
+
+        if(expediente.estado == "Inactivo"){
+            throw new NotFoundException('Expediente inactivo. no puedes agregar actividades');
         }
 
         const nuevaActividad = this.actividadesRepository.create({
@@ -542,6 +550,30 @@ export class VoluntariadoService {
             total,
         };
         
+    }
+
+    async getActividades(idExpediente: number, page = 1,limit = 10,): Promise<{ data: verActividadesDto[]; total: number }> {
+        const solicitud = await this.solicitudAprobada.findOne({
+            where: { id: idExpediente },
+            relations: ['actividades'],
+        });
+
+        if (!solicitud) {
+            throw new NotFoundException('Expediente no encontrado');
+        }
+
+        const total = solicitud.actividades.length;
+
+        const actividadesPaginadas = solicitud.actividades.slice(
+            (page - 1) * limit,
+            page * limit,
+        );
+
+        const data = plainToInstance(verActividadesDto, actividadesPaginadas, {
+            excludeExtraneousValues: true,
+        });
+
+        return { data, total };
     }
 
 
