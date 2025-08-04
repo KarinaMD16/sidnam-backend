@@ -23,10 +23,7 @@ import { HorarioPendiente } from "./modulos/voluntariado/entities/horarioPendien
 import { Voluntario } from './modulos/voluntariado/entities/voluntariado.entity';
 import { Tipo_voluntariado } from './modulos/voluntariado/entities/tipoVoluntariado.entity';
 import { Actividades } from './modulos/voluntariado/entities/actividades.entity';
-import * as dotenv from "dotenv";
 
-
-dotenv.config();
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -57,7 +54,7 @@ dotenv.config();
         Tipo_voluntariado,
         Actividades,
       ],
-      synchronize: false,
+      synchronize: true,
       dropSchema: false,
     }),
     GaleriaModule,
