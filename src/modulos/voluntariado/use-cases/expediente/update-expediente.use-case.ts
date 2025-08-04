@@ -105,7 +105,4 @@ export class UpdateExpedienteUseCase {
 
         return { message: 'Expediente actualizado con éxito' };
     }
-
-    
- 
 }
