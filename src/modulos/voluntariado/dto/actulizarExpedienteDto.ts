@@ -7,17 +7,14 @@ export class ActualizarExpedienteDto{
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   cedula: string;
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   nombre: string;
  
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   apellido1: string;
 
   @IsOptional()
@@ -26,22 +23,18 @@ export class ActualizarExpedienteDto{
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   email: string;
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   telefono: string;
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   ocupacion: string;
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   direccion: string;
 
   @IsOptional()
