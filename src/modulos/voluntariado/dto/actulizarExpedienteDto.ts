@@ -2,41 +2,49 @@ import { Type } from "class-transformer";
 import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 import { Sexo } from "src/common/enums/rol.enum";
 import { ContactoEmergenciaPendienteDto } from "./ContactoEmergenciaPendienteDto";
-import { HorarioPendienteDto } from "./horarioPendienteDto";
 
-export class CrearExpediente{
+export class ActualizarExpedienteDto{
+
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   cedula: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   nombre: string;
-
+ 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   apellido1: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   apellido2: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   email: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   telefono: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   ocupacion: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   direccion: string;
 
+  @IsOptional()
   @IsEnum(Sexo)
   sexo: Sexo;
 
@@ -44,11 +52,8 @@ export class CrearExpediente{
   @IsString()
   experienciaLaboral?: string;
 
-  @IsNumber()
-  tipoVoluntariado: number;
-
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   cantidadHoras: number
 
   @IsOptional()
@@ -56,12 +61,6 @@ export class CrearExpediente{
   @ValidateNested({ each: true })
   @Type(() => ContactoEmergenciaPendienteDto)
   contactosEmergencia?: ContactoEmergenciaPendienteDto[];
-
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => HorarioPendienteDto)
-  horarios?: HorarioPendienteDto[];
 
   @IsOptional()
   @IsString()

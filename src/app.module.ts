@@ -73,7 +73,6 @@ dotenv.config();
     GestionUsuarioModule,
     AutenticacionModule,
     VoluntariadoModule,
-    SolicitudDonacionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -4,21 +4,35 @@ import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
 import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
 import { CrearExpediente } from './dto/crearExpedienteDto';
 import { CrearACtividadesDto } from './dto/crearActividadesDto';
+import { ActualizarExpedienteDto } from './dto/actulizarExpedienteDto';
+import { CreateExpedienteUseCase } from './use-cases/expediente/create-expediente.use-case';
+import { UpdateExpedienteUseCase } from './use-cases/expediente/update-expediente.use-case';
+import { CreateSolicitudUseCase } from './use-cases/solicitud/create-solicitud.use-case';
+import { GetExpedientesUseCase } from './use-cases/expediente/get-expedientes.use-case';
+import { GetSolicitudesUseCase } from './use-cases/solicitud/get-solicitud.use-case';
 
 @Controller('voluntariado')
 export class VoluntariadoController {
 
 
-    constructor(private readonly voluntariadoService: VoluntariadoService){}
+    constructor(
+        private readonly voluntariadoService: VoluntariadoService, 
+        private readonly updateExpedientes: UpdateExpedienteUseCase,
+        private readonly createExpediente: CreateExpedienteUseCase,
+        private readonly createSolicitud: CreateSolicitudUseCase,
+        private readonly getExpedientesUseCase: GetExpedientesUseCase,
+        private readonly getSolicitudesUseCase: GetSolicitudesUseCase
+    ){}
+
 
     @Post('crearSolicitudPendiente')
     crearSolicitudPendiente(@Body() SolicitudPendiente: CrearSolicitudPendienteDto){
-        return this.voluntariadoService.crearSolicitudPendiente(SolicitudPendiente)
+        return this.createSolicitud.crearSolicitudPendiente(SolicitudPendiente)
     }
 
     @Post('crearExpediente/:idUsuario')
     crearExpediente(@Body() crearExp: CrearExpediente, @Param('idUsuario', ParseIntPipe) idUsuario: number){
-        return this.voluntariadoService.crearExpediente(crearExp, idUsuario)
+        return this.createExpediente.crearExpediente(crearExp, idUsuario)
     }
 
     @Post('tipo-Voluntariado')
@@ -37,14 +51,14 @@ export class VoluntariadoController {
         @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
     ){
         if (page && limit) {
-            return this.voluntariadoService.findAllPreviews(page, limit);
+            return this.getSolicitudesUseCase.findAllPreviews(page, limit);
         }
-        return this.voluntariadoService.findAllPreviews();
+        return this.getSolicitudesUseCase.findAllPreviews();
     }
 
     @Get('getSolicitudById/:id')
     getSolicitudesById(@Param('id') id: number){
-        return this.voluntariadoService.findSolicitudById(id);
+        return this.getSolicitudesUseCase.findSolicitudById(id);
     }   
 
     @Get('getEstadoSolicitud')
@@ -59,14 +73,14 @@ export class VoluntariadoController {
         @Query('limit', new ParseIntPipe({ optional: true })) limit?: number, 
     ){
          if (page && limit) {
-             return this.voluntariadoService.getFiltosEstados(id, page, limit)
+             return this.getSolicitudesUseCase.getFiltosEstados(id, page, limit)
         }
-         return this.voluntariadoService.getFiltosEstados(id)
+         return this.getSolicitudesUseCase.getFiltosEstados(id)
     }
 
     @Patch('updateEstado/:idEstado/:idSoli/:idUsuario')
     updateEstado( @Param('idEstado', ParseIntPipe)  idEstado: number, @Param('idSoli', ParseIntPipe) idSoli: number, @Param('idUsuario', ParseIntPipe) idUsuario: number){
-        return this.voluntariadoService.updateEstadoSolicitudes(idEstado, idSoli, idUsuario)
+        return this.createExpediente.updateEstadoSolicitudes(idEstado, idSoli, idUsuario)
     }
 
     @Get('getPreviewExpedientes')
@@ -75,9 +89,9 @@ export class VoluntariadoController {
         @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
     ){
         if (page && limit) {
-            return this.voluntariadoService.findAllPreviewsExpedientes(page, limit);
+            return this.getExpedientesUseCase.findAllPreviewsExpedientes(page, limit);
         }
-        return this.voluntariadoService.findAllPreviewsExpedientes();
+        return this.getExpedientesUseCase.findAllPreviewsExpedientes();
     }
 
     @Post('crearActividad/:idSolicitud')
@@ -87,23 +101,36 @@ export class VoluntariadoController {
 
     @Get('getExpedienteById/:idExpediente')
     getExpedienteById(@Param('idExpediente') idExpediente: number){
-        return this.voluntariadoService.getByIdExpediente(idExpediente);
+        return this.getExpedientesUseCase.getByIdExpediente(idExpediente);
     }
 
-    @Get('getExpedientesByCedula/:cedula')
-    getExpedientesByCedula(
-        @Param('cedula') cedula: string,
-    ){
-        return this.voluntariadoService.getExpedienteByCedula(cedula);
+    @Get('getExpedientesActivosByCedula/:cedula')
+    getExpedientesByCedula(@Param('cedula') cedula: string ){
+        return this.getExpedientesUseCase.getExpedienteActivoByCedula(cedula);
     }
 
     @Patch('updateEstadoAInactivo/:idSolicitud')
     updateEstadoExpediente(@Param('idSolicitud', ParseIntPipe) idSolicitud: number){
-        return this.voluntariadoService.updateEstadoAInactivo(idSolicitud);
+        return this.updateExpedientes.updateEstadoAInactivo(idSolicitud);
     }
 
     @Get('getExpedientesActivos')
-    getExpedientesActivos(){
-        return this.voluntariadoService.getExpedientesActivos()
+    getExpedientesActivos( @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
+        return this.getExpedientesUseCase.getExpedientesActivos(page, limit)
+    }
+
+    @Get('getAllExpedientesByCedula/:cedula')
+    getAllExpedientesByCedula( @Param('cedula') cedula: string, @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
+        return this.getExpedientesUseCase.getAllExpedientesByCedula(cedula, page, limit)
+    }
+
+    @Get('getAllActividades/:idExpediente')
+    getAllActividades( @Param('idExpediente', new ParseIntPipe) idExpediente: number, @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
+        return this.voluntariadoService.getActividades(idExpediente, page, limit)
+    }
+
+    @Patch('updateExpediente/:idExpediente')
+    async updateExpediente(@Body() actualizar: ActualizarExpedienteDto, @Param('idExpediente', new ParseIntPipe) idExpediente: number){
+        return this.updateExpedientes.updateExpediente(idExpediente, actualizar);
     }
 }

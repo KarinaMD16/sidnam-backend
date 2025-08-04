@@ -18,7 +18,7 @@ export class SolicitudPendiente {
   @Column()
   apellido1: string;
 
-  @Column()
+  @Column({ nullable: true })
   apellido2: string;
 
   @Column()
@@ -41,6 +41,9 @@ export class SolicitudPendiente {
 
   @Column()
   tipoVoluntariado: number
+
+  @Column({ nullable: true })
+  cantidadHoras: number
   
   @Column({ default: 'pendiente' })
   estado: 'pendiente' | 'aprobada' | 'rechazada';
