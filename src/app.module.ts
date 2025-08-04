@@ -66,8 +66,8 @@ dotenv.config();
         Solicitud_pendiente,
         Tipo_donacion
       ],
-      synchronize: true,
-      dropSchema: true,
+      synchronize: false,
+      dropSchema: false,
     }),
     GaleriaModule,
     GestionUsuarioModule,
