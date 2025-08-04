@@ -1,7 +1,8 @@
-import {Body, Controller, Post,} from "@nestjs/common";
+import {Body, Controller, Get, Param, ParseIntPipe, Post, Query,} from "@nestjs/common";
 import { SolicitudDonacionService } from "./solicitudDonacion.service";
 import { CrearSolicitudPendienteDto } from "./dto/crearSolicitudPendienteDto";
 import { CreateSolicitudDonacionUseCase } from "./use-cases/solicitud/create-solicitudDonacion.use-case";
+import { GetSolicitudesDonacionUseCase } from "./use-cases/solicitud/get-solicitudDonacion.use-case";
 
 
 @Controller('donacion')
@@ -9,12 +10,30 @@ export class SolicitudDonacionController {
 
     constructor (
         private readonly solicitudDonacionService: SolicitudDonacionService,
-        private readonly createSolicitudDonacionUseCase: CreateSolicitudDonacionUseCase
+        private readonly createSolicitudDonacionUseCase: CreateSolicitudDonacionUseCase,
+        private readonly getSolicitudesDonacionUseCase: GetSolicitudesDonacionUseCase
     ){}
 
     @Post('crearSolicitudDonacionPendiente')
     crearSolicitudDonacionPendiente(@Body() solicitudPendiente: CrearSolicitudPendienteDto){
         return this.createSolicitudDonacionUseCase.crearSolicitudDonacionPendiente(solicitudPendiente);
     }
+
+
+    @Get('getPreviewSolicitudesDonacion')
+        getPreviewSolicitudes(
+            @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+            @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+        ){
+            if (page && limit) {
+                return this.getSolicitudesDonacionUseCase.findAllPreviews(page, limit);
+            }
+            return this.getSolicitudesDonacionUseCase.findAllPreviews();
+        }
+    
+        @Get('getSolicitudById/:id')
+        getSolicitudesById(@Param('id') id: number){
+            return this.getSolicitudesDonacionUseCase.findSolicitudById(id);
+        }   
 }
 
