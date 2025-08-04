@@ -18,7 +18,7 @@ export class CrearExpediente{
   apellido1: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   apellido2: string;
 
   @IsString()
@@ -48,6 +48,7 @@ export class CrearExpediente{
   tipoVoluntariado: number;
 
   @IsNumber()
+  @IsOptional()
   cantidadHoras: number
 
   @IsOptional()
