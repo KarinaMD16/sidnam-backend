@@ -23,6 +23,10 @@ import { Voluntario } from './modulos/voluntariado/entities/voluntariado.entity'
 import { ContactoEmergenciaPendiente } from './modulos/voluntariado/entities/contactoEmergenciaPendiente';
 import { HorarioPendiente } from './modulos/voluntariado/entities/horarioPendiente.entity';
 import { Actividades } from './modulos/voluntariado/entities/actividades.entity';
+import { SolicitudDonacionModule } from './modulos/solicitud-donacion/solicitudDonacion.module';
+import { Donador } from './modulos/solicitud-donacion/entities/donador.entity';
+import { RegistroDonacion } from './modulos/solicitud-donacion/entities/registroDonacion.entity';
+import { Solicitud_donacion_pendiente } from './modulos/solicitud-donacion/entities/solicitudDonacionPendiente.entity';
 
 
 @Module({
@@ -38,13 +42,14 @@ import { Actividades } from './modulos/voluntariado/entities/actividades.entity'
       username: 'root',
       password: 'root',
       database: 'SIDNAMDB',
-      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario, Actividades],
+      entities: [Donacion, Eventos, Proyectos, Galeria, Categoria, Usuario, Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario, Actividades, Donador, RegistroDonacion, Solicitud_donacion_pendiente],
       synchronize: false,
     }),
     GaleriaModule,
     GestionUsuarioModule,
     AutenticacionModule,
     VoluntariadoModule,
+    SolicitudDonacionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
