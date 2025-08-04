@@ -23,11 +23,6 @@ import { HorarioPendiente } from "./modulos/voluntariado/entities/horarioPendien
 import { Voluntario } from './modulos/voluntariado/entities/voluntariado.entity';
 import { Tipo_voluntariado } from './modulos/voluntariado/entities/tipoVoluntariado.entity';
 import { Actividades } from './modulos/voluntariado/entities/actividades.entity';
-import { SolicitudDonacionModule } from './modulos/solicitud-donacion/solicitudDonacion.module';
-import { RegistroDonacion } from './modulos/solicitud-donacion/entities/registroDonacion.entity';
-import { SolicitudDonacion } from './modulos/solicitud-donacion/entities/solicitudDonacion.entity';
-import { Solicitud_pendiente } from './modulos/solicitud-donacion/entities/solicitudPendiente.entity';
-import { Tipo_donacion } from './modulos/solicitud-donacion/entities/tipoDonacion.entity';
 import * as dotenv from "dotenv";
 
 
@@ -61,10 +56,6 @@ dotenv.config();
         Voluntario,
         Tipo_voluntariado,
         Actividades,
-        RegistroDonacion,
-        SolicitudDonacion,
-        Solicitud_pendiente,
-        Tipo_donacion
       ],
       synchronize: false,
       dropSchema: false,
