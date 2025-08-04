@@ -5,6 +5,7 @@ import { EmailService } from "../autenticacion/email/email.service";
 import { GestionUsuarioService } from "../gestion-usuario/gestion-usuario.service";
 import { SolicitudDonacionGateway } from "./solicitudDonacion.gateway";
 import { Solicitud_donacion_pendiente } from "./entities/solicitudDonacionPendiente.entity";
+import { EstadoSolicitudDonacion } from "src/common/enums/estadosSolicitudes.enum";
 
 
 @Injectable()
@@ -24,5 +25,19 @@ export class  SolicitudDonacionService {
          private readonly gestionUsuario: GestionUsuarioService
 
     ){}
+
+
+
+    async getEstadosSolicitudDonacion() {
+    
+        const estados = Object.entries(EstadoSolicitudDonacion)
+        .filter(([key, value]) => typeof value === 'number') 
+        .map(([key, value]) => ({
+            id: value as number,
+            nombre: key,
+        }));
+    
+        return estados;
+    }
 
 }

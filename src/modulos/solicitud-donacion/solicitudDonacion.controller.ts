@@ -35,5 +35,11 @@ export class SolicitudDonacionController {
         getSolicitudesById(@Param('id') id: number){
             return this.getSolicitudesDonacionUseCase.findSolicitudById(id);
         }   
+
+
+        @Get('getEstadoSolicitudDonacion')
+        getEstadosSolicitudDonacion(){
+            return this.solicitudDonacionService.getEstadosSolicitudDonacion()
+        }
 }
 
