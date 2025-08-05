@@ -17,7 +17,7 @@ export class Solicitud_donacion_pendiente{
     @Column()
     apellido1: string;
 
-    @Column()
+    @Column({nullable: true})
     apellido2: string;
 
     @Column()
@@ -36,7 +36,7 @@ export class Solicitud_donacion_pendiente{
     tipoDonacion: string;
 
     @Column({default: 'pendiente'})
-    estado: 'pendiente' | 'aprobada' | 'rechazada';
+    estado: 'pendiente' | 'aprobada' | 'rechazada' | 'recibida';
 
     @CreateDateColumn()
     creadoEn: Date;

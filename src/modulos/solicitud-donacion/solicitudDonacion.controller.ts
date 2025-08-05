@@ -41,5 +41,18 @@ export class SolicitudDonacionController {
         getEstadosSolicitudDonacion(){
             return this.solicitudDonacionService.getEstadosSolicitudDonacion()
         }
+
+
+        @Get('getFiltroSolicitudesDonacion/:id')
+    getFiltro(
+        @Param('id', ParseIntPipe) id: number,
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number, 
+    ){
+         if (page && limit) {
+             return this.getSolicitudesDonacionUseCase.getFiltrosEstados(id, page, limit)
+        }
+         return this.getSolicitudesDonacionUseCase.getFiltrosEstados(id)
+    }
 }
 
