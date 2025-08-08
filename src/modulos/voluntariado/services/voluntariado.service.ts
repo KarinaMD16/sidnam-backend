@@ -1,17 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SolicitudPendiente } from './entities/solicitudPendiente.entity';
-import { Tipo_voluntariado } from './entities/tipoVoluntariado.entity';
-import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
+import { SolicitudPendiente } from '../entities/solicitudPendiente.entity';
+import { Tipo_voluntariado } from '../entities/tipoVoluntariado.entity';
+import { TipoVoluntarioDto } from '../dto/crearTipoVoluntarioDto';
 import { plainToInstance } from 'class-transformer';
-import { SolicitudPreviewDto } from './dto/solicitudPreviewDto';
+import { SolicitudPreviewDto } from '../dto/solicitudPreviewDto';
 import { EstadoSolicitud } from 'src/common/enums/estadosSolicitudes.enum';
 import { EstadoMap } from 'src/common/constants/estado.constant';
-import { SolicitudAprobada } from './entities/solicitudAprobada.entity';
-import { CrearACtividadesDto } from './dto/crearActividadesDto';
-import { Actividades } from './entities/actividades.entity';
-import { verActividadesDto } from './dto/verActividadesDto';
+import { SolicitudAprobada } from '../entities/solicitudAprobada.entity';
+import { CrearACtividadesDto } from '../dto/crearActividadesDto';
+import { Actividades } from '../entities/actividades.entity';
+import { verActividadesDto } from '../dto/verActividadesDto';
 
 
 @Injectable()

@@ -12,6 +12,7 @@ import { SolicitudAprobada } from '../../entities/solicitudAprobada.entity';
 import { Voluntario } from '../../entities/voluntariado.entity';
 import { Contacto_emergencia } from '../../entities/contactoEmergencia.entity';
 import { ActualizarExpedienteDto } from '../../dto/actulizarExpedienteDto';
+import { Horario } from '../../entities/horario.entity';
 
 @Injectable()
 export class UpdateExpedienteUseCase {
@@ -24,6 +25,9 @@ export class UpdateExpedienteUseCase {
             
     @InjectRepository(Contacto_emergencia)
     private readonly contactoRepository: Repository<Contacto_emergencia>,
+
+    @InjectRepository(Horario)
+    private readonly horarioRepository: Repository<Horario>,
   ) {}
 
     async updateEstadoAInactivo(idSolicitud: number): Promise<{message: string}>{
@@ -69,6 +73,27 @@ export class UpdateExpedienteUseCase {
             }
 
             voluntario.cedula = actualizarExpediente.cedula;
+        }
+
+        if(actualizarExpediente.horarios){
+
+            for (const horario of actualizarExpediente.horarios) {
+
+                const horarioExistente = await this.horarioRepository.findOne({
+                    where: {id: horario.id}
+                })
+
+                if(horarioExistente){
+                    horarioExistente.dia = horario.dia;
+                    horarioExistente.horaFin = horario.horaFin;
+                    horarioExistente.horaInicio = horario.horaInicio;
+                    await this.horarioRepository.save(horarioExistente);
+                }
+                else{
+                    const nuevoHorario = this.horarioRepository.create(horario);
+                    await this.horarioRepository.save(nuevoHorario);
+                }
+            }
         }
 
         if (actualizarExpediente.nombre) voluntario.nombre = actualizarExpediente.nombre;
