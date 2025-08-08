@@ -1,15 +1,15 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
-import { VoluntariadoService } from './voluntariado.service';
-import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
-import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
-import { CrearExpediente } from './dto/crearExpedienteDto';
-import { CrearACtividadesDto } from './dto/crearActividadesDto';
-import { ActualizarExpedienteDto } from './dto/actulizarExpedienteDto';
-import { CreateExpedienteUseCase } from './use-cases/expediente/create-expediente.use-case';
-import { UpdateExpedienteUseCase } from './use-cases/expediente/update-expediente.use-case';
-import { CreateSolicitudUseCase } from './use-cases/solicitud/create-solicitud.use-case';
-import { GetExpedientesUseCase } from './use-cases/expediente/get-expedientes.use-case';
-import { GetSolicitudesUseCase } from './use-cases/solicitud/get-solicitud.use-case';
+import { VoluntariadoService } from '../services/voluntariado.service';
+import { CrearSolicitudPendienteDto } from '../dto/crearSolicitudPendienteDto';
+import { TipoVoluntarioDto } from '../dto/crearTipoVoluntarioDto';
+import { CrearExpediente } from '../dto/crearExpedienteDto';
+import { CrearACtividadesDto } from '../dto/crearActividadesDto';
+import { ActualizarExpedienteDto } from '../dto/actulizarExpedienteDto';
+import { CreateExpedienteUseCase } from '../use-cases/expediente/create-expediente.use-case';
+import { UpdateExpedienteUseCase } from '../use-cases/expediente/update-expediente.use-case';
+import { CreateSolicitudUseCase } from '../use-cases/solicitud/create-solicitud.use-case';
+import { GetExpedientesUseCase } from '../use-cases/expediente/get-expedientes.use-case';
+import { GetSolicitudesUseCase } from '../use-cases/solicitud/get-solicitud.use-case';
 
 @Controller('voluntariado')
 export class VoluntariadoController {
