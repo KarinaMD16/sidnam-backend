@@ -123,22 +123,27 @@
     }
 
     public async sendSolicitudAceptadaEmail(email: string, nombre: string): Promise<void> {
-        const html = `
-            <div style="font-family: 'Poppins', Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border-radius: 20px; border: 1px solid #ddd;">
-            <h2 style="color: #22c55e;">¡Tu solicitud ha sido aceptada!</h2>
+    const html = `
+        <div style="font-family: 'Poppins', Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border-radius: 20px; border: 1px solid #ddd;">
+            <div style="display: flex; align-items: center; text-align: left;">
+                <img width="100px" src="https://i.ibb.co/HDfRP6fX/1749848069832.png" alt="" style="display: block;">
+                <h2 style="color: #22c55e; margin: 0 0 0 10px;">¡Tu solicitud ha sido aceptada!</h2>
+            </div>
+
             <p>Hola ${nombre},</p>
             <p>Nos complace informarte que tu solicitud de voluntariado ha sido <strong>aprobada</strong>.</p>
             <p>Las actividades se asignarán en las instalaciones.</p>
             <p style="margin-top: 30px;">¡Gracias por unirte a nuestra comunidad de voluntariado!</p>
-            </div>
-        `;
+        </div>
+    `;
 
-        await this.sendMail({
-            to: email,
-            subject: 'Solicitud de voluntariado aceptada',
-            html,
-        });
-    }
+    await this.sendMail({
+        to: email,
+        subject: 'Solicitud de voluntariado aceptada',
+        html,
+    });
+}
+
 
     public async sendSolicitudRechazadaEmail(email: string, nombre: string): Promise<void> {
     const html = `
