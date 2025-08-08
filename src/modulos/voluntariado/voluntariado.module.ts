@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { VoluntariadoService } from './voluntariado.service';
-import { VoluntariadoController } from './voluntariado.controller';
+import { VoluntariadoService } from './services/voluntariado.service';
+import { VoluntariadoController } from './controllers/voluntariado.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Contacto_emergencia } from './entities/contactoEmergencia.entity';
 import { Horario } from './entities/horario.entity';
@@ -19,6 +19,9 @@ import { UpdateExpedienteUseCase } from './use-cases/expediente/update-expedient
 import { CreateSolicitudUseCase } from './use-cases/solicitud/create-solicitud.use-case';
 import { GetExpedientesUseCase } from './use-cases/expediente/get-expedientes.use-case';
 import { GetSolicitudesUseCase } from './use-cases/solicitud/get-solicitud.use-case';
+import { PdfHtmlService } from 'src/common/services/pdf-html.service';
+import { ReporteService } from './services/reporte.service';
+import { ReporteController } from './controllers/reporte.controller';
 
 
 @Module({
@@ -26,7 +29,7 @@ import { GetSolicitudesUseCase } from './use-cases/solicitud/get-solicitud.use-c
     TypeOrmModule.forFeature([Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario, Actividades]),
   AutenticacionModule,
   GestionUsuarioModule],
-  providers: [VoluntariadoService, VoluntariadoGateway, UpdateExpedienteUseCase, CreateExpedienteUseCase, CreateSolicitudUseCase, GetExpedientesUseCase, GetSolicitudesUseCase],
-  controllers: [VoluntariadoController]
+  providers: [VoluntariadoService, VoluntariadoGateway, UpdateExpedienteUseCase, CreateExpedienteUseCase, CreateSolicitudUseCase, GetExpedientesUseCase, GetSolicitudesUseCase, PdfHtmlService, ReporteService],
+  controllers: [VoluntariadoController, ReporteController,]
 })
 export class VoluntariadoModule {}
