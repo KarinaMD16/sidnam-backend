@@ -30,7 +30,6 @@ import { Solicitud_donacion_pendiente } from './modulos/solicitud-donacion/entit
 import * as dotenv from "dotenv";
 
 
-dotenv.config();
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -64,7 +63,7 @@ dotenv.config();
         RegistroDonacion, 
         Solicitud_donacion_pendiente
       ],
-      synchronize: false,
+      synchronize: true,
       dropSchema: false,
     }),
     GaleriaModule,
