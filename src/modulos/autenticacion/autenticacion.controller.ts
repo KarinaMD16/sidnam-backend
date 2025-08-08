@@ -14,8 +14,6 @@ export class AutenticacionController {
 
     
     @Post("register/:rol")
-    @Roles(Rol.ADMIN)
-    @UseGuards(AuthGuard, RolesGuard)
     registerAdministrador(@Body() registerDto: RegisterDto, @Param('rol') rol: string){
         return this.authService.crearUsuario(registerDto, rol.toUpperCase());
     }   
