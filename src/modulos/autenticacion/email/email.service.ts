@@ -135,7 +135,7 @@
             <main>
                 <h2 style="color: #22c55e; margin: 10px 0 0 10px;">¡Tu solicitud ha sido aceptada!</h2>
                 <div>
-                    <p>Hola ${nombre},</p>
+                    <p>Hola ${nombre}, </p>
                     <p>Nos complace informarte que tu solicitud de voluntariado ha sido <strong>aprobada</strong>.</p>
                     <p>Las actividades se asignarán en las instalaciones.</p>
                     <p style="margin-top: 30px;">¡Gracias por unirte a nuestra comunidad de voluntariado!</p>
