@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from '@nestjs/common';
 import { VoluntariadoService } from '../services/voluntariado.service';
 import { CrearSolicitudPendienteDto } from '../dto/crearSolicitudPendienteDto';
 import { TipoVoluntarioDto } from '../dto/crearTipoVoluntarioDto';
@@ -10,6 +10,9 @@ import { UpdateExpedienteUseCase } from '../use-cases/expediente/update-expedien
 import { CreateSolicitudUseCase } from '../use-cases/solicitud/create-solicitud.use-case';
 import { GetExpedientesUseCase } from '../use-cases/expediente/get-expedientes.use-case';
 import { GetSolicitudesUseCase } from '../use-cases/solicitud/get-solicitud.use-case';
+import { ReporteService } from '../services/reporte.service';
+import { Response } from 'express';
+
 
 @Controller('voluntariado')
 export class VoluntariadoController {
@@ -21,7 +24,8 @@ export class VoluntariadoController {
         private readonly createExpediente: CreateExpedienteUseCase,
         private readonly createSolicitud: CreateSolicitudUseCase,
         private readonly getExpedientesUseCase: GetExpedientesUseCase,
-        private readonly getSolicitudesUseCase: GetSolicitudesUseCase
+        private readonly getSolicitudesUseCase: GetSolicitudesUseCase,
+        private readonly reporteService: ReporteService
     ){}
 
 
@@ -133,4 +137,14 @@ export class VoluntariadoController {
     async updateExpediente(@Body() actualizar: ActualizarExpedienteDto, @Param('idExpediente', new ParseIntPipe) idExpediente: number){
         return this.updateExpedientes.updateExpediente(idExpediente, actualizar);
     }
+
+    @Get(':id/pdf')
+    async generarPdf(@Param('id') id: string, @Res() res: Response) {
+    const idNum = Number(id);
+    if (isNaN(idNum)) {
+        res.status(400).send('ID inválido');
+        return;
+    }
+    await this.reporteService.generarReporteActividades(idNum, res);
+ }
 }
