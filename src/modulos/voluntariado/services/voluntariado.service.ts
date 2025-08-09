@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SolicitudPendiente } from '../entities/solicitudPendiente.entity';
@@ -12,6 +12,7 @@ import { SolicitudAprobada } from '../entities/solicitudAprobada.entity';
 import { CrearACtividadesDto } from '../dto/crearActividadesDto';
 import { Actividades } from '../entities/actividades.entity';
 import { verActividadesDto } from '../dto/verActividadesDto';
+import { TipoVoluntario } from 'src/common/enums/tipoVoluntarios.enum';
 
 
 @Injectable()
@@ -34,6 +35,10 @@ export class VoluntariadoService {
 
 
     async crearTipoVoluntario(tipoDto: TipoVoluntarioDto): Promise<Tipo_voluntariado>{
+
+        if (!Object.values(TipoVoluntario).includes(tipoDto.nombre)) {
+            throw new BadRequestException(`El nombre debe ser uno de: ${Object.values(TipoVoluntario).join(', ')}`);
+        }
         const nuevoTipo = this.tipoVoluntariado.create(tipoDto);
         return await this.tipoVoluntariado.save(nuevoTipo);
     }
@@ -58,7 +63,10 @@ export class VoluntariadoService {
 
 
         const expediente = await this.solicitudAprobada.findOne({
-            where: { id: idExpediente },
+            where: { 
+                id: idExpediente,
+            },
+            relations: ['tipoVoluntariado']
         });
 
         if (!expediente) {
@@ -69,15 +77,61 @@ export class VoluntariadoService {
             throw new NotFoundException('Expediente inactivo. no puedes agregar actividades');
         }
 
-        const nuevaActividad = this.actividadesRepository.create({
+        if(crearActividades.cantidadHoras){
+
+            if(expediente.tipoVoluntariado.nombre == TipoVoluntario.Horas){
+
+                const nuevaActividad = this.actividadesRepository.create({
+                fecha: crearActividades.fecha,
+                cantidadHoras: crearActividades.cantidadHoras,
+                actividades: crearActividades.actividades,
+                solicitud: expediente,
+            })
+
+            await this.actividadesRepository.save(nuevaActividad)
+              const { total } = await this.actividadesRepository
+                .createQueryBuilder('actividad')
+                .select('SUM(actividad.cantidadHoras)', 'total')
+                .where('actividad.solicitud_aprobada_id = :id', { id: idExpediente })
+                .getRawOne();
+
+                expediente.progreso_horas = Number(total) || 0;
+                if (expediente.progreso_horas >= expediente.cantidadHoras) {
+                    expediente.estado = 'Inactivo';
+                }
+                
+                await this.solicitudAprobada.save(expediente);
+                return { message: 'Actividad agregada correctamente' };
+            }
+        
+            const nuevaActividad = this.actividadesRepository.create({
             fecha: crearActividades.fecha,
             cantidadHoras: crearActividades.cantidadHoras,
             actividades: crearActividades.actividades,
             solicitud: expediente,
-        });
 
-        await this.actividadesRepository.save(nuevaActividad);
+            })
 
+            await this.actividadesRepository.save(nuevaActividad)
+            return { message: 'Actividad agregada correctamente' };
+        }
+        else{
+            
+            if(expediente.tipoVoluntariado.nombre == TipoVoluntario.Horas){
+                throw new BadRequestException('El voluntario de este tipo tiene que registrer sus horas')
+            }
+
+            const nuevaActividad = this.actividadesRepository.create({
+            fecha: crearActividades.fecha,
+            actividades: crearActividades.actividades,
+            solicitud: expediente,
+            })
+
+            await this.actividadesRepository.save(nuevaActividad)
+    
+        }
+        
+      
         return { message: 'Actividad agregada correctamente' };
     }
 

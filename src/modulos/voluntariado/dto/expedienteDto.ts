@@ -40,5 +40,8 @@ export class ExpedienteAprobadoDto {
   cantidadHoras;
 
   @Expose()
+  progreso_horas
+
+  @Expose()
   estado;
 }

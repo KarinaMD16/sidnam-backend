@@ -22,6 +22,9 @@ export class SolicitudAprobada {
   @Column({ nullable: true })
   cantidadHoras: number;
 
+  @Column({ nullable: true })
+  progreso_horas: number;
+
   @CreateDateColumn()
   aprobadaEn: Date;
 
