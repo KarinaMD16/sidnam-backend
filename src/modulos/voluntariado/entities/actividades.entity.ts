@@ -11,7 +11,7 @@ export class Actividades {
   @Column()
   fecha: Date; 
 
-  @Column()
+  @Column({ nullable: true })
   cantidadHoras: number; 
 
   @Column()
