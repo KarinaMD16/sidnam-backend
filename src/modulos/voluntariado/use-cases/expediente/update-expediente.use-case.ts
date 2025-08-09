@@ -14,6 +14,7 @@ import { Contacto_emergencia } from '../../entities/contactoEmergencia.entity';
 import { ActualizarExpedienteDto } from '../../dto/actulizarExpedienteDto';
 import { Horario } from '../../entities/horario.entity';
 
+
 @Injectable()
 export class UpdateExpedienteUseCase {
   constructor(
@@ -56,6 +57,7 @@ export class UpdateExpedienteUseCase {
             relations: ['voluntario', 'horarios', 'voluntario.contactosEmergencia', 'actividades']
         });
 
+
         if (!expediente) {
             throw new NotFoundException('Expediente no registrado');
         }
@@ -76,6 +78,8 @@ export class UpdateExpedienteUseCase {
 
             voluntario.cedula = actualizarExpediente.cedula;
         }
+
+        if(expediente.horarios)
 
         if (actualizarExpediente.nombre) voluntario.nombre = actualizarExpediente.nombre;
         if (actualizarExpediente.apellido1) voluntario.apellido1 = actualizarExpediente.apellido1;
@@ -107,7 +111,6 @@ export class UpdateExpedienteUseCase {
         if (actualizarExpediente.horarios) {
         for (const horarioDto of actualizarExpediente.horarios) {
                 if (horarioDto.id) {
-                
                     const horarioExistente = expediente.horarios.find(h => h.id === horarioDto.id);
                     if (horarioExistente) {
                         horarioExistente.dia = horarioDto.dia;
@@ -115,6 +118,17 @@ export class UpdateExpedienteUseCase {
                         horarioExistente.horaFin = horarioDto.horaFin;
                     } 
                 } else {
+
+                    const diaExistente = await this.horarioRepository.findOne({
+                        where: {
+                            dia: horarioDto.dia,
+                            solicitud: { id: expediente.id },
+                        }
+                    })
+
+                    if(diaExistente){
+                        throw new BadRequestException('No se puede registrar un mismo dia registrado anteriormente')
+                    }
                     const nuevoHorario = this.horarioRepository.create({
                         dia: horarioDto.dia,
                         horaInicio: horarioDto.horaInicio,
