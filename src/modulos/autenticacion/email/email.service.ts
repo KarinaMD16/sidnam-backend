@@ -124,16 +124,23 @@
 
     public async sendSolicitudAceptadaEmail(email: string, nombre: string): Promise<void> {
     const html = `
-        <div style="font-family: 'Poppins', Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border-radius: 20px; border: 1px solid #ddd;">
-            <div style="display: flex; align-items: center; text-align: left;">
-                <img width="100px" src="https://i.ibb.co/HDfRP6fX/1749848069832.png" alt="" style="display: block;">
-                <h2 style="color: #22c55e; margin: 0 0 0 10px;">¡Tu solicitud ha sido aceptada!</h2>
+         <div style="font-family: 'Poppins', Arial, sans-serif; margin: auto; padding: 20px; ">
+            <header style="display: flex;">
+                <img width="100px" height="100px" src="https://i.ibb.co/HDfRP6fX/1749848069832.png" alt="Hogar San Blas" ">
+            <div>
+                <h1 style="margin:0  0 0 10px;">Hogar San Blas</h1>
+                <h3 style="margin: 0  0 0 10px;">Información sobre resolución de solicitud de voluntariado. </h3>
             </div>
-
-            <p>Hola ${nombre},</p>
-            <p>Nos complace informarte que tu solicitud de voluntariado ha sido <strong>aprobada</strong>.</p>
-            <p>Las actividades se asignarán en las instalaciones.</p>
-            <p style="margin-top: 30px;">¡Gracias por unirte a nuestra comunidad de voluntariado!</p>
+            </header>
+            <main>
+                <h2 style="color: #22c55e; margin: 10px 0 0 10px;">¡Tu solicitud ha sido aceptada!</h2>
+                <div>
+                    <p>Hola ${nombre},</p>
+                    <p>Nos complace informarte que tu solicitud de voluntariado ha sido <strong>aprobada</strong>.</p>
+                    <p>Las actividades se asignarán en las instalaciones.</p>
+                    <p style="margin-top: 30px;">¡Gracias por unirte a nuestra comunidad de voluntariado!</p>
+                </div>
+            </main>
         </div>
     `;
 
@@ -147,12 +154,23 @@
 
     public async sendSolicitudRechazadaEmail(email: string, nombre: string): Promise<void> {
     const html = `
-        <div style="font-family: 'Poppins', Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border-radius: 20px; border: 1px solid #ddd;">
-            <h2 style="color: #c52238;">Tu solicitud ha sido rechazada</h2>
-            <p>Hola ${nombre},</p>
-            <p>Lamentamos informarte que tu solicitud de voluntariado ha sido <strong>rechazada</strong> tras una revisión del equipo correspondiente.</p>
-            <p>Agradecemos sinceramente tu interés en formar parte de nuestra comunidad.</p>
-            <p style="margin-top: 30px;">Puedes volver a intentarlo en el futuro o seguir apoyando en otras formas.</p>
+        <div style="font-family: 'Poppins', Arial, sans-serif; margin: auto; padding: 20px; ">
+            <header style="display: flex;">
+                <img width="100px" height="100px" src="https://i.ibb.co/HDfRP6fX/1749848069832.png" alt="Hogar San Blas" ">
+            <div>
+                <h1 style="margin:0  0 0 10px;">Hogar San Blas</h1>
+                <h3 style="margin: 0  0 0 10px;">Información sobre resolución de solicitud de voluntariado. </h3>
+            </div>
+            </header>
+            <main>
+                <h2 style="color: #c52238;">Tu solicitud ha sido rechazada</h2>
+                <div>
+                    <p>Hola ${nombre},</p>
+                    <p>Lamentamos informarte que tu solicitud de voluntariado ha sido <strong>rechazada</strong> tras una revisión del equipo correspondiente.</p>
+                    <p>Agradecemos sinceramente tu interés en formar parte de nuestra comunidad.</p>
+                    <p style="margin-top: 30px;">Puedes volver a intentarlo en el futuro o seguir apoyando en otras formas.</p>
+                </div>
+            </main>
         </div>
     `;
 
