@@ -76,24 +76,8 @@ export class UpdateExpedienteUseCase {
         }
 
         if(actualizarExpediente.horarios){
-
-            for (const horario of actualizarExpediente.horarios) {
-
-                const horarioExistente = await this.horarioRepository.findOne({
-                    where: {id: horario.id}
-                })
-
-                if(horarioExistente){
-                    horarioExistente.dia = horario.dia;
-                    horarioExistente.horaFin = horario.horaFin;
-                    horarioExistente.horaInicio = horario.horaInicio;
-                    await this.horarioRepository.save(horarioExistente);
-                }
-                else{
-                    const nuevoHorario = this.horarioRepository.create(horario);
-                    await this.horarioRepository.save(nuevoHorario);
-                }
-            }
+            
+            
         }
 
         if (actualizarExpediente.nombre) voluntario.nombre = actualizarExpediente.nombre;

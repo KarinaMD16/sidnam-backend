@@ -21,7 +21,7 @@ import { GetExpedientesUseCase } from './use-cases/expediente/get-expedientes.us
 import { GetSolicitudesUseCase } from './use-cases/solicitud/get-solicitud.use-case';
 import { PdfHtmlService } from 'src/common/services/pdf-html.service';
 import { ReporteService } from './services/reporte.service';
-import { ReporteController } from './controllers/reporte.controller';
+
 
 
 @Module({
@@ -30,6 +30,6 @@ import { ReporteController } from './controllers/reporte.controller';
   AutenticacionModule,
   GestionUsuarioModule],
   providers: [VoluntariadoService, VoluntariadoGateway, UpdateExpedienteUseCase, CreateExpedienteUseCase, CreateSolicitudUseCase, GetExpedientesUseCase, GetSolicitudesUseCase, PdfHtmlService, ReporteService],
-  controllers: [VoluntariadoController, ReporteController,]
+  controllers: [VoluntariadoController]
 })
 export class VoluntariadoModule {}

@@ -6,6 +6,7 @@ export class HorarioDto {
   @IsOptional()
   @IsNumber()
   id?: number;
+
   
   @IsString()
   dia: string;
