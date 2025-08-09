@@ -1,5 +1,5 @@
 export enum Rol {
-  ADMIN = 'Administrador',
+  ADMIN = 'ADMIN',
   TERAPIA = 'Terapia Fisica',
   NUTRICION = 'Nutricion',
   ENFERMERIA = 'Enfermeria',

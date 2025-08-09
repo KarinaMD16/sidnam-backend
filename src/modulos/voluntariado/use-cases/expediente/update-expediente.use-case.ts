@@ -47,10 +47,12 @@ export class UpdateExpedienteUseCase {
           return {message: 'El expediente se ha inactivado con exito'}
     }
 
-    async updateExpediente(id: number, actualizarExpediente: Partial<ActualizarExpedienteDto>): Promise<{message: string}> {
+    async updateExpediente(idExpediente: number, actualizarExpediente: Partial<ActualizarExpedienteDto>): Promise<{message: string}> {
 
         const expediente = await this.solicitudAprobada.findOne({
-            where: { id },
+            where: { 
+                id: idExpediente,
+            },
             relations: ['voluntario', 'horarios', 'voluntario.contactosEmergencia', 'actividades']
         });
 
@@ -73,11 +75,6 @@ export class UpdateExpedienteUseCase {
             }
 
             voluntario.cedula = actualizarExpediente.cedula;
-        }
-
-        if(actualizarExpediente.horarios){
-            
-            
         }
 
         if (actualizarExpediente.nombre) voluntario.nombre = actualizarExpediente.nombre;
@@ -105,6 +102,28 @@ export class UpdateExpedienteUseCase {
             );
 
             voluntario.contactosEmergencia = nuevosContactos;
+        }
+
+        if (actualizarExpediente.horarios) {
+        for (const horarioDto of actualizarExpediente.horarios) {
+                if (horarioDto.id) {
+                
+                    const horarioExistente = expediente.horarios.find(h => h.id === horarioDto.id);
+                    if (horarioExistente) {
+                        horarioExistente.dia = horarioDto.dia;
+                        horarioExistente.horaInicio = horarioDto.horaInicio;
+                        horarioExistente.horaFin = horarioDto.horaFin;
+                    } 
+                } else {
+                    const nuevoHorario = this.horarioRepository.create({
+                        dia: horarioDto.dia,
+                        horaInicio: horarioDto.horaInicio,
+                        horaFin: horarioDto.horaFin,
+                        solicitud: expediente,
+                    });
+                    expediente.horarios.push(nuevoHorario);
+                }
+            }
         }
 
         if (actualizarExpediente.observaciones) expediente.observaciones = actualizarExpediente.observaciones;
