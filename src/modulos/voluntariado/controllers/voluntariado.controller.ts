@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from '@nestjs/common';
 import { VoluntariadoService } from '../services/voluntariado.service';
 import { CrearSolicitudPendienteDto } from '../dto/crearSolicitudPendienteDto';
 import { TipoVoluntarioDto } from '../dto/crearTipoVoluntarioDto';
@@ -12,6 +12,7 @@ import { GetExpedientesUseCase } from '../use-cases/expediente/get-expedientes.u
 import { GetSolicitudesUseCase } from '../use-cases/solicitud/get-solicitud.use-case';
 import { ReporteService } from '../services/reporte.service';
 import { Response } from 'express';
+import { DeleteExpediente } from '../use-cases/expediente/delete-horarioExpediente.use-case';
 
 
 @Controller('voluntariado')
@@ -25,7 +26,8 @@ export class VoluntariadoController {
         private readonly createSolicitud: CreateSolicitudUseCase,
         private readonly getExpedientesUseCase: GetExpedientesUseCase,
         private readonly getSolicitudesUseCase: GetSolicitudesUseCase,
-        private readonly reporteService: ReporteService
+        private readonly reporteService: ReporteService,
+        private readonly deleteHorarios: DeleteExpediente
     ){}
 
 
@@ -139,12 +141,17 @@ export class VoluntariadoController {
     }
 
     @Get(':id/pdf')
-    async generarPdf(@Param('id') id: string, @Res() res: Response) {
-    const idNum = Number(id);
-    if (isNaN(idNum)) {
-        res.status(400).send('ID inválido');
-        return;
+        async generarPdf(@Param('id') id: string, @Res() res: Response) {
+        const idNum = Number(id);
+        if (isNaN(idNum)) {
+            res.status(400).send('ID inválido');
+            return;
+        }
+        await this.reporteService.generarReporteActividades(idNum, res);
     }
-    await this.reporteService.generarReporteActividades(idNum, res);
- }
+
+    @Delete('horario/:id')
+    async removeHorario(@Param('id', new ParseIntPipe) id: number){
+        await this.deleteHorarios.deleteHorario(id);
+    }
 }

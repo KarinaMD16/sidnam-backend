@@ -21,6 +21,7 @@ import { GetExpedientesUseCase } from './use-cases/expediente/get-expedientes.us
 import { GetSolicitudesUseCase } from './use-cases/solicitud/get-solicitud.use-case';
 import { PdfHtmlService } from 'src/common/services/pdf-html.service';
 import { ReporteService } from './services/reporte.service';
+import { DeleteExpediente } from './use-cases/expediente/delete-horarioExpediente.use-case';
 
 
 
@@ -29,7 +30,7 @@ import { ReporteService } from './services/reporte.service';
     TypeOrmModule.forFeature([Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario, Actividades]),
   AutenticacionModule,
   GestionUsuarioModule],
-  providers: [VoluntariadoService, VoluntariadoGateway, UpdateExpedienteUseCase, CreateExpedienteUseCase, CreateSolicitudUseCase, GetExpedientesUseCase, GetSolicitudesUseCase, PdfHtmlService, ReporteService],
+  providers: [VoluntariadoService, VoluntariadoGateway, UpdateExpedienteUseCase, CreateExpedienteUseCase, CreateSolicitudUseCase, GetExpedientesUseCase, GetSolicitudesUseCase, PdfHtmlService, ReporteService, DeleteExpediente],
   controllers: [VoluntariadoController]
 })
 export class VoluntariadoModule {}
