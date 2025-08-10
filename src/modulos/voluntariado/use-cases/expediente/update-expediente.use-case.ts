@@ -13,6 +13,8 @@ import { Voluntario } from '../../entities/voluntariado.entity';
 import { Contacto_emergencia } from '../../entities/contactoEmergencia.entity';
 import { ActualizarExpedienteDto } from '../../dto/actulizarExpedienteDto';
 import { Horario } from '../../entities/horario.entity';
+import { ActualizarActividadesDto } from '../../dto/updateActidadDto';
+import { Actividades } from '../../entities/actividades.entity';
 
 
 @Injectable()
@@ -29,6 +31,9 @@ export class UpdateExpedienteUseCase {
 
     @InjectRepository(Horario)
     private readonly horarioRepository: Repository<Horario>,
+
+    @InjectRepository(Actividades)
+    private readonly actividadRepository: Repository<Actividades>,
   ) {}
 
     async updateEstadoAInactivo(idSolicitud: number): Promise<{message: string}>{
@@ -146,5 +151,29 @@ export class UpdateExpedienteUseCase {
         await this.solicitudAprobada.save(expediente);
 
         return { message: 'Expediente actualizado con éxito' };
+    }
+
+
+    async updateActividades(updateActividadesDto: ActualizarActividadesDto, idActividad: number): Promise<{ message: string }> {
+        const actividad = await this.actividadRepository.findOne({
+            where: { id: idActividad },
+        });
+
+        if (!actividad) {
+            throw new NotFoundException('Actividad no encontrada');
+        }
+
+        if (!actividad) {
+            throw new NotFoundException('No hay actividades registradas para esta actividad');
+        }
+
+        actividad.fecha = updateActividadesDto.fecha ?? actividad.fecha;
+        actividad.cantidadHoras = updateActividadesDto.cantidadHoras ?? actividad.cantidadHoras;
+        actividad.actividades = updateActividadesDto.actividades ?? actividad.actividades;
+
+        await this.actividadRepository.save(actividad);
+
+        return { message: 'Actividad actualizada con éxito' };
+        
     }
 }

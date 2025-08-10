@@ -12,7 +12,8 @@ import { GetExpedientesUseCase } from '../use-cases/expediente/get-expedientes.u
 import { GetSolicitudesUseCase } from '../use-cases/solicitud/get-solicitud.use-case';
 import { ReporteService } from '../services/reporte.service';
 import { Response } from 'express';
-import { DeleteExpediente } from '../use-cases/expediente/delete-horarioExpediente.use-case';
+import { DeleteExpediente } from '../use-cases/expediente/delete-expediente.use-case';
+import { ActualizarActividadesDto } from '../dto/updateActidadDto';
 
 
 @Controller('voluntariado')
@@ -27,7 +28,7 @@ export class VoluntariadoController {
         private readonly getExpedientesUseCase: GetExpedientesUseCase,
         private readonly getSolicitudesUseCase: GetSolicitudesUseCase,
         private readonly reporteService: ReporteService,
-        private readonly deleteHorarios: DeleteExpediente
+        private readonly removeExpedientes: DeleteExpediente
     ){}
 
 
@@ -152,6 +153,16 @@ export class VoluntariadoController {
 
     @Delete('horario/:id')
     async removeHorario(@Param('id', new ParseIntPipe) id: number){
-        await this.deleteHorarios.deleteHorario(id);
+        await this.removeExpedientes.deleteHorario(id);
+    }
+
+    @Patch('updateActividades/:idActividad')
+    async updateActividades(@Param('idActividad', new ParseIntPipe) idActividad: number, @Body() updateActividadesDto: ActualizarActividadesDto) {
+        return this.updateExpedientes.updateActividades(updateActividadesDto, idActividad);
+    }
+
+    @Delete('actividades/:idActividad')
+    async removeActividad(@Param('idActividad', new ParseIntPipe) idActividad: number){
+        await this.removeExpedientes.deleteActividad(idActividad);
     }
 }
