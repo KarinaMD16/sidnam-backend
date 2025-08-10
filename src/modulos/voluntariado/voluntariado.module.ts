@@ -21,7 +21,7 @@ import { GetExpedientesUseCase } from './use-cases/expediente/get-expedientes.us
 import { GetSolicitudesUseCase } from './use-cases/solicitud/get-solicitud.use-case';
 import { PdfHtmlService } from 'src/common/services/pdf-html.service';
 import { ReporteService } from './services/reporte.service';
-import { DeleteExpediente } from './use-cases/expediente/delete-horarioExpediente.use-case';
+import { DeleteExpediente } from './use-cases/expediente/delete-expediente.use-case';
 
 
 
