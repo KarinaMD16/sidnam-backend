@@ -103,7 +103,7 @@ export class AutenticacionService {
         const newPayload = { id: user.id, email: user.email, role: user.role, name: user.name };
 
         const newAccessToken = await this.jwtService.signAsync(newPayload, { expiresIn: '15m' });
-        const newRefreshToken = await this.jwtService.signAsync(newPayload, { expiresIn: '7d' });
+        const newRefreshToken = await this.jwtService.signAsync(newPayload, { expiresIn: '1d' });
 
         const newHashedRefreshToken = await bcrypt.hash(newRefreshToken, 10);
         user.refreshToken = newHashedRefreshToken;
@@ -113,7 +113,7 @@ export class AutenticacionService {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 1 * 24 * 60 * 60 * 1000,
         path: '/',
         });
 
