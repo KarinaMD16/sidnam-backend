@@ -14,6 +14,10 @@ export class GestionUsuarioService {
         private readonly usuariosRepository: Repository<Usuario>
     ){}
 
+    async saveUsuario(usuario: Usuario){
+        await this.usuariosRepository.save(usuario)
+    }
+
     async createUsuario(createUserDto: CreateUserDto){
         return await this.usuariosRepository.save(createUserDto);
     }

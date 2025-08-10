@@ -20,6 +20,9 @@ export class Usuario {
   @Column({ default: "user" })
   role: string;
 
+  @Column({ type: 'text', nullable: true })
+  refreshToken: string | null;
+
   @DeleteDateColumn()
   deletedAt: Date;
 }
