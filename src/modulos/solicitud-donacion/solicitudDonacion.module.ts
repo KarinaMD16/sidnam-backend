@@ -10,6 +10,7 @@ import { Solicitud_donacion_pendiente } from "./entities/solicitudDonacionPendie
 import { Donador } from "./entities/donador.entity";
 import { CreateSolicitudDonacionUseCase } from "./use-cases/solicitud/create-solicitudDonacion.use-case";
 import { GetSolicitudesDonacionUseCase } from "./use-cases/solicitud/get-solicitudDonacion.use-case";
+import { CreateRegistroDonacionUseCase } from "./use-cases/registro/create-RegistroDonacion.use-case";
 
 
 
@@ -19,7 +20,7 @@ import { GetSolicitudesDonacionUseCase } from "./use-cases/solicitud/get-solicit
         AutenticacionModule,
         GestionUsuarioModule,
     ],
-    providers: [SolicitudDonacionService, SolicitudDonacionGateway, CreateSolicitudDonacionUseCase, GetSolicitudesDonacionUseCase],
+    providers: [SolicitudDonacionService, SolicitudDonacionGateway, CreateSolicitudDonacionUseCase, GetSolicitudesDonacionUseCase, CreateRegistroDonacionUseCase],
     controllers: [SolicitudDonacionController],
     exports: [SolicitudDonacionService],
 })

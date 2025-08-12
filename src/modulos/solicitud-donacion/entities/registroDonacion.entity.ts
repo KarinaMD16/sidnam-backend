@@ -9,18 +9,22 @@ export class RegistroDonacion{
   id: number;
   
   @Column({type: 'varchar', length: 100, nullable: true})
-  datosExtra: string;
+  aprobadaPor: string;
 
-  @Column({type: 'varchar', length: 100})
+  @Column({type: 'varchar', length: 100, nullable: true})
   observaciones: string;
 
   @CreateDateColumn()
   aprobadaEn: Date;
 
+  @Column({ default: false })
+  recibida: boolean;
+
+   @Column({ type: 'timestamp', nullable: true })
+   recibidaEn: Date | null;
 
   @ManyToOne(() => Donador, d => d.registroDonaciones)
     @JoinColumn({ name: 'donador_id' })
     donador: Donador;
-
 
 }
