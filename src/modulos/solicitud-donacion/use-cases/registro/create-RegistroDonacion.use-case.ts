@@ -115,7 +115,7 @@ async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: 
                 donador,
                 aprobadaPor: `Aprobada por: ${usuario.name}`,
                 observaciones: solicitud.observaciones,
-                estado: 'Pendiente de recibir',
+                estado: 'Procesada',
                 recibidaEn: null,
                 });
 

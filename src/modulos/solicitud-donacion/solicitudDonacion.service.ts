@@ -5,7 +5,7 @@ import { EmailService } from "../autenticacion/email/email.service";
 import { GestionUsuarioService } from "../gestion-usuario/gestion-usuario.service";
 import { SolicitudDonacionGateway } from "./solicitudDonacion.gateway";
 import { Solicitud_donacion_pendiente } from "./entities/solicitudDonacionPendiente.entity";
-import { EstadoSolicitudDonacion } from "src/common/enums/estadosSolicitudes.enum";
+import { EstadoSolicitud } from "src/common/enums/estadosSolicitudes.enum";
 
 
 @Injectable()
@@ -28,9 +28,9 @@ export class  SolicitudDonacionService {
 
 
 
-    async getEstadosSolicitudDonacion() {
+         getEstadosSolicitudDonacion() {
     
-        const estados = Object.entries(EstadoSolicitudDonacion)
+        const estados = Object.entries(EstadoSolicitud)
         .filter(([key, value]) => typeof value === 'number') 
         .map(([key, value]) => ({
             id: value as number,
