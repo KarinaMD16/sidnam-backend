@@ -164,8 +164,8 @@
             <div style="font-family: 'Poppins', Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border-radius: 20px; border: 1px solid #ddd;">
             <h2 style="color: #22c55e;">¡Tu solicitud de donación ha sido aceptada!</h2>
             <p>Hola ${nombre},</p>
-            <p>Nos complace informarte que tu solicitud de donación ha sido <strong>aprobada</strong>.</p>
-            <p>Podrás coordinar la entrega en nuestras instalaciones.</p>
+            <p>Nos complace informarte que tu solicitud de donación ha sido <strong>aceptada</strong>.</p>
+            <p>Nos estaremos contactando pronto contigo para coordinar la entrega.</p>
             <p style="margin-top: 30px;">¡Gracias por tu generosidad y por contribuir a nuestra causa!</p>
             </div>
         `;
@@ -185,8 +185,8 @@
             <h2 style="color: #c52238;">Tu solicitud de donación ha sido rechazada</h2>
             <p>Hola ${nombre},</p>
             <p>Lamentamos informarte que tu solicitud de donación ha sido <strong>rechazada</strong> tras una revisión del equipo correspondiente.</p>
-            <p>Agradecemos sinceramente tu interés en ayudar y contribuir a nuestra causa.</p>
-            <p style="margin-top: 30px;">Puedes volver a intentarlo en el futuro o apoyarnos de otras maneras.</p>
+            <p>Si tienes alguna del porque tu solicitud fue rechazada, puedes contactarte con nosotros y te daremos más información.</p>
+            <p style="margin-top: 30px;">Agradecemos sinceramente tu interés en ayudar y contribuir a nuestra causa, esperamos la posibilidad de tu colaboración en un futuro.</p>
             </div>
         `;
 

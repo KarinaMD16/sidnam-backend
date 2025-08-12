@@ -104,8 +104,6 @@ async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: 
                     apellido2: solicitud.apellido2,
                     telefono: solicitud.telefono,
                     email: solicitud.email,
-                    anonimo: solicitud.anonimo,
-                    descripcion: solicitud.descripcion,
                 });
 
                 await manager.save(donador);
@@ -115,8 +113,11 @@ async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: 
                 donador,
                 aprobadaPor: `Aprobada por: ${usuario.name}`,
                 observaciones: solicitud.observaciones,
-                estado: 'Procesada',
                 recibidaEn: null,
+                recibidaPor: "",
+                anonimo: solicitud.anonimo,
+                tipoDonacion: solicitud.tipoDonacion,
+                descripcion: solicitud.descripcion,
                 });
 
                 await manager.save(registro);

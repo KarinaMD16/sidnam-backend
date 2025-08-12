@@ -25,15 +25,6 @@ export class Donador {
   @Column({type: 'varchar', length: 100})
   email: string;
 
-  @CreateDateColumn()
-  creadoEn: Date;
-  
-  @Column({ default: false })
-  anonimo: boolean;
-
-  @Column({type: 'varchar', length: 255, nullable: true})
-  descripcion: string;
-
   @OneToMany(() => RegistroDonacion, d => d.donador)
     registroDonaciones: RegistroDonacion[];
 
