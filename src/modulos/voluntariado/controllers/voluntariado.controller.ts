@@ -1,15 +1,20 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
-import { VoluntariadoService } from './voluntariado.service';
-import { CrearSolicitudPendienteDto } from './dto/crearSolicitudPendienteDto';
-import { TipoVoluntarioDto } from './dto/crearTipoVoluntarioDto';
-import { CrearExpediente } from './dto/crearExpedienteDto';
-import { CrearACtividadesDto } from './dto/crearActividadesDto';
-import { ActualizarExpedienteDto } from './dto/actulizarExpedienteDto';
-import { CreateExpedienteUseCase } from './use-cases/expediente/create-expediente.use-case';
-import { UpdateExpedienteUseCase } from './use-cases/expediente/update-expediente.use-case';
-import { CreateSolicitudUseCase } from './use-cases/solicitud/create-solicitud.use-case';
-import { GetExpedientesUseCase } from './use-cases/expediente/get-expedientes.use-case';
-import { GetSolicitudesUseCase } from './use-cases/solicitud/get-solicitud.use-case';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from '@nestjs/common';
+import { VoluntariadoService } from '../services/voluntariado.service';
+import { CrearSolicitudPendienteDto } from '../dto/crearSolicitudPendienteDto';
+import { TipoVoluntarioDto } from '../dto/crearTipoVoluntarioDto';
+import { CrearExpediente } from '../dto/crearExpedienteDto';
+import { CrearACtividadesDto } from '../dto/crearActividadesDto';
+import { ActualizarExpedienteDto } from '../dto/actulizarExpedienteDto';
+import { CreateExpedienteUseCase } from '../use-cases/expediente/create-expediente.use-case';
+import { UpdateExpedienteUseCase } from '../use-cases/expediente/update-expediente.use-case';
+import { CreateSolicitudUseCase } from '../use-cases/solicitud/create-solicitud.use-case';
+import { GetExpedientesUseCase } from '../use-cases/expediente/get-expedientes.use-case';
+import { GetSolicitudesUseCase } from '../use-cases/solicitud/get-solicitud.use-case';
+import { ReporteService } from '../services/reporte.service';
+import { Response } from 'express';
+import { DeleteExpediente } from '../use-cases/expediente/delete-expediente.use-case';
+import { ActualizarActividadesDto } from '../dto/updateActidadDto';
+
 
 @Controller('voluntariado')
 export class VoluntariadoController {
@@ -21,7 +26,9 @@ export class VoluntariadoController {
         private readonly createExpediente: CreateExpedienteUseCase,
         private readonly createSolicitud: CreateSolicitudUseCase,
         private readonly getExpedientesUseCase: GetExpedientesUseCase,
-        private readonly getSolicitudesUseCase: GetSolicitudesUseCase
+        private readonly getSolicitudesUseCase: GetSolicitudesUseCase,
+        private readonly reporteService: ReporteService,
+        private readonly removeExpedientes: DeleteExpediente
     ){}
 
 
@@ -132,5 +139,30 @@ export class VoluntariadoController {
     @Patch('updateExpediente/:idExpediente')
     async updateExpediente(@Body() actualizar: ActualizarExpedienteDto, @Param('idExpediente', new ParseIntPipe) idExpediente: number){
         return this.updateExpedientes.updateExpediente(idExpediente, actualizar);
+    }
+
+    @Get(':id/pdf')
+        async generarPdf(@Param('id') id: string, @Res() res: Response) {
+        const idNum = Number(id);
+        if (isNaN(idNum)) {
+            res.status(400).send('ID inválido');
+            return;
+        }
+        await this.reporteService.generarReporteActividades(idNum, res);
+    }
+
+    @Delete('horario/:id')
+    async removeHorario(@Param('id', new ParseIntPipe) id: number){
+        await this.removeExpedientes.deleteHorario(id);
+    }
+
+    @Patch('updateActividades/:idActividad')
+    async updateActividades(@Param('idActividad', new ParseIntPipe) idActividad: number, @Body() updateActividadesDto: ActualizarActividadesDto) {
+        return this.updateExpedientes.updateActividades(updateActividadesDto, idActividad);
+    }
+
+    @Delete('actividades/:idActividad')
+    async removeActividad(@Param('idActividad', new ParseIntPipe) idActividad: number){
+        await this.removeExpedientes.deleteActividad(idActividad);
     }
 }

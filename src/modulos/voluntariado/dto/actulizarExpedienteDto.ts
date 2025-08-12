@@ -2,6 +2,7 @@ import { Type } from "class-transformer";
 import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 import { Sexo } from "src/common/enums/rol.enum";
 import { ContactoEmergenciaPendienteDto } from "./ContactoEmergenciaPendienteDto";
+import { HorarioDto } from "./horarioDto";
 
 export class ActualizarExpedienteDto{
 
@@ -48,6 +49,13 @@ export class ActualizarExpedienteDto{
   @IsOptional()
   @IsNumber()
   cantidadHoras: number
+
+ @IsOptional()
+ @IsArray()
+ @ValidateNested({ each: true })
+ @Type(() => HorarioDto)
+ horarios?: HorarioDto[];
+
 
   @IsOptional()
   @IsArray()
