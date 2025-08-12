@@ -185,7 +185,7 @@
             <h2 style="color: #c52238;">Tu solicitud de donación ha sido rechazada</h2>
             <p>Hola ${nombre},</p>
             <p>Lamentamos informarte que tu solicitud de donación ha sido <strong>rechazada</strong> tras una revisión del equipo correspondiente.</p>
-            <p>Si tienes alguna del porque tu solicitud fue rechazada, puedes contactarte con nosotros y te daremos más información.</p>
+            <p>Si tienes alguna duda del porque tu solicitud fue rechazada, puedes contactarte con nosotros y te daremos más información.</p>
             <p style="margin-top: 30px;">Agradecemos sinceramente tu interés en ayudar y contribuir a nuestra causa, esperamos la posibilidad de tu colaboración en un futuro.</p>
             </div>
         `;
