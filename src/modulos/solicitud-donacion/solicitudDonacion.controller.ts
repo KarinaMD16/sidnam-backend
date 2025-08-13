@@ -4,6 +4,7 @@ import { CrearSolicitudPendienteDto } from "./dto/crearSolicitudPendienteDto";
 import { CreateSolicitudDonacionUseCase } from "./use-cases/solicitud/create-solicitudDonacion.use-case";
 import { GetSolicitudesDonacionUseCase } from "./use-cases/solicitud/get-solicitudDonacion.use-case";
 import { CreateRegistroDonacionUseCase } from "./use-cases/registro/create-RegistroDonacion.use-case";
+import { GetRegistrosDonacionUseCase } from "./use-cases/registro/get-RegistroDonacion.use-case";
 
 
 @Controller('donacion')
@@ -13,7 +14,8 @@ export class SolicitudDonacionController {
         private readonly solicitudDonacionService: SolicitudDonacionService,
         private readonly createSolicitudDonacionUseCase: CreateSolicitudDonacionUseCase,
         private readonly getSolicitudesDonacionUseCase: GetSolicitudesDonacionUseCase,
-        private readonly createRegistroDonacionUseCase: CreateRegistroDonacionUseCase
+        private readonly createRegistroDonacionUseCase: CreateRegistroDonacionUseCase,
+        private readonly getRegistrosUseCase: GetRegistrosDonacionUseCase,
     ){}
 
     @Post('crearSolicitudDonacionPendiente')
@@ -62,5 +64,22 @@ export class SolicitudDonacionController {
         updateEstado( @Param('idEstado', ParseIntPipe)  idEstado: number, @Param('idSoli', ParseIntPipe) idSoli: number, @Param('idUsuario', ParseIntPipe) idUsuario: number){
             return this.createRegistroDonacionUseCase.updateEstadoSolicitudes(idEstado, idSoli, idUsuario)
         }
+
+
+    @Get('getPreviewRegistros')
+    getPreviewRegistros(
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    ){
+        if (page && limit) {
+            return this.getRegistrosUseCase.findAllPreviewsRegistros(page, limit);
+        }
+        return this.getRegistrosUseCase.findAllPreviewsRegistros();
+    }    
+
+    @Get('getRegistroById/:idRegistro')
+    getRegistroById(@Param('idRegistro') idRegistro: number){
+        return this.getRegistrosUseCase.getRegistroById(idRegistro);
+    }
 }
 

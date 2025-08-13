@@ -11,6 +11,7 @@ import { Donador } from "./entities/donador.entity";
 import { CreateSolicitudDonacionUseCase } from "./use-cases/solicitud/create-solicitudDonacion.use-case";
 import { GetSolicitudesDonacionUseCase } from "./use-cases/solicitud/get-solicitudDonacion.use-case";
 import { CreateRegistroDonacionUseCase } from "./use-cases/registro/create-RegistroDonacion.use-case";
+import { GetRegistrosDonacionUseCase } from "./use-cases/registro/get-RegistroDonacion.use-case";
 
 
 
@@ -20,7 +21,7 @@ import { CreateRegistroDonacionUseCase } from "./use-cases/registro/create-Regis
         AutenticacionModule,
         GestionUsuarioModule,
     ],
-    providers: [SolicitudDonacionService, SolicitudDonacionGateway, CreateSolicitudDonacionUseCase, GetSolicitudesDonacionUseCase, CreateRegistroDonacionUseCase],
+    providers: [SolicitudDonacionService, SolicitudDonacionGateway, CreateSolicitudDonacionUseCase, GetSolicitudesDonacionUseCase, CreateRegistroDonacionUseCase, GetRegistrosDonacionUseCase],
     controllers: [SolicitudDonacionController],
     exports: [SolicitudDonacionService],
 })
