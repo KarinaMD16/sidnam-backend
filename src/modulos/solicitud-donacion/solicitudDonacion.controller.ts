@@ -5,6 +5,7 @@ import { CreateSolicitudDonacionUseCase } from "./use-cases/solicitud/create-sol
 import { GetSolicitudesDonacionUseCase } from "./use-cases/solicitud/get-solicitudDonacion.use-case";
 import { CreateRegistroDonacionUseCase } from "./use-cases/registro/create-RegistroDonacion.use-case";
 import { GetRegistrosDonacionUseCase } from "./use-cases/registro/get-RegistroDonacion.use-case";
+import { UpdateRegistroDonacionUseCase } from "./use-cases/registro/update-RegistroDonacion.use-case";
 
 
 @Controller('donacion')
@@ -16,6 +17,7 @@ export class SolicitudDonacionController {
         private readonly getSolicitudesDonacionUseCase: GetSolicitudesDonacionUseCase,
         private readonly createRegistroDonacionUseCase: CreateRegistroDonacionUseCase,
         private readonly getRegistrosUseCase: GetRegistrosDonacionUseCase,
+        private readonly updateRegistro: UpdateRegistroDonacionUseCase,
     ){}
 
     @Post('crearSolicitudDonacionPendiente')
@@ -80,6 +82,12 @@ export class SolicitudDonacionController {
     @Get('getRegistroById/:idRegistro')
     getRegistroById(@Param('idRegistro') idRegistro: number){
         return this.getRegistrosUseCase.getRegistroById(idRegistro);
+    }
+
+    
+    @Patch('updateEstadoARecibido/:idRegistro/:idUsuario')
+    updateEstadoRegistro(@Param('idRegistro', ParseIntPipe) idRegistro: number, @Param('idUsuario', ParseIntPipe) idUsuario: number){
+        return this.updateRegistro.updateEstadoARecibido(idRegistro, idUsuario);
     }
 }
 

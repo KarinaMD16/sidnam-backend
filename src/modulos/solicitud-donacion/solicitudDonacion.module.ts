@@ -12,6 +12,7 @@ import { CreateSolicitudDonacionUseCase } from "./use-cases/solicitud/create-sol
 import { GetSolicitudesDonacionUseCase } from "./use-cases/solicitud/get-solicitudDonacion.use-case";
 import { CreateRegistroDonacionUseCase } from "./use-cases/registro/create-RegistroDonacion.use-case";
 import { GetRegistrosDonacionUseCase } from "./use-cases/registro/get-RegistroDonacion.use-case";
+import { UpdateRegistroDonacionUseCase } from "./use-cases/registro/update-RegistroDonacion.use-case";
 
 
 
@@ -21,7 +22,7 @@ import { GetRegistrosDonacionUseCase } from "./use-cases/registro/get-RegistroDo
         AutenticacionModule,
         GestionUsuarioModule,
     ],
-    providers: [SolicitudDonacionService, SolicitudDonacionGateway, CreateSolicitudDonacionUseCase, GetSolicitudesDonacionUseCase, CreateRegistroDonacionUseCase, GetRegistrosDonacionUseCase],
+    providers: [SolicitudDonacionService, SolicitudDonacionGateway, CreateSolicitudDonacionUseCase, GetSolicitudesDonacionUseCase, CreateRegistroDonacionUseCase, GetRegistrosDonacionUseCase, UpdateRegistroDonacionUseCase],
     controllers: [SolicitudDonacionController],
     exports: [SolicitudDonacionService],
 })
