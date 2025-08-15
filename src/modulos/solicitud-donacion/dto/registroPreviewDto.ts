@@ -11,6 +11,9 @@ export class RegistroPreviewDto {
     tipoDonacion: string;
 
     @Expose()
+    recibida: boolean;
+
+    @Expose()
     @Type(() => DonadorDto)
     donador: DonadorDto;
 }
