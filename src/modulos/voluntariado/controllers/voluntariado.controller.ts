@@ -122,7 +122,7 @@ export class VoluntariadoController {
         return this.updateExpedientes.updateEstadoAInactivo(idSolicitud);
     }
 
-    @Get('expedientes/activos')
+    @Get('expedientes/activos/preview')
     getExpedientesActivos( @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
         return this.getExpedientesUseCase.getExpedientesActivos(page, limit)
     }
