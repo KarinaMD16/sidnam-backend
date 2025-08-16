@@ -4,3 +4,4 @@ export enum EstadoSolicitud {
   Aprobadas = 2,
   Rechazadas = 3,
 }
+
