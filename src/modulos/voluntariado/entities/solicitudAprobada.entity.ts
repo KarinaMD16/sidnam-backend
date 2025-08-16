@@ -19,6 +19,12 @@ export class SolicitudAprobada {
   @Column({ default: 'Activo' })
   estado: 'Activo' | 'Inactivo';
 
+  @Column({ nullable: true })
+  cantidadHoras: number;
+
+  @Column({ nullable: true })
+  progreso_horas: number;
+
   @CreateDateColumn()
   aprobadaEn: Date;
 

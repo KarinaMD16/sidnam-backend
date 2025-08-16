@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { VoluntariadoService } from './voluntariado.service';
-import { VoluntariadoController } from './voluntariado.controller';
+import { VoluntariadoService } from './services/voluntariado.service';
+import { VoluntariadoController } from './controllers/voluntariado.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Contacto_emergencia } from './entities/contactoEmergencia.entity';
 import { Horario } from './entities/horario.entity';
@@ -14,6 +14,15 @@ import { VoluntariadoGateway } from './voluntariado.gateway';
 import { AutenticacionModule } from '../autenticacion/autenticacion.module';
 import { GestionUsuarioModule } from '../gestion-usuario/gestion-usuario.module';
 import { Actividades } from './entities/actividades.entity';
+import { CreateExpedienteUseCase } from './use-cases/expediente/create-expediente.use-case';
+import { UpdateExpedienteUseCase } from './use-cases/expediente/update-expediente.use-case';
+import { CreateSolicitudUseCase } from './use-cases/solicitud/create-solicitud.use-case';
+import { GetExpedientesUseCase } from './use-cases/expediente/get-expedientes.use-case';
+import { GetSolicitudesUseCase } from './use-cases/solicitud/get-solicitud.use-case';
+import { PdfHtmlService } from 'src/common/services/pdf-html.service';
+import { ReporteService } from './services/reporte.service';
+import { DeleteExpediente } from './use-cases/expediente/delete-expediente.use-case';
+
 
 
 @Module({
@@ -21,7 +30,7 @@ import { Actividades } from './entities/actividades.entity';
     TypeOrmModule.forFeature([Contacto_emergencia, ContactoEmergenciaPendiente, Horario, HorarioPendiente, SolicitudAprobada, SolicitudPendiente, Tipo_voluntariado, Voluntario, Actividades]),
   AutenticacionModule,
   GestionUsuarioModule],
-  providers: [VoluntariadoService, VoluntariadoGateway],
+  providers: [VoluntariadoService, VoluntariadoGateway, UpdateExpedienteUseCase, CreateExpedienteUseCase, CreateSolicitudUseCase, GetExpedientesUseCase, GetSolicitudesUseCase, PdfHtmlService, ReporteService, DeleteExpediente],
   controllers: [VoluntariadoController]
 })
 export class VoluntariadoModule {}

@@ -1,8 +1,10 @@
 export enum Rol {
   ADMIN = 'ADMIN',
-  TERAPIA = 'TERAPIA',
-  NUTRICION = 'NUTRICION',
-  ENFERMERIA = 'ENFERMERIA'
+  TERAPIA = 'Terapia Fisica',
+  NUTRICION = 'Nutricion',
+  ENFERMERIA = 'Enfermeria',
+  TRABAJO_SOCIAL = 'Trabajo Social',
+  COORDINADOR_VOL = 'Coordinador Voluntariado'
 }
 
 
