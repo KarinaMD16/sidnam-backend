@@ -32,27 +32,27 @@ export class VoluntariadoController {
     ){}
 
 
-    @Post('crearSolicitudPendiente')
+    @Post('solicitudes/pendiente')
     crearSolicitudPendiente(@Body() SolicitudPendiente: CrearSolicitudPendienteDto){
         return this.createSolicitud.crearSolicitudPendiente(SolicitudPendiente)
     }
 
-    @Post('crearExpediente/:idUsuario')
+    @Post('expedientes/:idUsuario')
     crearExpediente(@Body() crearExp: CrearExpediente, @Param('idUsuario', ParseIntPipe) idUsuario: number){
         return this.createExpediente.crearExpediente(crearExp, idUsuario)
     }
 
-    @Post('tipo-Voluntariado')
+    @Post('tipos-voluntariado')
     crearTipoVoluntario(@Body() crearTipoVoluntario: TipoVoluntarioDto){
         return this.voluntariadoService.crearTipoVoluntario(crearTipoVoluntario);
     }
 
-    @Get('getTipoVoluntario')
+    @Get('tipos-voluntariado')
     getAllTipoVoluntario(){
         return this.voluntariadoService.getAllTipoVoluntario()
     }
 
-    @Get('getPreviewSolicitudes')
+    @Get('solicitudes/preview')
     getPreviewSolicitudes(
         @Query('page', new ParseIntPipe({ optional: true })) page?: number,
         @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
@@ -63,17 +63,17 @@ export class VoluntariadoController {
         return this.getSolicitudesUseCase.findAllPreviews();
     }
 
-    @Get('getSolicitudById/:id')
+    @Get('solicitudes/:id')
     getSolicitudesById(@Param('id') id: number){
         return this.getSolicitudesUseCase.findSolicitudById(id);
     }   
 
-    @Get('getEstadoSolicitud')
+    @Get('solicitudes/estados')
     getEstadosSolicitd(){
         return this.voluntariadoService.getEstadosSolicitud()
     }
 
-    @Get('getFiltroSolicitudes/:id')
+    @Get('solicitudes/preview/filtrar/estados/:id')
     getFiltro(
         @Param('id', ParseIntPipe) id: number,
         @Query('page', new ParseIntPipe({ optional: true })) page?: number,
@@ -85,12 +85,12 @@ export class VoluntariadoController {
          return this.getSolicitudesUseCase.getFiltosEstados(id)
     }
 
-    @Patch('updateEstado/:idEstado/:idSoli/:idUsuario')
+    @Patch('solicitudes/:idSoli/estado/:idEstado/usuario/:idUsuario')
     updateEstado( @Param('idEstado', ParseIntPipe)  idEstado: number, @Param('idSoli', ParseIntPipe) idSoli: number, @Param('idUsuario', ParseIntPipe) idUsuario: number){
         return this.createExpediente.updateEstadoSolicitudes(idEstado, idSoli, idUsuario)
     }
 
-    @Get('getPreviewExpedientes')
+    @Get('expedientes/preview')
     getPreviewExpedientes(
         @Query('page', new ParseIntPipe({ optional: true })) page?: number,
         @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
@@ -101,47 +101,47 @@ export class VoluntariadoController {
         return this.getExpedientesUseCase.findAllPreviewsExpedientes();
     }
 
-    @Post('crearActividad/:idSolicitud')
+    @Post('expedientes/:idSolicitud/actividades')
     createActividad(@Body() crearActividad: CrearACtividadesDto, @Param('idSolicitud') idSolicitud: number){
         return this.voluntariadoService.createActividades(crearActividad, idSolicitud);
     }
 
-    @Get('getExpedienteById/:idExpediente')
+    @Get('expedientes/:idExpediente')
     getExpedienteById(@Param('idExpediente') idExpediente: number){
         return this.getExpedientesUseCase.getByIdExpediente(idExpediente);
     }
 
-    @Get('getExpedientesActivosByCedula/:cedula')
+    @Get('expedientes/activos/cedula/:cedula')
     getExpedientesByCedula(@Param('cedula') cedula: string ){
         return this.getExpedientesUseCase.getExpedienteActivoByCedula(cedula);
     }
 
-    @Patch('updateEstadoAInactivo/:idSolicitud')
+    @Patch('expedientes/:idSolicitud/inactivar')
     updateEstadoExpediente(@Param('idSolicitud', ParseIntPipe) idSolicitud: number){
         return this.updateExpedientes.updateEstadoAInactivo(idSolicitud);
     }
 
-    @Get('getExpedientesActivos')
+    @Get('expedientes/activos')
     getExpedientesActivos( @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
         return this.getExpedientesUseCase.getExpedientesActivos(page, limit)
     }
 
-    @Get('getAllExpedientesByCedula/:cedula')
+    @Get('expedientes/cedula/:cedula')
     getAllExpedientesByCedula( @Param('cedula') cedula: string, @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
         return this.getExpedientesUseCase.getAllExpedientesByCedula(cedula, page, limit)
     }
 
-    @Get('getAllActividades/:idExpediente')
+    @Get('expedientes/:idExpediente/actividades')
     getAllActividades( @Param('idExpediente', new ParseIntPipe) idExpediente: number, @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
         return this.voluntariadoService.getActividades(idExpediente, page, limit)
     }
 
-    @Patch('updateExpediente/:idExpediente')
+    @Patch('expedientes/:idExpediente')
     async updateExpediente(@Body() actualizar: ActualizarExpedienteDto, @Param('idExpediente', new ParseIntPipe) idExpediente: number){
         return this.updateExpedientes.updateExpediente(idExpediente, actualizar);
     }
 
-    @Get(':id/pdf')
+    @Get('expedientes/:id/pdf')
         async generarPdf(@Param('id') id: string, @Res() res: Response) {
         const idNum = Number(id);
         if (isNaN(idNum)) {
@@ -151,12 +151,12 @@ export class VoluntariadoController {
         await this.reporteService.generarReporteActividades(idNum, res);
     }
 
-    @Delete('horario/:id')
+    @Delete('horarios/:id')
     async removeHorario(@Param('id', new ParseIntPipe) id: number){
         await this.removeExpedientes.deleteHorario(id);
     }
 
-    @Patch('updateActividades/:idActividad')
+    @Patch('actividades/:idActividad')
     async updateActividades(@Param('idActividad', new ParseIntPipe) idActividad: number, @Body() updateActividadesDto: ActualizarActividadesDto) {
         return this.updateExpedientes.updateActividades(updateActividadesDto, idActividad);
     }
