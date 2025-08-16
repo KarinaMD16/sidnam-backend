@@ -63,15 +63,16 @@ export class VoluntariadoController {
         return this.getSolicitudesUseCase.findAllPreviews();
     }
 
-    @Get('solicitudes/:id')
-    getSolicitudesById(@Param('id') id: number){
-        return this.getSolicitudesUseCase.findSolicitudById(id);
-    }   
 
     @Get('solicitudes/estados')
     getEstadosSolicitd(){
         return this.voluntariadoService.getEstadosSolicitud()
     }
+    
+    @Get('solicitudes/:id')
+    getSolicitudesById(@Param('id') id: number){
+        return this.getSolicitudesUseCase.findSolicitudById(id);
+    }   
 
     @Get('solicitudes/preview/filtrar/estados/:id')
     getFiltro(
