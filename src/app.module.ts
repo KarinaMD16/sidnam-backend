@@ -23,7 +23,14 @@ import { HorarioPendiente } from "./modulos/voluntariado/entities/horarioPendien
 import { Voluntario } from './modulos/voluntariado/entities/voluntariado.entity';
 import { Tipo_voluntariado } from './modulos/voluntariado/entities/tipoVoluntariado.entity';
 import { Actividades } from './modulos/voluntariado/entities/actividades.entity';
+import { SolicitudDonacionModule } from './modulos/solicitud-donacion/solicitudDonacion.module';
+import { Donador } from './modulos/solicitud-donacion/entities/donador.entity';
+import { RegistroDonacion } from './modulos/solicitud-donacion/entities/registroDonacion.entity';
+import { Solicitud_donacion_pendiente } from './modulos/solicitud-donacion/entities/solicitudDonacionPendiente.entity';
+import * as dotenv from "dotenv";
 
+
+dotenv.config();
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -53,6 +60,9 @@ import { Actividades } from './modulos/voluntariado/entities/actividades.entity'
         Voluntario,
         Tipo_voluntariado,
         Actividades,
+        Donador,
+        RegistroDonacion, 
+        Solicitud_donacion_pendiente
       ],
       synchronize: true,
       dropSchema: false,
@@ -61,6 +71,7 @@ import { Actividades } from './modulos/voluntariado/entities/actividades.entity'
     GestionUsuarioModule,
     AutenticacionModule,
     VoluntariadoModule,
+    SolicitudDonacionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
