@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query,} from "@nestjs/common";
+import {Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Res,} from "@nestjs/common";
 import { SolicitudDonacionService } from "./solicitudDonacion.service";
 import { CrearSolicitudPendienteDto } from "./dto/crearSolicitudPendienteDto";
 import { CreateSolicitudDonacionUseCase } from "./use-cases/solicitud/create-solicitudDonacion.use-case";
@@ -6,6 +6,9 @@ import { GetSolicitudesDonacionUseCase } from "./use-cases/solicitud/get-solicit
 import { CreateRegistroDonacionUseCase } from "./use-cases/registro/create-RegistroDonacion.use-case";
 import { GetRegistrosDonacionUseCase } from "./use-cases/registro/get-RegistroDonacion.use-case";
 import { UpdateRegistroDonacionUseCase } from "./use-cases/registro/update-RegistroDonacion.use-case";
+import { CrearRegistroDto } from "./dto/crearRegistroDto";
+import { ActualizarRegistroDto } from "./dto/actualizarRegistroDto";
+import { ReporteDonacionesService } from "./reporteDonacion.service";
 
 
 @Controller('donacion')
@@ -17,7 +20,8 @@ export class SolicitudDonacionController {
         private readonly getSolicitudesDonacionUseCase: GetSolicitudesDonacionUseCase,
         private readonly createRegistroDonacionUseCase: CreateRegistroDonacionUseCase,
         private readonly getRegistrosUseCase: GetRegistrosDonacionUseCase,
-        private readonly updateRegistro: UpdateRegistroDonacionUseCase,
+        private readonly updateRegistros: UpdateRegistroDonacionUseCase,
+        private readonly reportes: ReporteDonacionesService
     ){}
 
     @Post('crearSolicitudDonacionPendiente')
@@ -87,7 +91,25 @@ export class SolicitudDonacionController {
     
     @Patch('updateEstadoARecibido/:idRegistro/:idUsuario')
     updateEstadoRegistro(@Param('idRegistro', ParseIntPipe) idRegistro: number, @Param('idUsuario', ParseIntPipe) idUsuario: number){
-        return this.updateRegistro.updateEstadoARecibido(idRegistro, idUsuario);
+        return this.updateRegistros.updateEstadoARecibido(idRegistro, idUsuario);
     }
+
+    @Post('crearRegistro/:idUsuario')
+        crearRegistro(@Body() crearReg: CrearRegistroDto, @Param('idUsuario', ParseIntPipe) idUsuario: number){
+            return this.createRegistroDonacionUseCase.crearRegistro(crearReg, idUsuario)
+        }
+
+    @Patch('updateRegistro/:idRegistro')
+        async updateRegistro(@Body() actualizar: ActualizarRegistroDto, @Param('idRegistro', new ParseIntPipe) idRegistro: number){
+            return this.updateRegistros.updateRegistro(idRegistro, actualizar);
+        }
+
+        @Get('reportes/:id/pdf')
+         async pdfRegistro(
+           @Param('id', ParseIntPipe) id: number,
+           @Res() res: any, 
+          ) {
+              await this.reportes.generarReporteDonacion(id, res); // usa 2 args (html, res)
+           }
 }
 
