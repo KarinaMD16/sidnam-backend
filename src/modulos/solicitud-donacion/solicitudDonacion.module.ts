@@ -13,6 +13,8 @@ import { GetSolicitudesDonacionUseCase } from "./use-cases/solicitud/get-solicit
 import { CreateRegistroDonacionUseCase } from "./use-cases/registro/create-RegistroDonacion.use-case";
 import { GetRegistrosDonacionUseCase } from "./use-cases/registro/get-RegistroDonacion.use-case";
 import { UpdateRegistroDonacionUseCase } from "./use-cases/registro/update-RegistroDonacion.use-case";
+import { ReporteDonacionesService } from "./reporteDonacion.service";
+import { PdfHtmlService } from "src/common/services/pdf-html.service";
 
 
 
@@ -22,7 +24,7 @@ import { UpdateRegistroDonacionUseCase } from "./use-cases/registro/update-Regis
         AutenticacionModule,
         GestionUsuarioModule,
     ],
-    providers: [SolicitudDonacionService, SolicitudDonacionGateway, CreateSolicitudDonacionUseCase, GetSolicitudesDonacionUseCase, CreateRegistroDonacionUseCase, GetRegistrosDonacionUseCase, UpdateRegistroDonacionUseCase],
+    providers: [SolicitudDonacionService, SolicitudDonacionGateway, CreateSolicitudDonacionUseCase, GetSolicitudesDonacionUseCase, CreateRegistroDonacionUseCase, GetRegistrosDonacionUseCase, UpdateRegistroDonacionUseCase, ReporteDonacionesService, PdfHtmlService],
     controllers: [SolicitudDonacionController],
     exports: [SolicitudDonacionService],
 })
