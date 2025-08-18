@@ -1,0 +1,72 @@
+// create-expediente-completo.dto.ts
+import { IsNotEmpty, IsEmail, IsEnum, IsDateString, IsOptional, IsNumber, ValidateNested, ArrayMinSize } from 'class-validator';
+import { Type } from 'class-transformer';
+import { Sexo } from 'src/common/enums/rol.enum';
+import { EstadoExpediente } from 'src/common/enums/estadosExpedientes.enum';
+import { estado_civil } from 'src/common/enums/estadoCivil.enum';
+
+export class CreateEncargadoDto {
+  @IsNotEmpty()
+  nombre: string;
+
+  @IsNotEmpty()
+  apellido1: string;
+
+  @IsOptional()
+  apellido2?: string;
+
+  @IsNotEmpty()
+  telefono: string;
+
+  @IsEmail()
+  correo: string;
+}
+
+export class CreateResidenteDto {
+  @IsNotEmpty()
+  cedula: string;
+
+  @IsNotEmpty()
+  nombre: string;
+
+  @IsNotEmpty()
+  apellido1: string;
+
+  @IsOptional()
+  apellido2?: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsEnum(Sexo)
+  sexo: Sexo;
+
+  @IsDateString()
+  fecha_nacimiento: Date;
+
+  @IsNumber()
+  edad: number;
+
+  @IsEnum(estado_civil)
+  estado_civil: estado_civil;
+
+  @IsNotEmpty()
+  dependencia: string;
+
+  @ValidateNested({ each: true })
+  @Type(() => CreateEncargadoDto)
+  @ArrayMinSize(1)
+  encargados: CreateEncargadoDto[];
+}
+
+export class CreateExpedienteCompletoDto {
+  @IsNotEmpty()
+  tipo_pension: string;
+
+  @IsDateString()
+  fecha_ingreso: Date;
+
+  @ValidateNested()
+  @Type(() => CreateResidenteDto)
+  residente: CreateResidenteDto;
+}
