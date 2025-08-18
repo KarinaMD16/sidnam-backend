@@ -4,7 +4,7 @@ export enum tipo_pension {
   REGIMEN = 'REGIMEN',
 }
 
-export const TipoPensionDescripcion: Record<tipo_pension, string> = {
-  [tipo_pension.IVM]: 'Invalidez, Vejez y Muerte',
-  [tipo_pension.REGIMEN]: 'Régimen no contributivo',
-};
+export const TipoPensionOptions = [
+  { id: 1, value: tipo_pension.IVM, nombre: 'Invalidez, Vejez y Muerte' },
+  { id: 2, value: tipo_pension.REGIMEN, nombre: 'Régimen no contributivo' },
+];

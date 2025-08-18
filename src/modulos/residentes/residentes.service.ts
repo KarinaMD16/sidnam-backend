@@ -5,6 +5,9 @@ import { Repository } from 'typeorm';
 import { Expediente_Residente } from './entities/expedientes.entity';
 import { Encargado } from './entities/encargado.entity';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
+import { TipoPensionOptions } from 'src/common/enums/tipoPension.enum';
+import { EstadoCivilOptios } from 'src/common/enums/estadoCivil.enum';
+import { DependenciaOpts } from 'src/common/enums/dependencia.enum';
 
 @Injectable()
 export class ResidentesService {
@@ -32,6 +35,21 @@ export class ResidentesService {
       throw new BadRequestException('El residente ya existe');
     }
 
+    const tipoPensionSeleccionado = TipoPensionOptions.find(opt => opt.id === createExpedienteDto.tipo_pension);
+    if (!tipoPensionSeleccionado) {
+      throw new BadRequestException('Tipo de pensión inválido');
+    }
+
+    const estadoCivilSeleccionado = EstadoCivilOptios.find(opt => opt.id === createExpedienteDto.residente.estado_civil);
+    if (!estadoCivilSeleccionado) {
+      throw new BadRequestException('Estado civil inválido');
+    }
+
+    const dependencia = DependenciaOpts.find(opt => opt.id === createExpedienteDto.residente.dependencia);
+    if (!dependencia) {
+      throw new BadRequestException('Dependencia inválida');
+    }
+
     const encargados = await Promise.all(
       createExpedienteDto.residente.encargados.map(async enc => {
         let encargado = await this.encargadoRepository.findOneBy({ correo: enc.correo });
@@ -45,13 +63,15 @@ export class ResidentesService {
 
     const residente = this.residenteRepository.create({
       ...createExpedienteDto.residente,
+      estado_civil: EstadoCivilOptios.find(opt => opt.id === createExpedienteDto.residente.estado_civil)?.value,
+      dependencia: DependenciaOpts.find(opt => opt.id === createExpedienteDto.residente.dependencia)?.value,
       encargados,
     });
     await this.residenteRepository.save(residente);
 
     const { tipo_pension, fecha_ingreso} = createExpedienteDto;
     const expediente = this.expedienteResidenteRepository.create({
-      tipo_pension,
+      tipo_pension: tipoPensionSeleccionado.value,
       fecha_ingreso,
       residente, 
     });
@@ -60,4 +80,29 @@ export class ResidentesService {
   }
 
 
+  getTiposPension() {
+    return TipoPensionOptions.map(opt => ({
+      id: opt.id,
+      nombre: opt.nombre, 
+    }));
+  }
+
+  getDependencia() {
+    return DependenciaOpts.map(opt => ({
+      id: opt.id,
+      nombre: opt.nombre, 
+    }));
+  }
+
+  getEstadoCivil() {
+    return EstadoCivilOptios.map(opt => ({
+      id: opt.id,
+      nombre: opt.nombre, 
+    }));
+  }
+
+
+
+
+  
 }

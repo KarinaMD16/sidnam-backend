@@ -47,11 +47,11 @@ export class CreateResidenteDto {
   @IsNumber()
   edad: number;
 
-  @IsEnum(estado_civil)
-  estado_civil: estado_civil;
+  @IsNumber()
+  estado_civil: number;
 
   @IsNotEmpty()
-  dependencia: string;
+  dependencia: number;
 
   @ValidateNested({ each: true })
   @Type(() => CreateEncargadoDto)
@@ -59,9 +59,9 @@ export class CreateResidenteDto {
   encargados: CreateEncargadoDto[];
 }
 
-export class CreateExpedienteCompletoDto {
+export class  CreateExpedienteCompletoDto {
   @IsNotEmpty()
-  tipo_pension: string;
+  tipo_pension: number;
 
   @IsDateString()
   fecha_ingreso: Date;

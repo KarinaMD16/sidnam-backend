@@ -3,6 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToOne, ManyToMany, JoinTable
 import { Expediente_Residente } from './expedientes.entity';
 import { estado_civil } from 'src/common/enums/estadoCivil.enum';
 import { Encargado } from './encargado.entity';
+import { Dependencia } from 'src/common/enums/dependencia.enum';
 
 @Entity()
 export class Residente{
@@ -36,8 +37,8 @@ export class Residente{
   @Column({type: 'enum', enum: estado_civil})
   estado_civil: estado_civil;
 
-  @Column()
-  dependencia: string;
+  @Column({type: 'enum', enum: Dependencia})
+  dependencia: Dependencia;
 
   @OneToOne(() => Expediente_Residente, expediente => expediente.residente)
   expediente: Expediente_Residente;

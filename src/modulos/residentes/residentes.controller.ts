@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ResidentesService } from './residentes.service';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
 
@@ -13,5 +13,19 @@ export class ResidentesController {
        return this.residentesService.createExpediente(createExpediente);
    }
 
+   @Get('tipos-pension')
+   async getTiposPension() {
+       return this.residentesService.getTiposPension();
+   }
+
+   @Get('dependencia')
+   async getDependencia() {
+       return this.residentesService.getDependencia();
+   }
+
+   @Get('estado-civil')
+   async getEstadoCivil() {
+       return this.residentesService.getEstadoCivil();
+   }
 
 }
