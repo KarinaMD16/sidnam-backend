@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Response as ExpressResponse } from 'express';
-import { PdfHtmlDonacionService, PdfHtmlService } from 'src/common/services/pdf-html.service';
+import { PdfHtmlService } from 'src/common/services/pdf-html.service';
 import { RegistroDonacion } from '../solicitud-donacion/entities/registroDonacion.entity';
 import { ReporteDonacionesMensualDto } from '../solicitud-donacion/dto/reporteDonacionMensualDto';
 
@@ -11,8 +11,7 @@ export class ReporteDonacionesService {
   constructor(
     @InjectRepository(RegistroDonacion)
     private readonly regRepo: Repository<RegistroDonacion>,
-    private readonly pdfHtmlService: PdfHtmlService,      
-    private readonly pdfDonacion: PdfHtmlDonacionService, 
+    private readonly pdfHtmlService: PdfHtmlService,       
   ) {}
 
   
@@ -31,7 +30,7 @@ export class ReporteDonacionesService {
       .getMany();
 
     if (!registros.length) {
-      throw new NotFoundException('No hay donaciones para el mes seleccionado');
+      throw new NotFoundException('No hay donaciones para el mes/año seleccionado');
     }
 
     const html = this.generarHtmlMensual(registros, q);
@@ -42,8 +41,11 @@ export class ReporteDonacionesService {
       s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '_');
     const filename = `Reporte_Donaciones_${sanitize(mesTexto.charAt(0).toUpperCase() + mesTexto.slice(1))}_${q.year}.pdf`;
 
-    await this.pdfDonacion.generarDesdeHtmlConNombre(html, res, filename);
-    
+    await this.pdfHtmlService.generarDesdeHtml(html, res, {
+      filename,
+      waitUntil: 'networkidle0', 
+      ensureAssets: true,        
+    });
   }
 
   
@@ -117,7 +119,7 @@ export class ReporteDonacionesService {
             gap: 16px; align-items: center;
             margin-bottom: 6px;
           }
-          .logo { width: 96px; height: 96px; object-fit: contain; border-radius: 8px; border: 1px solid var(--border); }
+          .logo{width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: none; display: block;}
           .meta { color: var(--muted); margin-top: 4px; }
 
           .two-col { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
