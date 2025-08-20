@@ -46,4 +46,5 @@ export class Residente{
   @ManyToMany(() => Encargado, encargado => encargado.residentes)
   @JoinTable({ name: 'residente_encargado' }) 
   encargados: Encargado[];
+    
 }
