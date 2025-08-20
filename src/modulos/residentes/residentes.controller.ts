@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { ResidentesService } from './residentes.service';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
 
@@ -27,5 +27,28 @@ export class ResidentesController {
    async getEstadoCivil() {
        return this.residentesService.getEstadoCivil();
    }
+
+   @Get('expedientes/preview')
+       getPreviewExpedientes(
+           @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+           @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+       ){
+           if (page && limit) {
+               return this.residentesService.findAllPreviewsExpedientes(page, limit);
+           }
+           return this.residentesService.findAllPreviewsExpedientes();
+   }
+
+   @Get('expedientes/:id')
+   async getExpedienteById(@Param('id', ParseIntPipe) id: number) {
+        return this.residentesService.findExpedienteById(id);
+   }
+
+   @Get('expedientes/residente/:cedula')
+   async getExpedienteByCedula(@Param('cedula') cedula: string) {
+        return this.residentesService.findPreviewExpedienteByCedula(cedula);
+   }
+
+
 
 }
