@@ -6,6 +6,11 @@ import { Rol } from 'src/common/enums/rol.enum';
 import { LoginDto } from './dto/loginDto';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from './email/email.service';
+import { Repository } from 'typeorm';
+import { Usuario } from '../gestion-usuario/entities/usuario.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcryptjs';
+import { Response } from 'express';
 
 
 
@@ -14,6 +19,9 @@ import { EmailService } from './email/email.service';
 export class AutenticacionService {
 
     constructor(
+        
+        @InjectRepository(Usuario)
+        private readonly usuarios: Repository<Usuario>,
         private readonly gestionUsuarios: GestionUsuarioService,
         private readonly jwtService: JwtService,
         private readonly emailService: EmailService
@@ -53,29 +61,70 @@ export class AutenticacionService {
         };
     }
 
-    async login({cedula, password}: LoginDto){
-        
+    async login({ cedula, password }: LoginDto) {
         const user = await this.gestionUsuarios.findOneByCedula(cedula);
+        if (!user) throw new UnauthorizedException('Cédula inválida');
 
-        if(!user){
-            throw new UnauthorizedException("Cedula invalida");
-        }
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) throw new UnauthorizedException('Contraseña inválida');
 
-        const isPassawordValid = await bcryptjs.compare(password, user.password);
+        const payload = { id: user.id, email: user.email, role: user.role, name: user.name };
 
-        if(!isPassawordValid){
-            throw new UnauthorizedException("Contraseña invalida");
-        }
+        const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
+        const refreshToken = await this.jwtService.signAsync(payload, { expiresIn: '7d' });
 
-        const payload = { id: user.id, email: user.email, role: user.role,  name: user.name};
+        const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+        user.refreshToken = hashedRefreshToken;
+        await this.gestionUsuarios.saveUsuario(user);
 
-        const token = await this.jwtService.signAsync(payload);
-
-        return{
-            token: token,
-            id: user.id
-        };
+        return { accessToken, refreshToken, id: user.id };
     }
+
+    async refresh(refreshToken: string, res: Response) {
+        if (!refreshToken) throw new UnauthorizedException('No refresh token');
+
+        let payload: any;
+        try {
+        payload = await this.jwtService.verifyAsync(refreshToken);
+        } catch {
+        throw new UnauthorizedException('Refresh token inválido o expirado');
+        }
+
+        const user = await this.gestionUsuarios.findOneById(payload.id);
+        if (!user) throw new UnauthorizedException('Usuario no encontrado');
+
+        if (!user.refreshToken) {
+            throw new UnauthorizedException('Refresh token no almacenado');
+        }
+
+        const isRefreshTokenMatching = await bcrypt.compare(refreshToken, user.refreshToken);
+        if (!isRefreshTokenMatching) throw new UnauthorizedException('Refresh token no coincide');
+
+        const newPayload = { id: user.id, email: user.email, role: user.role, name: user.name };
+
+        const newAccessToken = await this.jwtService.signAsync(newPayload, { expiresIn: '15m' });
+        const newRefreshToken = await this.jwtService.signAsync(newPayload, { expiresIn: '1d' });
+
+        const newHashedRefreshToken = await bcrypt.hash(newRefreshToken, 10);
+        user.refreshToken = newHashedRefreshToken;
+        await this.gestionUsuarios.saveUsuario(user);
+
+        res.cookie('refresh_token', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+        path: '/',
+        });
+
+        return { accessToken: newAccessToken, id: user.id };
+    }
+
+    async logout(userId: number) {
+        await this.usuarios.update(userId, { refreshToken: null });
+        return { message: 'Sesión cerrada' };
+    }
+
 
     async forgotPassword(email: string): Promise<{ message: string }> {
         const user = await this.gestionUsuarios.findOneByEmail(email);

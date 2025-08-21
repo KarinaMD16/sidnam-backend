@@ -14,6 +14,10 @@ export class GestionUsuarioService {
         private readonly usuariosRepository: Repository<Usuario>
     ){}
 
+    async saveUsuario(usuario: Usuario){
+        await this.usuariosRepository.save(usuario)
+    }
+
     async createUsuario(createUserDto: CreateUserDto){
         return await this.usuariosRepository.save(createUserDto);
     }
@@ -29,7 +33,7 @@ export class GestionUsuarioService {
     async findOneById(id: number): Promise<Usuario> {
         const usuario = await this.usuariosRepository.findOne({
             where: { id },
-            select: ['id', 'name', 'email'], 
+            select: ['id', 'name', 'email', 'refreshToken', 'role'], 
         });
 
         if (!usuario) {

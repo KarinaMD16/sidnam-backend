@@ -5,10 +5,3 @@ export enum EstadoSolicitud {
   Rechazadas = 3,
 }
 
-
-export enum EstadoSolicitudDonacion {
-  Pendientes = 1,
-  Aprobadas = 2,
-  Rechazadas = 3,
-  Recibidas = 4,
-}

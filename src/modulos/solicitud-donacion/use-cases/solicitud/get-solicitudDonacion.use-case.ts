@@ -5,8 +5,9 @@ import { Repository } from "typeorm";
 import { Solicitud_donacion_pendiente } from "../../entities/solicitudDonacionPendiente.entity";
 import { SolicitudDonacionPreviewDto } from "../../dto/solicitudDonacionPreviewDto";
 import { VerSolicitudDonacionPendienteDto } from "../../dto/verSolicitudDonacionPendienteDto";
-import { EstadoSolicitudDonacion } from "src/common/enums/estadosSolicitudes.enum";
-import { EstadoMapDonacion } from "src/common/constants/estado.constant";
+import { EstadoSolicitud } from "src/common/enums/estadosSolicitudes.enum";
+import { EstadoMap } from "src/common/constants/estado.constant";
+
 
 @Injectable()
 export class GetSolicitudesDonacionUseCase {
@@ -65,13 +66,13 @@ export class GetSolicitudesDonacionUseCase {
 
 
      async getFiltrosEstados(id: number, page?: number, limit?: number): Promise<{ data: SolicitudDonacionPreviewDto[]; total: number }> {
-                const estadoNombre = Object.values(EstadoSolicitudDonacion).filter(v => typeof v === 'number') as number[];
+                const estadoNombre = Object.values(EstadoSolicitud).filter(v => typeof v === 'number') as number[];
         
                 if (!estadoNombre.includes(id)) {
                     throw new NotFoundException('Estado no existente');
                 }
         
-                const estado = EstadoMapDonacion[id];
+                const estado = EstadoMap[id];
         
                 const [data, total] = await this.solicitudDonacionPendiente.findAndCount({
                     where: { estado: estado },

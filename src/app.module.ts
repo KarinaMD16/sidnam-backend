@@ -27,9 +27,14 @@ import { SolicitudDonacionModule } from './modulos/solicitud-donacion/solicitudD
 import { Donador } from './modulos/solicitud-donacion/entities/donador.entity';
 import { RegistroDonacion } from './modulos/solicitud-donacion/entities/registroDonacion.entity';
 import { Solicitud_donacion_pendiente } from './modulos/solicitud-donacion/entities/solicitudDonacionPendiente.entity';
+import { ResidentesModule } from './modulos/residentes/residentes.module';
 import * as dotenv from "dotenv";
+import { Expediente_Residente } from './modulos/residentes/entities/expedientes.entity';
+import { Residente } from './modulos/residentes/entities/residente.entity';
+import { Encargado } from './modulos/residentes/entities/encargado.entity';
 
 
+dotenv.config();
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -61,7 +66,10 @@ import * as dotenv from "dotenv";
         Actividades,
         Donador,
         RegistroDonacion, 
-        Solicitud_donacion_pendiente
+        Solicitud_donacion_pendiente,
+        Residente, 
+        Expediente_Residente, 
+        Encargado,
       ],
       synchronize: true,
       dropSchema: false,
@@ -71,6 +79,7 @@ import * as dotenv from "dotenv";
     AutenticacionModule,
     VoluntariadoModule,
     SolicitudDonacionModule,
+    ResidentesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
