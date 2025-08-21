@@ -69,7 +69,7 @@ export class ResidentesService {
     });
     await this.residenteRepository.save(residente);
 
-    const { tipo_pension, fecha_ingreso} = createExpedienteDto;
+    const { fecha_ingreso} = createExpedienteDto;
     const expediente = this.expedienteResidenteRepository.create({
       tipo_pension: tipoPensionSeleccionado.value,
       fecha_ingreso,
