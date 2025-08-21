@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query,} from "@nestjs/common";
+import {Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Res,} from "@nestjs/common";
 import { SolicitudDonacionService } from "./solicitudDonacion.service";
 import { CrearSolicitudPendienteDto } from "./dto/crearSolicitudPendienteDto";
 import { CreateSolicitudDonacionUseCase } from "./use-cases/solicitud/create-solicitudDonacion.use-case";
@@ -6,6 +6,12 @@ import { GetSolicitudesDonacionUseCase } from "./use-cases/solicitud/get-solicit
 import { CreateRegistroDonacionUseCase } from "./use-cases/registro/create-RegistroDonacion.use-case";
 import { GetRegistrosDonacionUseCase } from "./use-cases/registro/get-RegistroDonacion.use-case";
 import { UpdateRegistroDonacionUseCase } from "./use-cases/registro/update-RegistroDonacion.use-case";
+import { CrearRegistroDto } from "./dto/crearRegistroDto";
+import { ActualizarRegistroDto } from "./dto/actualizarRegistroDto";
+import { ReporteDonacionesService } from "./reporteDonacion.service";
+import { ApiOkResponse, ApiOperation, ApiProduces, ApiQuery } from "@nestjs/swagger";
+import { ReporteDonacionesMensualDto } from "./dto/reporteDonacionMensualDto";
+import { Response as ExpressResponse } from 'express';
 
 
 @Controller('donacion')
@@ -17,7 +23,8 @@ export class SolicitudDonacionController {
         private readonly getSolicitudesDonacionUseCase: GetSolicitudesDonacionUseCase,
         private readonly createRegistroDonacionUseCase: CreateRegistroDonacionUseCase,
         private readonly getRegistrosUseCase: GetRegistrosDonacionUseCase,
-        private readonly updateRegistro: UpdateRegistroDonacionUseCase,
+        private readonly updateRegistros: UpdateRegistroDonacionUseCase,
+        private readonly reportes: ReporteDonacionesService
     ){}
 
     @Post('crearSolicitudDonacionPendiente')
@@ -87,7 +94,33 @@ export class SolicitudDonacionController {
     
     @Patch('updateEstadoARecibido/:idRegistro/:idUsuario')
     updateEstadoRegistro(@Param('idRegistro', ParseIntPipe) idRegistro: number, @Param('idUsuario', ParseIntPipe) idUsuario: number){
-        return this.updateRegistro.updateEstadoARecibido(idRegistro, idUsuario);
+        return this.updateRegistros.updateEstadoARecibido(idRegistro, idUsuario);
     }
+
+    @Post('crearRegistro/:idUsuario')
+        crearRegistro(@Body() crearReg: CrearRegistroDto, @Param('idUsuario', ParseIntPipe) idUsuario: number){
+            return this.createRegistroDonacionUseCase.crearRegistro(crearReg, idUsuario)
+        }
+
+    @Patch('updateRegistro/:idRegistro')
+        async updateRegistro(@Body() actualizar: ActualizarRegistroDto, @Param('idRegistro', new ParseIntPipe) idRegistro: number){
+            return this.updateRegistros.updateRegistro(idRegistro, actualizar);
+        }
+
+    @Get('reportes/mensual/pdf')
+        @ApiOperation({ summary: 'Descargar PDF mensual de donaciones' })
+        @ApiProduces('application/pdf')
+        @ApiOkResponse({
+        description: 'Archivo PDF',
+        content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
+      })
+      @ApiQuery({ name: 'year', required: true, type: Number })
+      @ApiQuery({ name: 'month', required: true, type: Number, description: '1-12' })
+       async pdfMensual(
+       @Query() q: ReporteDonacionesMensualDto,
+       @Res() res: ExpressResponse
+       ) {
+           await this.reportes.generarReporteMensual(q, res);
+        }
 }
 

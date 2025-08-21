@@ -32,6 +32,7 @@ import * as dotenv from "dotenv";
 import { Expediente_Residente } from './modulos/residentes/entities/expedientes.entity';
 import { Residente } from './modulos/residentes/entities/residente.entity';
 import { Encargado } from './modulos/residentes/entities/encargado.entity';
+import { InventarioModule } from './modulos/inventarios/inventario.module';
 
 
 dotenv.config();
@@ -80,6 +81,7 @@ dotenv.config();
     VoluntariadoModule,
     SolicitudDonacionModule,
     ResidentesModule,
+    InventarioModule,
   ],
   controllers: [AppController],
   providers: [AppService],
