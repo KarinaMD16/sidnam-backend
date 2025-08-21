@@ -155,6 +155,46 @@ export class ResidentesService {
 
   }
 
+  async findPreviewsExpedientesByNombre(
+  nombre: string,
+): Promise<ExpedienteResidentePreviewDto[]> {
+  if (!nombre) {
+    throw new BadRequestException('El nombre es requerido');
+  }
+
+  // Normaliza el nombre buscado (quita tildes, espacios y pasa a minúsculas)
+  const normalizeString = (str: string) =>
+    str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // quita tildes
+      .replace(/\s+/g, '') // quita espacios
+      .toLowerCase();
+
+  const nombreBuscado = normalizeString(nombre);
+
+  // Consulta en MySQL ignorando tildes/mayúsculas con COLLATE
+  const expedientes = await this.expedienteResidenteRepository
+    .createQueryBuilder('expediente')
+    .leftJoinAndSelect('expediente.residente', 'residente')
+    .leftJoinAndSelect('residente.encargados', 'encargados')
+    .where(
+      `REPLACE(residente.nombre COLLATE utf8mb4_0900_ai_ci, ' ', '') LIKE :nombre`,
+      { nombre: `%${nombreBuscado}%` },
+    )
+    .getMany();
+
+  if (expedientes.length === 0) {
+    throw new NotFoundException('No se encontraron expedientes con ese nombre');
+  }
+
+  return expedientes.map((exp) =>
+    plainToInstance(ExpedienteResidentePreviewDto, exp, {
+      excludeExtraneousValues: true,
+    }),
+  );
+}
+
+
 
 
 

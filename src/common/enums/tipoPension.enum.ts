@@ -5,6 +5,6 @@ export enum tipo_pension {
 }
 
 export const TipoPensionOptions = [
-  { id: 1, value: tipo_pension.IVM, nombre: 'Invalidez, Vejez y Muerte' },
-  { id: 2, value: tipo_pension.REGIMEN, nombre: 'Régimen no contributivo' },
+  { id: 1, value: tipo_pension.IVM, nombre: 'IVM' },
+  { id: 2, value: tipo_pension.REGIMEN, nombre: 'RNC' },
 ];
