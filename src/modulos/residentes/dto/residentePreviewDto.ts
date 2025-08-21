@@ -18,6 +18,9 @@ export class ResidentePreviewDto {
    apellido2: string;
 
    @Expose()
+   sexo: string;
+
+   @Expose()
    @Transform(({ obj }) => {
      const tipo = obj.dependencia; 
      const match = DependenciaOpts.find(opt => opt.value === tipo);
