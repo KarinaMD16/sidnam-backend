@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { ResidentesService } from './residentes.service';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
+import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
 
 @Controller('residentes')
 export class ResidentesController {
@@ -39,6 +40,17 @@ export class ResidentesController {
            return this.residentesService.findAllPreviewsExpedientes();
    }
 
+   @Get('expedientes/buscar-nombre')
+async findPreviewsByNombre(
+  @Query('nombre') nombre: string,
+): Promise<ExpedienteResidentePreviewDto[]> {
+  if (!nombre) {
+    throw new BadRequestException('Debe proporcionar un nombre válido (string)');
+  }
+
+  return this.residentesService.findPreviewsExpedientesByNombre(nombre);
+}
+
    @Get('expedientes/:id')
    async getExpedienteById(@Param('id', ParseIntPipe) id: number) {
         return this.residentesService.findExpedienteById(id);
@@ -48,6 +60,8 @@ export class ResidentesController {
    async getExpedienteByCedula(@Param('cedula') cedula: string) {
         return this.residentesService.findPreviewExpedienteByCedula(cedula);
    }
+
+   
 
 
 
