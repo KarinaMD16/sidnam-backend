@@ -1,0 +1,238 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Response as ExpressResponse } from 'express';
+import { PdfHtmlService } from 'src/common/services/pdf-html.service';
+import { RegistroDonacion } from '../solicitud-donacion/entities/registroDonacion.entity';
+import { ReporteDonacionesMensualDto } from '../solicitud-donacion/dto/reporteDonacionMensualDto';
+
+@Injectable()
+export class ReporteDonacionesService {
+  constructor(
+    @InjectRepository(RegistroDonacion)
+    private readonly regRepo: Repository<RegistroDonacion>,
+    private readonly pdfHtmlService: PdfHtmlService,       
+  ) {}
+
+  
+  async generarReporteMensual(q: ReporteDonacionesMensualDto, res: ExpressResponse) {
+    const field = 'r.aprobadaEn'; 
+
+    
+    const from = new Date(Date.UTC(q.year, q.month - 1, 1, 0, 0, 0, 0));
+    const to   = new Date(Date.UTC(q.year, q.month,     1, 0, 0, 0, 0));
+
+    const registros = await this.regRepo.createQueryBuilder('r')
+      .leftJoinAndSelect('r.donador', 'd')
+      .andWhere(`${field} >= :from AND ${field} < :to`, { from, to })
+      .orderBy('r.recibida', 'DESC')       
+      .addOrderBy('r.aprobadaEn', 'DESC')  
+      .getMany();
+
+    if (!registros.length) {
+      throw new NotFoundException('No hay donaciones para el mes/año seleccionado');
+    }
+
+    const html = this.generarHtmlMensual(registros, q);
+
+   
+    const mesTexto = new Date(q.year, q.month - 1, 1).toLocaleString('es-CR', { month: 'long' });
+    const sanitize = (s: string) =>
+      s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '_');
+    const filename = `Reporte_Donaciones_${sanitize(mesTexto.charAt(0).toUpperCase() + mesTexto.slice(1))}_${q.year}.pdf`;
+
+    await this.pdfHtmlService.generarDesdeHtml(html, res, {
+      filename,
+      waitUntil: 'networkidle0', 
+      ensureAssets: true,        
+    });
+  }
+
+  
+  private generarHtmlMensual(registros: RegistroDonacion[], q: ReporteDonacionesMensualDto): string {
+    const mesNombre = new Date(q.year, q.month - 1, 1)
+      .toLocaleString('es-CR', { month: 'long', year: 'numeric' });
+
+    
+    const total = registros.length;
+    const recSi = registros.filter(r => r.recibida).length;
+    const recNo = total - recSi;
+    const anSi  = registros.filter(r => r.anonimo).length;
+    const anNo  = total - anSi;
+
+    
+    const porUsuario = this.groupCount(
+      registros.map(r => (r.aprobadaPor?.trim() || 'Sin asignar'))
+    );
+    const usuariosRows = Object.entries(porUsuario)
+      .sort((a,b) => b[1] - a[1])
+      .map(([u, c]) => `<tr><td>${this.escape(u)}</td><td class="right">${c}</td></tr>`)
+      .join('');
+
+   
+    const rows = registros.map(r => {
+      const d = r.donador;
+      const nombreDonador = [d?.nombre, d?.apellido1, d?.apellido2].filter(Boolean).join(' ');
+      return `
+        <tr>
+          <td>${this.escape(d?.cedula ?? '')}</td>
+          <td>${this.escape(nombreDonador)}</td>
+          <td>${this.escape(r.tipoDonacion ?? '')}</td>
+          <td class="center">${this.sn(r.anonimo)}</td>
+          <td>${this.fmt(r.aprobadaEn)}</td>
+          <td>${this.escape(r.aprobadaPor ?? 'Sin asignar')}</td>
+          <td class="center">${this.sn(r.recibida)}</td>
+          <td>${this.fmt(r.recibidaEn)}</td>
+          <td>${this.escape(r.descripcion ?? '')}</td>
+          <td>${this.escape(r.observaciones ?? '')}</td>
+        </tr>
+      `;
+    }).join('');
+
+    return `
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <style>
+          :root {
+            --accent: #A7074D;
+            --text: #111;
+            --muted: #555;
+            --border: #d5d5d5;
+            --bg-alt: #f7f7f7;
+          }
+          * { box-sizing: border-box; }
+          body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            padding: 24px;
+            font-size: 12px;
+            line-height: 1.35;
+          }
+          h1, h3 { margin: 0; }
+          h1 { font-size: 22px; }
+          h3 { font-size: 14px; margin-bottom: 8px; }
+
+          .heading {
+            display: grid;
+            grid-template-columns: 96px 1fr;
+            gap: 16px; align-items: center;
+            margin-bottom: 6px;
+          }
+          .logo{width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: none; display: block;}
+          .meta { color: var(--muted); margin-top: 4px; }
+
+          .two-col { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
+          @media print { .two-col { grid-template-columns: 1fr 1fr; } }
+          .box { border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid var(--border); padding: 6px 8px; vertical-align: top; }
+          th { background: var(--accent); color: #fff; text-align: left; }
+          tbody tr:nth-child(even) { background: var(--bg-alt); }
+          .right { text-align: right; }
+          .center { text-align: center; }
+
+          .section-title { margin-top: 18px; margin-bottom: 8px; font-size: 14px; }
+          tr { page-break-inside: avoid; }
+          @page { margin: 40px 30px; }
+        </style>
+      </head>
+      <body>
+        <!-- Encabezado -->
+        <div class="heading">
+          <img class="logo" src="https://i.ibb.co/HDfRP6fX/1749848069832.png" alt="logo"/>
+          <div>
+            <h1>Reporte mensual de donaciones</h1>
+            <div class="meta">
+              Mes: <strong>${mesNombre}</strong> &nbsp;|&nbsp;
+              Corte por: <strong>Fecha de aprobación</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen + Aprobadas por usuario -->
+        <div class="two-col">
+          <div class="box">
+            <h3>Resumen</h3>
+            <table>
+              <tbody>
+                <tr><td>Total donaciones</td><td class="right">${total}</td></tr>
+                <tr><td>Donadores únicos</td><td class="right">${
+                  new Set(registros.map(r => r.donador?.cedula ?? r.donador?.email ?? String(r.donador?.id ?? ''))).size
+                }</td></tr>
+                <tr><td>Recibidas (Sí)</td><td class="right">${recSi}</td></tr>
+                <tr><td>Recibidas (No)</td><td class="right">${recNo}</td></tr>
+                <tr><td>Anónimas (Sí)</td><td class="right">${anSi}</td></tr>
+                <tr><td>Anónimas (No)</td><td class="right">${anNo}</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="box">
+            <h3>Aprobadas/creadas por usuario</h3>
+            <table>
+              <thead><tr><th>Usuario</th><th class="right">Cantidad</th></tr></thead>
+              <tbody>${usuariosRows}</tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Detalle -->
+        <div class="section-title">Detalle</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Cédula</th>
+              <th>Donador</th>
+              <th>Tipo</th>
+              <th>Anón.</th>
+              <th>Aprob./Creada en</th>
+              <th>Aprob./Creada por</th>
+              <th>Recibida</th>
+              <th>Recibida en</th>
+              <th>Descripción</th>
+              <th>Observaciones</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </body>
+    </html>
+    `;
+  }
+
+ 
+  private fmt(d?: Date | null): string {
+    if (!d) return '';
+    const x = new Date(d);
+    const p = (n: number) => String(n).padStart(2, '0');
+    return `${p(x.getDate())}/${p(x.getMonth() + 1)}/${x.getFullYear()} ${p(x.getHours())}:${p(x.getMinutes())}`;
+  }
+
+ 
+  private sn(v?: boolean): string {
+    if (v === true)  return 'Sí';
+    if (v === false) return 'No';
+    return '—';
+  }
+
+  private escape(s: string): string {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[c]!));
+  }
+
+  private groupCount(arr: (string | null | undefined)[]): Record<string, number> {
+    const acc: Record<string, number> = {};
+    for (const raw of arr) {
+      const key = (raw ?? 'Sin asignar').trim() || 'Sin asignar';
+      acc[key] = (acc[key] ?? 0) + 1;
+    }
+    return acc;
+  }
+}

@@ -2,12 +2,14 @@
 import { IsNotEmpty, IsEmail, IsEnum, IsDateString, IsOptional, IsNumber, ValidateNested, ArrayMinSize } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Sexo } from 'src/common/enums/rol.enum';
-import { EstadoExpediente } from 'src/common/enums/estadosExpedientes.enum';
-import { estado_civil } from 'src/common/enums/estadoCivil.enum';
+
 
 export class CreateEncargadoDto {
   @IsNotEmpty()
   nombre: string;
+
+  @IsNotEmpty()
+  cedula: string;
 
   @IsNotEmpty()
   apellido1: string;

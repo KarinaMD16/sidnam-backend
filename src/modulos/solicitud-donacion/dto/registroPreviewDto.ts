@@ -14,6 +14,9 @@ export class RegistroPreviewDto {
     recibida: boolean;
 
     @Expose()
+    aprobadaEn: Date;
+
+    @Expose()
     @Type(() => DonadorDto)
     donador: DonadorDto;
 }

@@ -10,6 +10,7 @@ import { SolicitudDonacionGateway } from "../../solicitudDonacion.gateway";
 import { Usuario } from "src/modulos/gestion-usuario/entities/usuario.entity";
 import { RegistroDonacion } from "../../entities/registroDonacion.entity";
 import { Donador } from "../../entities/donador.entity";
+import { CrearRegistroDto } from "../../dto/crearRegistroDto";
 
 
 
@@ -129,4 +130,50 @@ async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: 
     throw new InternalServerErrorException('Error al procesar la solicitud de donación');
           }
      }
+
+
+
+     async crearRegistro(dto: CrearRegistroDto, idUsuario: number): Promise<{message: string}>{
+
+        const usuario = await this.gestionUsuario.findOneById(idUsuario)
+
+        if (!usuario) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+
+        await this.dataSource.transaction(async manager => {
+            let donador = await this.donadorRepository.findOne({
+              where: { cedula: dto.cedula }
+             });
+
+                if (!donador) {
+                    donador = manager.create(Donador, {
+                    cedula: dto.cedula,
+                    nombre: dto.nombre,
+                    apellido1: dto.apellido1,
+                    apellido2: dto.apellido2,
+                    telefono: dto.telefono,
+                    email: dto.email,
+                });
+
+                await manager.save(donador);
+             }
+
+              const ahora = new Date();
+              const registro = manager.create(RegistroDonacion, {
+                donador,
+                aprobadaPor: `Creado por: ${usuario.name}`,
+                observaciones: dto.observaciones,
+                recibida: true,
+                recibidaEn: ahora,
+                recibidaPor: `Recibida por: ${usuario.name}`,
+                anonimo: dto.anonimo,
+                tipoDonacion: dto.tipoDonacion,
+                descripcion: dto.descripcion,
+                });
+
+                await manager.save(registro);
+            });
+            return {message: 'Registro creado correctamente'}
+        }
 }

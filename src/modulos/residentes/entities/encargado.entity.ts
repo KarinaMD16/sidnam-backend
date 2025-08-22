@@ -6,10 +6,13 @@ export class Encargado{
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: false })
   nombre: string;
 
-  @Column()
+  @Column({ nullable: false })
+  cedula: string;
+
+  @Column({ nullable: false })
   apellido1: string;
 
   @Column({ nullable: true })
