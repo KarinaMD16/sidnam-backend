@@ -114,7 +114,7 @@ export class UpdateExpedienteUseCase {
         }
 
         if (actualizarExpediente.horarios) {
-        for (const horarioDto of actualizarExpediente.horarios) {
+        for (const horarioDto of actualizarExpediente.horarios){ 
                 if (horarioDto.id) {
                     const horarioExistente = expediente.horarios.find(h => h.id === horarioDto.id);
                     if (horarioExistente) {

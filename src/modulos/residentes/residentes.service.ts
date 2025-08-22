@@ -8,11 +8,12 @@ import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto'
 import { TipoPensionOptions } from 'src/common/enums/tipoPension.enum';
 import { EstadoCivilOptios } from 'src/common/enums/estadoCivil.enum';
 import { DependenciaOpts } from 'src/common/enums/dependencia.enum';
-import { ExpedientePreviewDto } from '../voluntariado/dto/expedientePreviewDto';
 import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
 import { plainToInstance } from 'class-transformer';
 import { GetExpedienteResidenteDto } from './dto/getExpedienteDto';
-import { normalize } from 'src/common/utils/normalize';
+import { ActualizarExpediente } from './dto/actualizarExpediente';
+import { ActualizarEncargadorDto } from './dto/actualizarEncargadoDto';
+
 
 @Injectable()
 export class ResidentesService {
@@ -35,6 +36,14 @@ export class ResidentesService {
     const residenteExistente = await this.residenteRepository.findOne({
       where: { cedula: createExpedienteDto.residente.cedula },
     });
+
+    const encargadoExistente = await this.encargadoRepository.findOne({
+      where: { cedula: createExpedienteDto.residente.encargados[0].cedula },
+    });
+
+    if(encargadoExistente) {
+      throw new BadRequestException('El encargado ya existe');
+    }
 
     if (residenteExistente) {
       throw new BadRequestException('El residente ya existe');
@@ -155,49 +164,144 @@ export class ResidentesService {
 
   }
 
-  async findPreviewsExpedientesByNombre(
-  nombre: string,
-): Promise<ExpedienteResidentePreviewDto[]> {
-  if (!nombre) {
-    throw new BadRequestException('El nombre es requerido');
+    async findPreviewsExpedientesByNombre(
+    nombre: string,
+  ): Promise<ExpedienteResidentePreviewDto[]> {
+    if (!nombre) {
+      throw new BadRequestException('El nombre es requerido');
+    }
+
+    // Normaliza el nombre buscado (quita tildes, espacios y pasa a minúsculas)
+    const normalizeString = (str: string) =>
+      str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // quita tildes
+        .replace(/\s+/g, '') // quita espacios
+        .toLowerCase();
+
+    const nombreBuscado = normalizeString(nombre);
+
+    // Consulta en MySQL ignorando tildes/mayúsculas con COLLATE
+    const expedientes = await this.expedienteResidenteRepository
+      .createQueryBuilder('expediente')
+      .leftJoinAndSelect('expediente.residente', 'residente')
+      .leftJoinAndSelect('residente.encargados', 'encargados')
+      .where(
+        `REPLACE(residente.nombre COLLATE utf8mb4_0900_ai_ci, ' ', '') LIKE :nombre`,
+        { nombre: `%${nombreBuscado}%` },
+      )
+      .getMany();
+
+    if (expedientes.length === 0) {
+      throw new NotFoundException('No se encontraron expedientes con ese nombre');
+    }
+
+    return expedientes.map((exp) =>
+      plainToInstance(ExpedienteResidentePreviewDto, exp, {
+        excludeExtraneousValues: true,
+      }),
+    );
   }
 
-  // Normaliza el nombre buscado (quita tildes, espacios y pasa a minúsculas)
-  const normalizeString = (str: string) =>
-    str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // quita tildes
-      .replace(/\s+/g, '') // quita espacios
-      .toLowerCase();
+  async actualizarInformacionGeneralExpediente(idExpediente: number, actualizarExpediente: Partial<ActualizarExpediente>): Promise<{message: string}> {
 
-  const nombreBuscado = normalizeString(nombre);
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: {id_expediente: idExpediente},
+      relations: ['residente', 'residente.encargados'],
+    })
 
-  // Consulta en MySQL ignorando tildes/mayúsculas con COLLATE
-  const expedientes = await this.expedienteResidenteRepository
-    .createQueryBuilder('expediente')
-    .leftJoinAndSelect('expediente.residente', 'residente')
-    .leftJoinAndSelect('residente.encargados', 'encargados')
-    .where(
-      `REPLACE(residente.nombre COLLATE utf8mb4_0900_ai_ci, ' ', '') LIKE :nombre`,
-      { nombre: `%${nombreBuscado}%` },
-    )
-    .getMany();
+    if(!expediente){
+      throw new NotFoundException('Expediente no encontrado');
+    }
 
-  if (expedientes.length === 0) {
-    throw new NotFoundException('No se encontraron expedientes con ese nombre');
+    if(actualizarExpediente.tipo_pension){
+      expediente.tipo_pension = actualizarExpediente.tipo_pension;
+    } 
+
+    if (actualizarExpediente.fecha_ingreso) {
+      expediente.fecha_ingreso = actualizarExpediente.fecha_ingreso;
+    }
+
+    if(actualizarExpediente.cedula){
+      expediente.residente.cedula = actualizarExpediente.cedula;
+    }
+
+    if(actualizarExpediente.nombre){
+      expediente.residente.nombre = actualizarExpediente.nombre;
+    }
+
+    if(actualizarExpediente.apellido1){
+      expediente.residente.apellido1 = actualizarExpediente.apellido1;
+    }
+
+    if(actualizarExpediente.apellido2){
+      expediente.residente.apellido2 = actualizarExpediente.apellido2;
+    }
+
+    if(actualizarExpediente.sexo){
+      expediente.residente.sexo = actualizarExpediente.sexo;
+    }
+
+    if(actualizarExpediente.estado_civil){
+      expediente.residente.estado_civil = actualizarExpediente.estado_civil;
+    }
+
+    if(actualizarExpediente.dependencia){
+      expediente.residente.dependencia = actualizarExpediente.dependencia;
+    }
+
+      if (actualizarExpediente.encargados && actualizarExpediente.encargados.length > 0) {
+        for (const encargadoDto of actualizarExpediente.encargados) {
+          if (encargadoDto.id) {
+            const encargadoExistente = expediente.residente.encargados.find(e => e.id === encargadoDto.id);
+            if (encargadoExistente) {
+              if (encargadoDto.nombre !== undefined) encargadoExistente.nombre = encargadoDto.nombre;
+              if (encargadoDto.apellido1 !== undefined) encargadoExistente.apellido1 = encargadoDto.apellido1;
+              if (encargadoDto.apellido2 !== undefined) encargadoExistente.apellido2 = encargadoDto.apellido2;
+              if (encargadoDto.telefono !== undefined) encargadoExistente.telefono = encargadoDto.telefono;
+              if (encargadoDto.correo !== undefined) encargadoExistente.correo = encargadoDto.correo;
+              encargadoExistente.cedula = encargadoDto.cedula;
+              await this.encargadoRepository.save(encargadoExistente);
+            }
+          } else {
+
+            const encargadoCedula = await this.encargadoRepository.findOne({ where: { cedula: encargadoDto.cedula } });
+
+            const residenteCedula = await this.residenteRepository.findOne({ where: { cedula: encargadoDto.cedula } });
+
+            if(encargadoCedula){
+              throw new BadRequestException('Ya existe un encargado con esa cédula');
+            }
+
+            if(residenteCedula){
+              throw new BadRequestException('Ya existe un residente con esa cédula');
+            }
+
+            const nuevoEncargado = this.encargadoRepository.create({
+              nombre: encargadoDto.nombre!,
+              apellido1: encargadoDto.apellido1!,
+              apellido2: encargadoDto.apellido2,
+              cedula: encargadoDto.cedula,
+              correo: encargadoDto.correo,
+              telefono: encargadoDto.telefono,
+              residentes: [expediente.residente],
+            });
+
+            await this.encargadoRepository.save(nuevoEncargado);
+
+      
+            expediente.residente.encargados.push(nuevoEncargado);
+          }
+        }
+      }
+
+    await this.residenteRepository.save(expediente.residente);
+
+
+    return {message: 'Información general del expediente actualizada correctamente'};
+
   }
 
-  return expedientes.map((exp) =>
-    plainToInstance(ExpedienteResidentePreviewDto, exp, {
-      excludeExtraneousValues: true,
-    }),
-  );
 }
 
 
-
-
-
-
-  
-}

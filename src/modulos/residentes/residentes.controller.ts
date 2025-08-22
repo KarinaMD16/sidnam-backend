@@ -1,7 +1,8 @@
-import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ResidentesService } from './residentes.service';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
 import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
+import { ActualizarExpediente } from './dto/actualizarExpediente';
 
 @Controller('residentes')
 export class ResidentesController {
@@ -61,8 +62,9 @@ async findPreviewsByNombre(
         return this.residentesService.findPreviewExpedienteByCedula(cedula);
    }
 
-   
-
-
+   @Patch('expedientes/residente/:id')
+   async updateExpediente(@Param('id', ParseIntPipe) id: number, @Body() actualizarExpediente: Partial<ActualizarExpediente>) {
+       return this.residentesService.actualizarInformacionGeneralExpediente(id, actualizarExpediente);
+   }
 
 }
