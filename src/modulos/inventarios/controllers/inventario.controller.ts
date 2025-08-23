@@ -1,5 +1,6 @@
-import { Controller, Get } from "@nestjs/common";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import { InventarioService } from "../services/inventario.service";
+import { CategoriaProductoDto } from "../dto/crearCategoriaProductoDto";
 
 
 @Controller('inventario')
@@ -10,8 +11,14 @@ export class InventarioController {
         private readonly inventarioService: InventarioService, 
     ){}
 
+    
+    @Post('categorias/productos')
+    crearCategoriaProducto(@Body() crearCategoriaProducto: CategoriaProductoDto){
+        return this.inventarioService.crearCategoriaProducto(crearCategoriaProducto);
+    }
+
     @Get('categorias/productos')
-    getCategoriaProductos(){
-        return this.inventarioService.getCategoriasProductos()
+    getAllCategoriaProducto(){
+        return this.inventarioService.getAllCategoriasProductos()
     }
 }
