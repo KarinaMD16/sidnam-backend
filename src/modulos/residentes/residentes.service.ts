@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Residente } from './entities/residente.entity';
-import { In, NumericType, Repository } from 'typeorm';
+import { In, Not, NumericType, Repository } from 'typeorm';
 import { Expediente_Residente } from './entities/expedientes.entity';
 import { Encargado } from './entities/encargado.entity';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
@@ -185,6 +185,7 @@ export class ResidentesService {
       relations: ['residente', 'residente.encargados'],
     })
 
+    
     if(!expediente){
       throw new NotFoundException('Expediente no encontrado');
     }
@@ -199,7 +200,19 @@ export class ResidentesService {
       expediente.fecha_ingreso = actualizarExpediente.fecha_ingreso;
     }
 
-    if(actualizarExpediente.cedula){
+    if (actualizarExpediente.cedula) {
+   
+      const cedulaExistente = await this.residenteRepository.findOne({
+          where: {
+              cedula: actualizarExpediente.cedula,
+              id_adulto_mayor: Not(expediente.residente.id_adulto_mayor),
+          },
+      });
+      
+      if (cedulaExistente) {
+          throw new BadRequestException('Cédula existente en la base de datos');
+      }
+      
       expediente.residente.cedula = actualizarExpediente.cedula;
     }
 
@@ -259,21 +272,31 @@ export class ResidentesService {
               if (encargadoDto.apellido2 !== undefined) encargadoExistente.apellido2 = encargadoDto.apellido2;
               if (encargadoDto.telefono !== undefined) encargadoExistente.telefono = encargadoDto.telefono;
               if (encargadoDto.correo !== undefined) encargadoExistente.correo = encargadoDto.correo;
+              if (encargadoDto.cedula !== undefined && encargadoDto.cedula !== encargadoExistente.cedula) {
+                const cedulaExistente = await this.residenteRepository.findOne({
+                  where: { cedula: encargadoDto.cedula },
+                });
+                if (cedulaExistente) {
+                  throw new BadRequestException('Cédula del encargado ya existe en la base de datos');
+                }
+              }
               encargadoExistente.cedula = encargadoDto.cedula;
               await this.encargadoRepository.save(encargadoExistente);
             }
           } else {
 
-            const encargadoCedula = await this.encargadoRepository.findOne({ where: { cedula: encargadoDto.cedula } });
+            const cedulaExistente = await this.expedienteResidenteRepository.findOne({
+                where: {
+                    residente: {
+                        cedula: actualizarExpediente.cedula,
+                    },
+                    id_expediente: Not(expediente.residente.id_adulto_mayor),
+                },
+                relations: ['residente', 'residente.encargados'],
+            });
 
-            const residenteCedula = await this.residenteRepository.findOne({ where: { cedula: encargadoDto.cedula } });
-
-            if(encargadoCedula){
-              throw new BadRequestException('Ya existe un encargado con esa cédula');
-            }
-
-            if(residenteCedula){
-              throw new BadRequestException('Ya existe un residente con esa cédula');
+            if (cedulaExistente) {
+                throw new BadRequestException('Cédula existente en la base de datos');
             }
 
             const nuevoEncargado = this.encargadoRepository.create({
