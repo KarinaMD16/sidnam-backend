@@ -2,9 +2,8 @@ import { Type } from "class-transformer";
 import { IsArray, isEnum, IsEnum, IsOptional, ValidateNested } from "class-validator";
 import { ActualizarEncargadorDto } from "./actualizarEncargadoDto";
 import { Sexo } from "src/common/enums/rol.enum";
-import { estado_civil } from "src/common/enums/estadoCivil.enum";
 import { Dependencia } from "src/common/enums/dependencia.enum";
-import { tipo_pension } from "src/common/enums/tipoPension.enum";
+
 
 export class ActualizarExpediente{
 
@@ -12,8 +11,7 @@ export class ActualizarExpediente{
     fecha_ingreso?: Date;
 
     @IsOptional()
-    @IsEnum(tipo_pension)
-    tipo_pension?: tipo_pension;
+    tipo_pension?: number;
 
     @IsOptional()
     cedula?: string;
@@ -32,12 +30,16 @@ export class ActualizarExpediente{
     sexo: Sexo;
 
     @IsOptional()
-    @IsEnum(estado_civil)
-    estado_civil?: estado_civil;
+    estado_civil?: number;
 
     @IsOptional()
-    @IsEnum(Dependencia)
-    dependencia?: Dependencia;
+    correo: string;
+
+    @IsOptional()
+    fecha_nacimiento: string;
+
+    @IsOptional()
+    dependencia?: number;
 
     @IsOptional()
     @IsArray()
