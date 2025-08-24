@@ -364,6 +364,32 @@ export class ResidentesService {
     return "Patología agregada al expediente correctamente";
   }
 
+  async eliminarPatologia(id_expediente: number, id_patologia: number){
+
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: {id_expediente: id_expediente},
+      relations: ['patologias']
+    })
+
+    if(!expediente){
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    const patologia = await this.patologiasRepository.findOne({
+      where: {id_patologia: id_patologia},
+    })
+
+    if(!patologia){
+      throw new NotFoundException('Patología no encontrada');
+    }
+
+    expediente.patologias = expediente.patologias.filter(p => p.id_patologia !== id_patologia);
+    await this.expedienteResidenteRepository.save(expediente);
+
+    await this.expedienteResidenteRepository.save(expediente);
+    return expediente.patologias;
+  }
+
   async crearTipoMedicamento(createTipoMedicamento: Tipo_MedicamentoDto){
     const nuevoTipoMedicamento = this.tipoMedicamentoRepository.create(createTipoMedicamento);
     await this.tipoMedicamentoRepository.save(nuevoTipoMedicamento);
@@ -418,7 +444,7 @@ export class ResidentesService {
     }));
   }
 
-  async crearNotaEnfermeria(expedienteId: number, textoCompleto: string): Promise<NotaEnfermeria> {
+  async crearNotaEnfermeria(expedienteId: number, textoCompleto: string, titulo: string): Promise<NotaEnfermeria> {
       const expediente = await this.expedienteResidenteRepository.findOne({
           where: { id_expediente: expedienteId },
       });
@@ -435,6 +461,7 @@ export class ResidentesService {
 
           const nota = this.notaEnfermeriaRepository.create({
               expediente,
+              titulo,
               segmento,
               notaPadre: notaPadre, 
           });
