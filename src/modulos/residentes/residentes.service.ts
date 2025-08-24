@@ -266,6 +266,14 @@ export class ResidentesService {
       expediente.residente.email = actualizarExpediente.correo;
     }
 
+    if (actualizarExpediente.fecha_nacimiento) {
+    const fecha = new Date(actualizarExpediente.fecha_nacimiento);
+    if (isNaN(fecha.getTime())) {
+      throw new BadRequestException('Formato de fecha inválido. Debe ser YYYY-MM-DD');
+    }
+    expediente.residente.fecha_nacimiento = fecha;
+  }
+
     if (actualizarExpediente.encargados && actualizarExpediente.encargados.length > 0) {
       for (const encargadoDto of actualizarExpediente.encargados) {
         if (encargadoDto.id) {
