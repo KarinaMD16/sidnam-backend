@@ -47,21 +47,44 @@ export class ResidentesService {
 
   async createExpediente(createExpedienteDto: CreateExpedienteCompletoDto) {
  
-    const residenteExistente = await this.residenteRepository.findOne({
-      where: { cedula: createExpedienteDto.residente.cedula },
-    });
+      const residenteExistente = await this.residenteRepository.findOne({
+        where: { cedula: createExpedienteDto.residente.cedula },
+      });
+      
 
-    const encargadoExistente = await this.encargadoRepository.findOne({
-      where: { cedula: createExpedienteDto.residente.encargados[0].cedula },
-    });
+      if (createExpedienteDto.residente.encargados.some(enc => enc.cedula === createExpedienteDto.residente.cedula)) {
+        throw new BadRequestException('La cédula del residente no puede ser la misma que la de un encargado');
+      }
 
-    if(encargadoExistente) {
-      throw new BadRequestException('El encargado ya existe');
+      const encargadosCedulas = createExpedienteDto.residente.encargados.map(enc => enc.cedula);
+      
+      const cedulasDuplicadas = encargadosCedulas.filter(
+        (cedula, index) => encargadosCedulas.indexOf(cedula) !== index
+      );
+
+      if (cedulasDuplicadas.length > 0) {
+        throw new BadRequestException(
+          `Hay cédulas repetidas en los encargados: ${[...new Set(cedulasDuplicadas)].join(', ')}`
+        );
+      }
+
+      for (const encargadoDto of createExpedienteDto.residente.encargados) {
+        
+        const residenteExistente = await this.residenteRepository.findOne({
+          where: { cedula: encargadoDto.cedula },
+        });
+
+        if (residenteExistente) {
+          throw new BadRequestException(
+            `La cédula ${encargadoDto.cedula} ya existe en un residente`
+          );
+      }
     }
 
     if (residenteExistente) {
       throw new BadRequestException('El residente ya existe');
     }
+
 
     const tipoPensionSeleccionado = TipoPensionOptions.find(opt => opt.id === createExpedienteDto.tipo_pension);
     if (!tipoPensionSeleccionado) {
@@ -78,16 +101,18 @@ export class ResidentesService {
       throw new BadRequestException('Dependencia inválida');
     }
 
-    const encargados = await Promise.all(
-      createExpedienteDto.residente.encargados.map(async enc => {
-        let encargado = await this.encargadoRepository.findOneBy({ correo: enc.correo });
-        if (!encargado) {
-          encargado = this.encargadoRepository.create(enc);
-          await this.encargadoRepository.save(encargado);
-        }
-        return encargado;
-      }),
-    );
+    const encargados: Encargado[] = [];
+    for (const enc of createExpedienteDto.residente.encargados) {
+      let encargado = await this.encargadoRepository.findOne({ where: { cedula: enc.cedula } });
+
+      if (!encargado) {
+        encargado = this.encargadoRepository.create(enc);
+        await this.encargadoRepository.save(encargado);
+      }
+
+      encargados.push(encargado);
+    }
+
 
     const residente = this.residenteRepository.create({
       ...createExpedienteDto.residente,
@@ -188,6 +213,12 @@ export class ResidentesService {
       throw new NotFoundException('Expediente no encontrado');
     }
 
+    if (actualizarExpediente.cedula &&actualizarExpediente.encargados?.some(enc => enc.cedula === actualizarExpediente.cedula)) {
+      throw new BadRequestException(
+        'La cédula del residente no puede coincidir con la de ningún encargado enviado'
+      );
+    }
+
     if (actualizarExpediente.cedula) {
       const cedulaExistenteResidente = await this.residenteRepository.findOne({
         where: {
@@ -197,7 +228,7 @@ export class ResidentesService {
       });
 
       if (cedulaExistenteResidente) {
-        throw new BadRequestException('Cédula ya existe en otro residente');
+        throw new BadRequestException(`La cédula ${actualizarExpediente.cedula} ya existe en un residente`);
       }
 
       const cedulaExistenteEncargado = await this.encargadoRepository.findOne({
@@ -205,7 +236,7 @@ export class ResidentesService {
       });
 
       if (cedulaExistenteEncargado) {
-        throw new BadRequestException('Cédula ya existe en un encargado');
+        throw new BadRequestException(`La cédula ${actualizarExpediente.cedula} ya existe en un encargado`);
       }
 
       expediente.residente.cedula = actualizarExpediente.cedula;
@@ -226,14 +257,6 @@ export class ResidentesService {
       
             if (encargadoDto.cedula !== undefined && encargadoDto.cedula !== encargadoExistente.cedula) {
 
-              const cedulaExistenteEncargado = await this.encargadoRepository.findOne({
-                where: { cedula: encargadoDto.cedula },
-              });
-
-              if (cedulaExistenteEncargado) {
-                throw new BadRequestException('Cédula ya existe en otro encargado');
-              }
-
               const cedulaExistenteResidente = await this.residenteRepository.findOne({
                 where: { cedula: encargadoDto.cedula },
               });
@@ -249,14 +272,7 @@ export class ResidentesService {
           }
         } else {
           if (encargadoDto.cedula) {
-            const cedulaExistenteEncargado = await this.encargadoRepository.findOne({
-              where: { cedula: encargadoDto.cedula },
-            });
-
-            if (cedulaExistenteEncargado) {
-              throw new BadRequestException('Cédula ya existe en otro encargado');
-            }
-
+            
             const cedulaExistenteResidente = await this.residenteRepository.findOne({
               where: { cedula: encargadoDto.cedula },
             });
