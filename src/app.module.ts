@@ -33,6 +33,11 @@ import { Expediente_Residente } from './modulos/residentes/entities/expedientes.
 import { Residente } from './modulos/residentes/entities/residente.entity';
 import { Encargado } from './modulos/residentes/entities/encargado.entity';
 import { InventarioModule } from './modulos/inventarios/inventario.module';
+import { Patologias } from './modulos/residentes/entities/patologias.entity';
+import { Administraciones } from './modulos/residentes/entities/administraciones.entity';
+import { Medicamentos } from './modulos/residentes/entities/medicamento.entity';
+import { Tipo_medicamento } from './modulos/residentes/entities/tipo_medicamento.entity';
+import { AdministracionesEspeciales } from './modulos/residentes/entities/administracionEspecial.entity';
 
 
 dotenv.config();
@@ -71,6 +76,11 @@ dotenv.config();
         Residente, 
         Expediente_Residente, 
         Encargado,
+        Patologias,
+        Administraciones,
+        Medicamentos,
+        Tipo_medicamento,
+        AdministracionesEspeciales    
       ],
       synchronize: true,
       dropSchema: false,

@@ -1,8 +1,10 @@
-import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ResidentesService } from './residentes.service';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
 import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
 import { ActualizarExpediente } from './dto/actualizarExpediente';
+import { CreatePatologiaDto } from './dto/createPatologia.Dto';
+import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
 
 @Controller('residentes')
 export class ResidentesController {
@@ -41,17 +43,6 @@ export class ResidentesController {
            return this.residentesService.findAllPreviewsExpedientes();
    }
 
-   @Get('expedientes/buscar-nombre')
-async findPreviewsByNombre(
-  @Query('nombre') nombre: string,
-): Promise<ExpedienteResidentePreviewDto[]> {
-  if (!nombre) {
-    throw new BadRequestException('Debe proporcionar un nombre válido (string)');
-  }
-
-  return this.residentesService.findPreviewsExpedientesByNombre(nombre);
-}
-
    @Get('expedientes/:id')
    async getExpedienteById(@Param('id', ParseIntPipe) id: number) {
         return this.residentesService.findExpedienteById(id);
@@ -65,6 +56,46 @@ async findPreviewsByNombre(
    @Patch('expedientes/residente/:id')
    async updateExpediente(@Param('id', ParseIntPipe) id: number, @Body() actualizarExpediente: Partial<ActualizarExpediente>) {
        return this.residentesService.actualizarInformacionGeneralExpediente(id, actualizarExpediente);
+   }
+
+   @Post('patologias')
+   async createPatologia(@Body() createPatologiaDto: CreatePatologiaDto) {
+       return this.residentesService.createPatologia(createPatologiaDto);
+   }    
+
+   @Post('expedientes/:id/adjuntar-patologia/:id_patologia')
+   async attachPatologiaToExpediente(@Param('id', ParseIntPipe) id: number, @Param('id_patologia', ParseIntPipe) id_patologia: number) {
+       return this.residentesService.agregarPatologiaExpediente(id, id_patologia);
+   }
+
+   @Get('patologias')
+   async getPatologias() {
+       return this.residentesService.getPatologias();
+   }
+
+   @Post('tipos-medicamento')
+   async createTipoMedicamento(@Body() createTipoMedicamentoDto: Tipo_MedicamentoDto) {
+       return this.residentesService.crearTipoMedicamento(createTipoMedicamentoDto);
+   }
+
+   @Get('tipos-medicamento')
+   async getTiposMedicamento() {
+       return this.residentesService.getTiposMedicamento();
+   }
+
+   @Post('medicamentos/:idTipoMedicamento')
+   async createMedicamento(@Param('idTipoMedicamento', ParseIntPipe) idTipoMedicamento: number, @Body('nombre') nombre: string) {
+       return this.residentesService.asociarMedicamentoATipoMedicamento(idTipoMedicamento, nombre);
+   }
+
+   @Get('medicamentos')
+   async getMedicamentos() {
+       return this.residentesService.getMedicamentos();
+   }
+
+   @Get('turnos')
+   async getTurnos() {
+       return this.residentesService.getTurnos();
    }
 
 }
