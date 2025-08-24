@@ -13,7 +13,7 @@ export class NotaEnfermeria {
   @Column('text')
   segmento: string; 
 
-  @Column('text')
+  @Column('text', { nullable: true })
   titulo: string;
 
   @ManyToOne(() => NotaEnfermeria, nota => nota.segmentosHijos, { nullable: true })
