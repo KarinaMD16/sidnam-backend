@@ -219,6 +219,10 @@ export class ResidentesService {
       );
     }
 
+    if(actualizarExpediente.edad){
+      expediente.residente.edad = actualizarExpediente.edad;
+    }
+
     if (actualizarExpediente.cedula) {
       const cedulaExistenteResidente = await this.residenteRepository.findOne({
         where: {
