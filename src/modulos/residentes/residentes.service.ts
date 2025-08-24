@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Residente } from './entities/residente.entity';
-import { In, Not, NumericType, Repository } from 'typeorm';
+import { In, IsNull, Not, NumericType, Repository } from 'typeorm';
 import { Expediente_Residente } from './entities/expedientes.entity';
 import { Encargado } from './entities/encargado.entity';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
@@ -18,6 +18,7 @@ import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
 import { Tipo_medicamento } from './entities/tipo_medicamento.entity';
 import { Medicamentos } from './entities/medicamento.entity';
 import { TurnoOpts } from 'src/common/enums/turno.enum';
+import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
 
 
 @Injectable()
@@ -42,7 +43,12 @@ export class ResidentesService {
 
         @InjectRepository(Medicamentos)
         private readonly medicamentoRepository: Repository<Medicamentos>,
+
+        @InjectRepository(NotaEnfermeria)
+        private readonly notaEnfermeriaRepository: Repository<NotaEnfermeria>,
     ){}
+
+     private MAX_SEGMENT_LENGTH = 1000;
 
 
   async createExpediente(createExpedienteDto: CreateExpedienteCompletoDto) {
@@ -310,14 +316,23 @@ export class ResidentesService {
   }
 
 
-  async createPatologia(createPatologiaDto: CreatePatologiaDto){
-    const patologia = this.patologiasRepository.create(createPatologiaDto);
+  async createPatologia(createPatologiaDto: CreatePatologiaDto) {
+    const patologia = this.patologiasRepository.create({
+      ...createPatologiaDto,
+      nombre: createPatologiaDto.nombre.toLowerCase(),
+    });
+
     await this.patologiasRepository.save(patologia);
     return "Patología creada correctamente";
   }
 
-  async getPatologias(){
-    return this.patologiasRepository.find();
+  async getPatologias() {
+    const patologias = await this.patologiasRepository.find();
+
+    return patologias.map(p => ({
+      ...p,
+      nombre: p.nombre.charAt(0).toUpperCase() + p.nombre.slice(1).toLowerCase(),
+    }));
   }
 
   async agregarPatologiaExpediente(id_expediente: number, id_patologia: number){
@@ -330,6 +345,10 @@ export class ResidentesService {
     const patologia = await this.patologiasRepository.findOne({
       where: {id_patologia: id_patologia},
     })
+
+    if(expediente?.patologias.some(p => p.id_patologia === id_patologia)){
+      throw new BadRequestException('Patología ya existe en el expediente');
+    }
 
     if(!expediente){
       throw new NotFoundException('Expediente no encontrado');
@@ -399,12 +418,81 @@ export class ResidentesService {
     }));
   }
 
-  
+  async crearNotaEnfermeria(expedienteId: number, textoCompleto: string): Promise<NotaEnfermeria> {
+      const expediente = await this.expedienteResidenteRepository.findOne({
+          where: { id_expediente: expedienteId },
+      });
 
-  
+      if (!expediente) {
+          throw new NotFoundException('Expediente no encontrado');
+      }
+
+      let notaPadre: NotaEnfermeria | undefined = undefined;
+      let primeraNota: NotaEnfermeria | undefined = undefined;
+
+      for (let i = 0; i < textoCompleto.length; i += this.MAX_SEGMENT_LENGTH) {
+          const segmento = textoCompleto.substring(i, i + this.MAX_SEGMENT_LENGTH);
+
+          const nota = this.notaEnfermeriaRepository.create({
+              expediente,
+              segmento,
+              notaPadre: notaPadre, 
+          });
+
+          await this.notaEnfermeriaRepository.save(nota);
+
+          if (!notaPadre) {
+              notaPadre = nota;
+              primeraNota = nota;
+          }
+      }
+
+      if (!primeraNota) {
+          throw new BadRequestException('No se pudo crear la nota de enfermería');
+      }
+
+      return primeraNota;
+  }
 
 
+  async obtenerNotaCompleta(idNotaPadre: number): Promise<{ id: number; nota: string }> {
+    const notas = await this.notaEnfermeriaRepository.find({
+        where: [{ id: idNotaPadre }, { notaPadre: { id: idNotaPadre } }],
+        order: { id: 'ASC' },
+    });
 
+    if (!notas || notas.length === 0) {
+        throw new NotFoundException('Nota no encontrada');
+    }
+
+    const notaCompleta = notas.map(n => n.segmento).join('');
+
+    return {
+        id: idNotaPadre,
+        nota: notaCompleta,
+    };
+  }
+
+
+  async obtenerNotasPorExpediente(expedienteId: number): Promise<{ id: number; nota: string }[]> {
+
+    const notasPadre = await this.notaEnfermeriaRepository.find({
+        where: {
+            expediente: { id_expediente: expedienteId },
+            notaPadre: IsNull(), 
+        },
+        order: { fecha: 'ASC' },
+    });
+
+    const resultado: { id: number; nota: string }[] = [];
+
+    for (const notaPadre of notasPadre) {
+        const { id, nota } = await this.obtenerNotaCompleta(notaPadre.id);
+        resultado.push({ id, nota });
+    }
+
+    return resultado;
+  }
 
 }
 

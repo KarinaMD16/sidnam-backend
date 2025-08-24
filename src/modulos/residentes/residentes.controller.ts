@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ResidentesService } from './residentes.service';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
 import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
 import { ActualizarExpediente } from './dto/actualizarExpediente';
 import { CreatePatologiaDto } from './dto/createPatologia.Dto';
 import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
+import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
 
 @Controller('residentes')
 export class ResidentesController {
@@ -97,5 +98,23 @@ export class ResidentesController {
    async getTurnos() {
        return this.residentesService.getTurnos();
    }
+
+   @Post('notas-enfermeria/:idExpediente')
+   async crearNota(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body('textoCompleto') textoCompleto: string): Promise<NotaEnfermeria> {
+       return this.residentesService.crearNotaEnfermeria(idExpediente, textoCompleto);
+   }
+
+   @Get('expediente/notas/:id')
+   async obtenerNotasPorExpediente(@Param('id') expedienteId: number): Promise<{ id: number; nota: string }[]> {
+       return this.residentesService.obtenerNotasPorExpediente(expedienteId);
+   }
+
+    @Get('expedientes/nota/:id')
+    async obtenerNotaCompleta(@Param('id') idNotaPadre: number): Promise<{ id: number; nota: string }> {
+        const nota = await this.residentesService.obtenerNotaCompleta(idNotaPadre);
+        if (!nota) throw new NotFoundException('Nota no encontrada');
+        return nota;
+    }
+
 
 }
