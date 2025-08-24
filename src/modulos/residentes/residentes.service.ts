@@ -178,152 +178,117 @@ export class ResidentesService {
 
   }
 
-  async actualizarInformacionGeneralExpediente(idExpediente: number, actualizarExpediente: Partial<ActualizarExpediente>): Promise<{message: string}> {
-
+  async actualizarInformacionGeneralExpediente(idExpediente: number, actualizarExpediente: Partial<ActualizarExpediente>): Promise<{ message: string }> {
     const expediente = await this.expedienteResidenteRepository.findOne({
-      where: {id_expediente: idExpediente},
+      where: { id_expediente: idExpediente },
       relations: ['residente', 'residente.encargados'],
-    })
+    });
 
-    
-    if(!expediente){
+    if (!expediente) {
       throw new NotFoundException('Expediente no encontrado');
     }
 
-    if (actualizarExpediente.tipo_pension !== undefined) {
-      const tipoPension = getTipoPensionById(Number(actualizarExpediente.tipo_pension));
-      if (!tipoPension) throw new BadRequestException('Tipo de pensión inválido. Debe ser 1 o 2');
-      expediente.tipo_pension = tipoPension;
-    }
-
-    if (actualizarExpediente.fecha_ingreso) {
-      expediente.fecha_ingreso = actualizarExpediente.fecha_ingreso;
-    }
-
     if (actualizarExpediente.cedula) {
-   
-      const cedulaExistente = await this.residenteRepository.findOne({
-          where: {
-              cedula: actualizarExpediente.cedula,
-              id_adulto_mayor: Not(expediente.residente.id_adulto_mayor),
-          },
+      const cedulaExistenteResidente = await this.residenteRepository.findOne({
+        where: {
+          cedula: actualizarExpediente.cedula,
+          id_adulto_mayor: Not(expediente.residente.id_adulto_mayor),
+        },
       });
-      
-      if (cedulaExistente) {
-          throw new BadRequestException('Cédula existente en la base de datos');
+
+      if (cedulaExistenteResidente) {
+        throw new BadRequestException('Cédula ya existe en otro residente');
       }
-      
+
+      const cedulaExistenteEncargado = await this.encargadoRepository.findOne({
+        where: { cedula: actualizarExpediente.cedula },
+      });
+
+      if (cedulaExistenteEncargado) {
+        throw new BadRequestException('Cédula ya existe en un encargado');
+      }
+
       expediente.residente.cedula = actualizarExpediente.cedula;
     }
-
-    if(actualizarExpediente.nombre){
-      expediente.residente.nombre = actualizarExpediente.nombre;
-    }
-
-    if(actualizarExpediente.apellido1){
-      expediente.residente.apellido1 = actualizarExpediente.apellido1;
-    }
-
-    if(actualizarExpediente.apellido2){
-      expediente.residente.apellido2 = actualizarExpediente.apellido2;
-    }
-
-    if(actualizarExpediente.sexo){
-      expediente.residente.sexo = actualizarExpediente.sexo;
-    }
-
-    if (actualizarExpediente.tipo_pension !== undefined && actualizarExpediente.tipo_pension !== null)  {
-      const tipoPension = getTipoPensionById(Number(actualizarExpediente.tipo_pension));
-      if (!tipoPension) throw new BadRequestException('Tipo de pensión inválido. Debe ser 1 o 2');
-      expediente.tipo_pension = tipoPension;
-    }
-
-    if (actualizarExpediente.estado_civil !== undefined) {
-      const estadoCivil = getEstadoCivilById(Number(actualizarExpediente.estado_civil));
-      if (!estadoCivil) throw new BadRequestException('Estado civil inválido. Debe ser 1 o 2');
-      expediente.residente.estado_civil = estadoCivil;
-    }
-
-    if (actualizarExpediente.dependencia !== undefined) {
-      const dependencia = getDependenciaById(Number(actualizarExpediente.dependencia));
-      if (!dependencia) throw new BadRequestException('Dependencia inválida. Debe ser 1 o 2');
-      expediente.residente.dependencia = dependencia;
-    }
-
-    if(actualizarExpediente.correo){
-      expediente.residente.email = actualizarExpediente.correo;
-    }
-
-    if (actualizarExpediente.fecha_nacimiento) {
-    const fecha = new Date(actualizarExpediente.fecha_nacimiento);
-    if (isNaN(fecha.getTime())) {
-      throw new BadRequestException('Formato de fecha inválido. Debe ser YYYY-MM-DD');
-    }
-    expediente.residente.fecha_nacimiento = fecha;
-  }
 
     if (actualizarExpediente.encargados && actualizarExpediente.encargados.length > 0) {
       for (const encargadoDto of actualizarExpediente.encargados) {
         if (encargadoDto.id) {
+        
           const encargadoExistente = expediente.residente.encargados.find(e => e.id === encargadoDto.id);
-            if (encargadoExistente) {
-              if (encargadoDto.nombre !== undefined) encargadoExistente.nombre = encargadoDto.nombre;
-              if (encargadoDto.apellido1 !== undefined) encargadoExistente.apellido1 = encargadoDto.apellido1;
-              if (encargadoDto.apellido2 !== undefined) encargadoExistente.apellido2 = encargadoDto.apellido2;
-              if (encargadoDto.telefono !== undefined) encargadoExistente.telefono = encargadoDto.telefono;
-              if (encargadoDto.correo !== undefined) encargadoExistente.correo = encargadoDto.correo;
-              if (encargadoDto.cedula !== undefined && encargadoDto.cedula !== encargadoExistente.cedula) {
-                const cedulaExistente = await this.residenteRepository.findOne({
-                  where: { cedula: encargadoDto.cedula },
-                });
-                if (cedulaExistente) {
-                  throw new BadRequestException('Cédula del encargado ya existe en la base de datos');
-                }
-              }
-              encargadoExistente.cedula = encargadoDto.cedula;
-              await this.encargadoRepository.save(encargadoExistente);
-            }
-          } else {
-
-            const cedulaExistente = await this.expedienteResidenteRepository.findOne({
-                where: {
-                    residente: {
-                        cedula: actualizarExpediente.cedula,
-                    },
-                    id_expediente: Not(expediente.residente.id_adulto_mayor),
-                },
-                relations: ['residente', 'residente.encargados'],
-            });
-
-            if (cedulaExistente) {
-                throw new BadRequestException('Cédula existente en la base de datos');
-            }
-
-            const nuevoEncargado = this.encargadoRepository.create({
-              nombre: encargadoDto.nombre!,
-              apellido1: encargadoDto.apellido1!,
-              apellido2: encargadoDto.apellido2,
-              cedula: encargadoDto.cedula,
-              correo: encargadoDto.correo,
-              telefono: encargadoDto.telefono,
-              residentes: [expediente.residente],
-            });
-
-            await this.encargadoRepository.save(nuevoEncargado);
+          if (encargadoExistente) {
+            if (encargadoDto.nombre !== undefined) encargadoExistente.nombre = encargadoDto.nombre;
+            if (encargadoDto.apellido1 !== undefined) encargadoExistente.apellido1 = encargadoDto.apellido1;
+            if (encargadoDto.apellido2 !== undefined) encargadoExistente.apellido2 = encargadoDto.apellido2;
+            if (encargadoDto.telefono !== undefined) encargadoExistente.telefono = encargadoDto.telefono;
+            if (encargadoDto.correo !== undefined) encargadoExistente.correo = encargadoDto.correo;
 
       
-            expediente.residente.encargados.push(nuevoEncargado);
+            if (encargadoDto.cedula !== undefined && encargadoDto.cedula !== encargadoExistente.cedula) {
+
+              const cedulaExistenteEncargado = await this.encargadoRepository.findOne({
+                where: { cedula: encargadoDto.cedula },
+              });
+
+              if (cedulaExistenteEncargado) {
+                throw new BadRequestException('Cédula ya existe en otro encargado');
+              }
+
+              const cedulaExistenteResidente = await this.residenteRepository.findOne({
+                where: { cedula: encargadoDto.cedula },
+              });
+
+              if (cedulaExistenteResidente) {
+                throw new BadRequestException('Cédula ya existe en un residente');
+              }
+
+              encargadoExistente.cedula = encargadoDto.cedula;
+            }
+
+            await this.encargadoRepository.save(encargadoExistente);
           }
+        } else {
+          if (encargadoDto.cedula) {
+            const cedulaExistenteEncargado = await this.encargadoRepository.findOne({
+              where: { cedula: encargadoDto.cedula },
+            });
+
+            if (cedulaExistenteEncargado) {
+              throw new BadRequestException('Cédula ya existe en otro encargado');
+            }
+
+            const cedulaExistenteResidente = await this.residenteRepository.findOne({
+              where: { cedula: encargadoDto.cedula },
+            });
+
+            if (cedulaExistenteResidente) {
+              throw new BadRequestException('Cédula ya existe en un residente');
+            }
+          }
+
+          const nuevoEncargado = this.encargadoRepository.create({
+            nombre: encargadoDto.nombre!,
+            apellido1: encargadoDto.apellido1!,
+            apellido2: encargadoDto.apellido2,
+            cedula: encargadoDto.cedula,
+            correo: encargadoDto.correo,
+            telefono: encargadoDto.telefono,
+            residentes: [expediente.residente],
+          });
+
+          await this.encargadoRepository.save(nuevoEncargado);
+
+          expediente.residente.encargados.push(nuevoEncargado);
         }
       }
+    }
 
     await this.residenteRepository.save(expediente.residente);
-
     await this.expedienteResidenteRepository.save(expediente);
 
-    return {message: 'Información general del expediente actualizada correctamente'};
-
+    return { message: 'Información general del expediente actualizada correctamente' };
   }
+
 
   async createPatologia(createPatologiaDto: CreatePatologiaDto){
     const patologia = this.patologiasRepository.create(createPatologiaDto);
