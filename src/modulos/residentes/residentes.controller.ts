@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ResidentesService } from './residentes.service';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
 import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
@@ -100,8 +100,8 @@ export class ResidentesController {
    }
 
    @Post('notas-enfermeria/:idExpediente')
-   async crearNota(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body('textoCompleto') textoCompleto: string): Promise<NotaEnfermeria> {
-       return this.residentesService.crearNotaEnfermeria(idExpediente, textoCompleto);
+   async crearNota(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body('textoCompleto') textoCompleto: string, @Body('titulo') titulo: string): Promise<NotaEnfermeria> {
+       return this.residentesService.crearNotaEnfermeria(idExpediente, textoCompleto, titulo);
    }
 
    @Get('expediente/notas/:id')
@@ -114,6 +114,11 @@ export class ResidentesController {
         const nota = await this.residentesService.obtenerNotaCompleta(idNotaPadre);
         if (!nota) throw new NotFoundException('Nota no encontrada');
         return nota;
+    }
+
+    @Delete('expedientes/:id/adjuntar-patologia/:id_patologia')
+    async eliminarPatologiadeExpediente(@Param('id', ParseIntPipe) id: number, @Param('id_patologia', ParseIntPipe) id_patologia: number) {
+        return this.residentesService.eliminarPatologia(id, id_patologia);
     }
 
 

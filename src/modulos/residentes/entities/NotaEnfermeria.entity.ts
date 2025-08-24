@@ -13,6 +13,9 @@ export class NotaEnfermeria {
   @Column('text')
   segmento: string; 
 
+  @Column('text')
+  titulo: string;
+
   @ManyToOne(() => NotaEnfermeria, nota => nota.segmentosHijos, { nullable: true })
   notaPadre: NotaEnfermeria; 
   @OneToMany(() => NotaEnfermeria, nota => nota.notaPadre)
