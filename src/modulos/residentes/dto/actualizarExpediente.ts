@@ -36,6 +36,9 @@ export class ActualizarExpediente{
     correo: string;
 
     @IsOptional()
+    edad?: number;
+
+    @IsOptional()
     fecha_nacimiento: string;
 
     @IsOptional()
