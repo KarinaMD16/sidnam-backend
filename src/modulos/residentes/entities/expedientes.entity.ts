@@ -4,6 +4,7 @@ import { Residente } from './residente.entity';
 import { Patologias } from './patologias.entity';
 import { Administraciones } from './administraciones.entity';
 import { AdministracionesEspeciales } from './administracionEspecial.entity';
+import { NotaEnfermeria } from './NotaEnfermeria.entity';
 
 @Entity()
 export class Expediente_Residente {
@@ -39,4 +40,8 @@ export class Expediente_Residente {
 
   @OneToMany(() => AdministracionesEspeciales, administracionEspecial => administracionEspecial.expediente)
   administracionesEspeciales: AdministracionesEspeciales[];
+
+  @OneToMany(() => NotaEnfermeria, nota => nota.expediente)
+  notas: NotaEnfermeria[];
+
 }

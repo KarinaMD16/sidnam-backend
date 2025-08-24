@@ -38,6 +38,7 @@ import { Administraciones } from './modulos/residentes/entities/administraciones
 import { Medicamentos } from './modulos/residentes/entities/medicamento.entity';
 import { Tipo_medicamento } from './modulos/residentes/entities/tipo_medicamento.entity';
 import { AdministracionesEspeciales } from './modulos/residentes/entities/administracionEspecial.entity';
+import { NotaEnfermeria } from './modulos/residentes/entities/NotaEnfermeria.entity';
 
 
 dotenv.config();
@@ -80,7 +81,8 @@ dotenv.config();
         Administraciones,
         Medicamentos,
         Tipo_medicamento,
-        AdministracionesEspeciales    
+        AdministracionesEspeciales,
+        NotaEnfermeria  
       ],
       synchronize: true,
       dropSchema: false,
