@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Residente } from './entities/residente.entity';
-import { NumericType, Repository } from 'typeorm';
+import { In, IsNull, Not, NumericType, Repository } from 'typeorm';
 import { Expediente_Residente } from './entities/expedientes.entity';
 import { Encargado } from './entities/encargado.entity';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
@@ -12,7 +12,13 @@ import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
 import { plainToInstance } from 'class-transformer';
 import { GetExpedienteResidenteDto } from './dto/getExpedienteDto';
 import { ActualizarExpediente } from './dto/actualizarExpediente';
-import { ActualizarEncargadorDto } from './dto/actualizarEncargadoDto';
+import { CreatePatologiaDto } from './dto/createPatologia.Dto';
+import { Patologias } from './entities/patologias.entity';
+import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
+import { Tipo_medicamento } from './entities/tipo_medicamento.entity';
+import { Medicamentos } from './entities/medicamento.entity';
+import { TurnoOpts } from 'src/common/enums/turno.enum';
+import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
 
 
 @Injectable()
@@ -28,26 +34,63 @@ export class ResidentesService {
 
         @InjectRepository(Encargado)
         private readonly encargadoRepository: Repository<Encargado>,
+        
+        @InjectRepository(Patologias)
+        private readonly patologiasRepository: Repository<Patologias>,
+
+        @InjectRepository(Tipo_medicamento)
+        private readonly tipoMedicamentoRepository: Repository<Tipo_medicamento>,
+
+        @InjectRepository(Medicamentos)
+        private readonly medicamentoRepository: Repository<Medicamentos>,
+
+        @InjectRepository(NotaEnfermeria)
+        private readonly notaEnfermeriaRepository: Repository<NotaEnfermeria>,
     ){}
+
+     private MAX_SEGMENT_LENGTH = 1000;
 
 
   async createExpediente(createExpedienteDto: CreateExpedienteCompletoDto) {
  
-    const residenteExistente = await this.residenteRepository.findOne({
-      where: { cedula: createExpedienteDto.residente.cedula },
-    });
+      const residenteExistente = await this.residenteRepository.findOne({
+        where: { cedula: createExpedienteDto.residente.cedula },
+      });
+      
 
-    const encargadoExistente = await this.encargadoRepository.findOne({
-      where: { cedula: createExpedienteDto.residente.encargados[0].cedula },
-    });
+      if (createExpedienteDto.residente.encargados.some(enc => enc.cedula === createExpedienteDto.residente.cedula)) {
+        throw new BadRequestException('La cédula del residente no puede ser la misma que la de un encargado');
+      }
 
-    if(encargadoExistente) {
-      throw new BadRequestException('El encargado ya existe');
+      const encargadosCedulas = createExpedienteDto.residente.encargados.map(enc => enc.cedula);
+      
+      const cedulasDuplicadas = encargadosCedulas.filter(
+        (cedula, index) => encargadosCedulas.indexOf(cedula) !== index
+      );
+
+      if (cedulasDuplicadas.length > 0) {
+        throw new BadRequestException(
+          `Hay cédulas repetidas en los encargados: ${[...new Set(cedulasDuplicadas)].join(', ')}`
+        );
+      }
+
+      for (const encargadoDto of createExpedienteDto.residente.encargados) {
+        
+        const residenteExistente = await this.residenteRepository.findOne({
+          where: { cedula: encargadoDto.cedula },
+        });
+
+        if (residenteExistente) {
+          throw new BadRequestException(
+            `La cédula ${encargadoDto.cedula} ya existe en un residente`
+          );
+      }
     }
 
     if (residenteExistente) {
       throw new BadRequestException('El residente ya existe');
     }
+
 
     const tipoPensionSeleccionado = TipoPensionOptions.find(opt => opt.id === createExpedienteDto.tipo_pension);
     if (!tipoPensionSeleccionado) {
@@ -64,16 +107,18 @@ export class ResidentesService {
       throw new BadRequestException('Dependencia inválida');
     }
 
-    const encargados = await Promise.all(
-      createExpedienteDto.residente.encargados.map(async enc => {
-        let encargado = await this.encargadoRepository.findOneBy({ correo: enc.correo });
-        if (!encargado) {
-          encargado = this.encargadoRepository.create(enc);
-          await this.encargadoRepository.save(encargado);
-        }
-        return encargado;
-      }),
-    );
+    const encargados: Encargado[] = [];
+    for (const enc of createExpedienteDto.residente.encargados) {
+      let encargado = await this.encargadoRepository.findOne({ where: { cedula: enc.cedula } });
+
+      if (!encargado) {
+        encargado = this.encargadoRepository.create(enc);
+        await this.encargadoRepository.save(encargado);
+      }
+
+      encargados.push(encargado);
+    }
+
 
     const residente = this.residenteRepository.create({
       ...createExpedienteDto.residente,
@@ -164,167 +209,289 @@ export class ResidentesService {
 
   }
 
-    async findPreviewsExpedientesByNombre(
-    nombre: string,
-  ): Promise<ExpedienteResidentePreviewDto[]> {
-    if (!nombre) {
-      throw new BadRequestException('El nombre es requerido');
+  async actualizarInformacionGeneralExpediente(idExpediente: number, actualizarExpediente: Partial<ActualizarExpediente>): Promise<{ message: string }> {
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: { id_expediente: idExpediente },
+      relations: ['residente', 'residente.encargados'],
+    });
+
+    if (!expediente) {
+      throw new NotFoundException('Expediente no encontrado');
     }
 
-    // Normaliza el nombre buscado (quita tildes, espacios y pasa a minúsculas)
-    const normalizeString = (str: string) =>
-      str
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // quita tildes
-        .replace(/\s+/g, '') // quita espacios
-        .toLowerCase();
-
-    const nombreBuscado = normalizeString(nombre);
-
-    // Consulta en MySQL ignorando tildes/mayúsculas con COLLATE
-    const expedientes = await this.expedienteResidenteRepository
-      .createQueryBuilder('expediente')
-      .leftJoinAndSelect('expediente.residente', 'residente')
-      .leftJoinAndSelect('residente.encargados', 'encargados')
-      .where(
-        `REPLACE(residente.nombre COLLATE utf8mb4_0900_ai_ci, ' ', '') LIKE :nombre`,
-        { nombre: `%${nombreBuscado}%` },
-      )
-      .getMany();
-
-    if (expedientes.length === 0) {
-      throw new NotFoundException('No se encontraron expedientes con ese nombre');
+    if (actualizarExpediente.cedula &&actualizarExpediente.encargados?.some(enc => enc.cedula === actualizarExpediente.cedula)) {
+      throw new BadRequestException(
+        'La cédula del residente no puede coincidir con la de ningún encargado enviado'
+      );
     }
 
-    return expedientes.map((exp) =>
-      plainToInstance(ExpedienteResidentePreviewDto, exp, {
-        excludeExtraneousValues: true,
-      }),
-    );
+    if(actualizarExpediente.edad){
+      expediente.residente.edad = actualizarExpediente.edad;
+    }
+
+    if (actualizarExpediente.cedula) {
+      const cedulaExistenteResidente = await this.residenteRepository.findOne({
+        where: {
+          cedula: actualizarExpediente.cedula,
+          id_adulto_mayor: Not(expediente.residente.id_adulto_mayor),
+        },
+      });
+
+      if (cedulaExistenteResidente) {
+        throw new BadRequestException(`La cédula ${actualizarExpediente.cedula} ya existe en un residente`);
+      }
+
+      const cedulaExistenteEncargado = await this.encargadoRepository.findOne({
+        where: { cedula: actualizarExpediente.cedula },
+      });
+
+      if (cedulaExistenteEncargado) {
+        throw new BadRequestException(`La cédula ${actualizarExpediente.cedula} ya existe en un encargado`);
+      }
+
+      expediente.residente.cedula = actualizarExpediente.cedula;
+    }
+
+    if (actualizarExpediente.encargados && actualizarExpediente.encargados.length > 0) {
+      for (const encargadoDto of actualizarExpediente.encargados) {
+        if (encargadoDto.id) {
+        
+          const encargadoExistente = expediente.residente.encargados.find(e => e.id === encargadoDto.id);
+          if (encargadoExistente) {
+            if (encargadoDto.nombre !== undefined) encargadoExistente.nombre = encargadoDto.nombre;
+            if (encargadoDto.apellido1 !== undefined) encargadoExistente.apellido1 = encargadoDto.apellido1;
+            if (encargadoDto.apellido2 !== undefined) encargadoExistente.apellido2 = encargadoDto.apellido2;
+            if (encargadoDto.telefono !== undefined) encargadoExistente.telefono = encargadoDto.telefono;
+            if (encargadoDto.correo !== undefined) encargadoExistente.correo = encargadoDto.correo;
+
+      
+            if (encargadoDto.cedula !== undefined && encargadoDto.cedula !== encargadoExistente.cedula) {
+
+              const cedulaExistenteResidente = await this.residenteRepository.findOne({
+                where: { cedula: encargadoDto.cedula },
+              });
+
+              if (cedulaExistenteResidente) {
+                throw new BadRequestException('Cédula ya existe en un residente');
+              }
+
+              encargadoExistente.cedula = encargadoDto.cedula;
+            }
+
+            await this.encargadoRepository.save(encargadoExistente);
+          }
+        } else {
+          if (encargadoDto.cedula) {
+            
+            const cedulaExistenteResidente = await this.residenteRepository.findOne({
+              where: { cedula: encargadoDto.cedula },
+            });
+
+            if (cedulaExistenteResidente) {
+              throw new BadRequestException('Cédula ya existe en un residente');
+            }
+          }
+
+          const nuevoEncargado = this.encargadoRepository.create({
+            nombre: encargadoDto.nombre!,
+            apellido1: encargadoDto.apellido1!,
+            apellido2: encargadoDto.apellido2,
+            cedula: encargadoDto.cedula,
+            correo: encargadoDto.correo,
+            telefono: encargadoDto.telefono,
+            residentes: [expediente.residente],
+          });
+
+          await this.encargadoRepository.save(nuevoEncargado);
+
+          expediente.residente.encargados.push(nuevoEncargado);
+        }
+      }
+    }
+
+    await this.residenteRepository.save(expediente.residente);
+    await this.expedienteResidenteRepository.save(expediente);
+
+    return { message: 'Información general del expediente actualizada correctamente' };
   }
 
-  async actualizarInformacionGeneralExpediente(idExpediente: number, actualizarExpediente: Partial<ActualizarExpediente>): Promise<{message: string}> {
+
+  async createPatologia(createPatologiaDto: CreatePatologiaDto) {
+    const patologia = this.patologiasRepository.create({
+      ...createPatologiaDto,
+      nombre: createPatologiaDto.nombre.toLowerCase(),
+    });
+
+    await this.patologiasRepository.save(patologia);
+    return "Patología creada correctamente";
+  }
+
+  async getPatologias() {
+    const patologias = await this.patologiasRepository.find();
+
+    return patologias.map(p => ({
+      ...p,
+      nombre: p.nombre.charAt(0).toUpperCase() + p.nombre.slice(1).toLowerCase(),
+    }));
+  }
+
+  async agregarPatologiaExpediente(id_expediente: number, id_patologia: number){
 
     const expediente = await this.expedienteResidenteRepository.findOne({
-      where: {id_expediente: idExpediente},
-      relations: ['residente', 'residente.encargados'],
+      where: {id_expediente: id_expediente},
+      relations: ['patologias']
     })
+
+    const patologia = await this.patologiasRepository.findOne({
+      where: {id_patologia: id_patologia},
+    })
+
+    if(expediente?.patologias.some(p => p.id_patologia === id_patologia)){
+      throw new BadRequestException('Patología ya existe en el expediente');
+    }
 
     if(!expediente){
       throw new NotFoundException('Expediente no encontrado');
     }
 
-    if (actualizarExpediente.tipo_pension !== undefined) {
-      const tipoPension = getTipoPensionById(Number(actualizarExpediente.tipo_pension));
-      if (!tipoPension) throw new BadRequestException('Tipo de pensión inválido. Debe ser 1 o 2');
-      expediente.tipo_pension = tipoPension;
+    if(!patologia){
+      throw new NotFoundException('Patología no encontrada');
     }
 
-    if (actualizarExpediente.fecha_ingreso) {
-      expediente.fecha_ingreso = actualizarExpediente.fecha_ingreso;
-    }
-
-    if(actualizarExpediente.cedula){
-      expediente.residente.cedula = actualizarExpediente.cedula;
-    }
-
-    if(actualizarExpediente.nombre){
-      expediente.residente.nombre = actualizarExpediente.nombre;
-    }
-
-    if(actualizarExpediente.apellido1){
-      expediente.residente.apellido1 = actualizarExpediente.apellido1;
-    }
-
-    if(actualizarExpediente.apellido2){
-      expediente.residente.apellido2 = actualizarExpediente.apellido2;
-    }
-
-    if(actualizarExpediente.sexo){
-      expediente.residente.sexo = actualizarExpediente.sexo;
-    }
-
-    if (actualizarExpediente.estado_civil !== undefined) {
-      const estadoCivil = getEstadoCivilById(Number(actualizarExpediente.estado_civil));
-      if (!estadoCivil) throw new BadRequestException('Estado civil inválido. Debe ser 1 o 2');
-      expediente.residente.estado_civil = estadoCivil;
-    }
-
-    if (actualizarExpediente.estado_civil !== undefined) {
-      const estadoCivil = getEstadoCivilById(Number(actualizarExpediente.estado_civil));
-      if (!estadoCivil) throw new BadRequestException('Estado civil inválido. Debe ser 1 o 2');
-      expediente.residente.estado_civil = estadoCivil;
-    }
-
-    if (actualizarExpediente.dependencia !== undefined) {
-      const dependencia = getDependenciaById(Number(actualizarExpediente.dependencia));
-      if (!dependencia) throw new BadRequestException('Dependencia inválida. Debe ser 1 o 2');
-      expediente.residente.dependencia = dependencia;
-    }
-
-    if(actualizarExpediente.correo){
-      expediente.residente.email = actualizarExpediente.correo;
-    }
-
-    if (actualizarExpediente.fecha_nacimiento) {
-    const fecha = new Date(actualizarExpediente.fecha_nacimiento);
-    if (isNaN(fecha.getTime())) {
-      throw new BadRequestException('Formato de fecha inválido. Debe ser YYYY-MM-DD');
-    }
-    expediente.residente.fecha_nacimiento = fecha;
-  }
-
-    if (actualizarExpediente.encargados && actualizarExpediente.encargados.length > 0) {
-      for (const encargadoDto of actualizarExpediente.encargados) {
-        if (encargadoDto.id) {
-          const encargadoExistente = expediente.residente.encargados.find(e => e.id === encargadoDto.id);
-            if (encargadoExistente) {
-              if (encargadoDto.nombre !== undefined) encargadoExistente.nombre = encargadoDto.nombre;
-              if (encargadoDto.apellido1 !== undefined) encargadoExistente.apellido1 = encargadoDto.apellido1;
-              if (encargadoDto.apellido2 !== undefined) encargadoExistente.apellido2 = encargadoDto.apellido2;
-              if (encargadoDto.telefono !== undefined) encargadoExistente.telefono = encargadoDto.telefono;
-              if (encargadoDto.correo !== undefined) encargadoExistente.correo = encargadoDto.correo;
-              encargadoExistente.cedula = encargadoDto.cedula;
-              await this.encargadoRepository.save(encargadoExistente);
-            }
-          } else {
-
-            const encargadoCedula = await this.encargadoRepository.findOne({ where: { cedula: encargadoDto.cedula } });
-
-            const residenteCedula = await this.residenteRepository.findOne({ where: { cedula: encargadoDto.cedula } });
-
-            if(encargadoCedula){
-              throw new BadRequestException('Ya existe un encargado con esa cédula');
-            }
-
-            if(residenteCedula){
-              throw new BadRequestException('Ya existe un residente con esa cédula');
-            }
-
-            const nuevoEncargado = this.encargadoRepository.create({
-              nombre: encargadoDto.nombre!,
-              apellido1: encargadoDto.apellido1!,
-              apellido2: encargadoDto.apellido2,
-              cedula: encargadoDto.cedula,
-              correo: encargadoDto.correo,
-              telefono: encargadoDto.telefono,
-              residentes: [expediente.residente],
-            });
-
-            await this.encargadoRepository.save(nuevoEncargado);
-
-      
-            expediente.residente.encargados.push(nuevoEncargado);
-          }
-        }
-      }
-
-    await this.residenteRepository.save(expediente.residente);
-
+    expediente.patologias.push(patologia);
     await this.expedienteResidenteRepository.save(expediente);
 
-    return {message: 'Información general del expediente actualizada correctamente'};
+    return "Patología agregada al expediente correctamente";
+  }
 
+  async crearTipoMedicamento(createTipoMedicamento: Tipo_MedicamentoDto){
+    const nuevoTipoMedicamento = this.tipoMedicamentoRepository.create(createTipoMedicamento);
+    await this.tipoMedicamentoRepository.save(nuevoTipoMedicamento);
+    return "Tipo de medicamento creado correctamente";
+  }
+
+  async getTiposMedicamento(){
+    return this.tipoMedicamentoRepository.find();
+  }
+
+  async asociarMedicamentoATipoMedicamento(idTipoMedicamento: number, nombreMedicamento: string){
+
+    const tipoMedicamento = await this.tipoMedicamentoRepository.findOne({ where: {id_tipo_medicamento: idTipoMedicamento } });
+
+
+    if (!tipoMedicamento) {
+      throw new NotFoundException('Tipo de medicamento no encontrado');
+    }
+
+
+    const nombreMinuscula = nombreMedicamento.toLowerCase();
+
+    const medicamentoExistente = await this.medicamentoRepository.findOne({
+        where: { 
+            nombre: nombreMinuscula, 
+            tipo: { id_tipo_medicamento: idTipoMedicamento } 
+        },
+        relations: ['tipo'] 
+    });
+
+    if (medicamentoExistente) {
+        throw new BadRequestException('El medicamento ya existe para este tipo');
+    }
+    const nuevoMedicamento = this.medicamentoRepository.create({ nombre: nombreMinuscula, tipo: tipoMedicamento });
+
+    await this.medicamentoRepository.save(nuevoMedicamento);
+
+    return "Medicamento asociado al tipo de medicamento correctamente";
+
+  }
+
+  async getMedicamentos(){
+    return this.medicamentoRepository.find({
+      relations: ['tipo']
+    });
+  }
+
+  getTurnos() {
+    return TurnoOpts.map(opt => ({
+      id: opt.id,
+      nombre: opt.nombre, 
+    }));
+  }
+
+  async crearNotaEnfermeria(expedienteId: number, textoCompleto: string): Promise<NotaEnfermeria> {
+      const expediente = await this.expedienteResidenteRepository.findOne({
+          where: { id_expediente: expedienteId },
+      });
+
+      if (!expediente) {
+          throw new NotFoundException('Expediente no encontrado');
+      }
+
+      let notaPadre: NotaEnfermeria | undefined = undefined;
+      let primeraNota: NotaEnfermeria | undefined = undefined;
+
+      for (let i = 0; i < textoCompleto.length; i += this.MAX_SEGMENT_LENGTH) {
+          const segmento = textoCompleto.substring(i, i + this.MAX_SEGMENT_LENGTH);
+
+          const nota = this.notaEnfermeriaRepository.create({
+              expediente,
+              segmento,
+              notaPadre: notaPadre, 
+          });
+
+          await this.notaEnfermeriaRepository.save(nota);
+
+          if (!notaPadre) {
+              notaPadre = nota;
+              primeraNota = nota;
+          }
+      }
+
+      if (!primeraNota) {
+          throw new BadRequestException('No se pudo crear la nota de enfermería');
+      }
+
+      return primeraNota;
+  }
+
+
+  async obtenerNotaCompleta(idNotaPadre: number): Promise<{ id: number; nota: string }> {
+    const notas = await this.notaEnfermeriaRepository.find({
+        where: [{ id: idNotaPadre }, { notaPadre: { id: idNotaPadre } }],
+        order: { id: 'ASC' },
+    });
+
+    if (!notas || notas.length === 0) {
+        throw new NotFoundException('Nota no encontrada');
+    }
+
+    const notaCompleta = notas.map(n => n.segmento).join('');
+
+    return {
+        id: idNotaPadre,
+        nota: notaCompleta,
+    };
+  }
+
+
+  async obtenerNotasPorExpediente(expedienteId: number): Promise<{ id: number; nota: string }[]> {
+
+    const notasPadre = await this.notaEnfermeriaRepository.find({
+        where: {
+            expediente: { id_expediente: expedienteId },
+            notaPadre: IsNull(), 
+        },
+        order: { fecha: 'ASC' },
+    });
+
+    const resultado: { id: number; nota: string }[] = [];
+
+    for (const notaPadre of notasPadre) {
+        const { id, nota } = await this.obtenerNotaCompleta(notaPadre.id);
+        resultado.push({ id, nota });
+    }
+
+    return resultado;
   }
 
 }

@@ -7,6 +7,9 @@ export class EncargadorDto{
    id: number;
 
    @Expose()
+   cedula: string;
+
+   @Expose()
    nombre: string;
 
    @Expose()
