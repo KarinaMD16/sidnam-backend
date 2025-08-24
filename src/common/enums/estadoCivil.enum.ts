@@ -10,3 +10,7 @@ export const EstadoCivilOptios = [
   { id: 2, value: estado_civil.Soltero, nombre: 'Soltero' },
 ];
 
+export const getEstadoCivilById = (id: number): estado_civil | null => {
+  const option = EstadoCivilOptios .find(opt => opt.id === id);
+  return option ? option.value : null;
+};

@@ -5,9 +5,9 @@ import { NumericType, Repository } from 'typeorm';
 import { Expediente_Residente } from './entities/expedientes.entity';
 import { Encargado } from './entities/encargado.entity';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
-import { TipoPensionOptions } from 'src/common/enums/tipoPension.enum';
-import { EstadoCivilOptios } from 'src/common/enums/estadoCivil.enum';
-import { DependenciaOpts } from 'src/common/enums/dependencia.enum';
+import { getTipoPensionById, TipoPensionOptions } from 'src/common/enums/tipoPension.enum';
+import { EstadoCivilOptios, getEstadoCivilById } from 'src/common/enums/estadoCivil.enum';
+import { DependenciaOpts, getDependenciaById } from 'src/common/enums/dependencia.enum';
 import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
 import { plainToInstance } from 'class-transformer';
 import { GetExpedienteResidenteDto } from './dto/getExpedienteDto';
@@ -214,9 +214,11 @@ export class ResidentesService {
       throw new NotFoundException('Expediente no encontrado');
     }
 
-    if(actualizarExpediente.tipo_pension){
-      expediente.tipo_pension = actualizarExpediente.tipo_pension;
-    } 
+    if (actualizarExpediente.tipo_pension !== undefined) {
+      const tipoPension = getTipoPensionById(Number(actualizarExpediente.tipo_pension));
+      if (!tipoPension) throw new BadRequestException('Tipo de pensión inválido. Debe ser 1 o 2');
+      expediente.tipo_pension = tipoPension;
+    }
 
     if (actualizarExpediente.fecha_ingreso) {
       expediente.fecha_ingreso = actualizarExpediente.fecha_ingreso;
@@ -242,18 +244,40 @@ export class ResidentesService {
       expediente.residente.sexo = actualizarExpediente.sexo;
     }
 
-    if(actualizarExpediente.estado_civil){
-      expediente.residente.estado_civil = actualizarExpediente.estado_civil;
+    if (actualizarExpediente.estado_civil !== undefined) {
+      const estadoCivil = getEstadoCivilById(Number(actualizarExpediente.estado_civil));
+      if (!estadoCivil) throw new BadRequestException('Estado civil inválido. Debe ser 1 o 2');
+      expediente.residente.estado_civil = estadoCivil;
     }
 
-    if(actualizarExpediente.dependencia){
-      expediente.residente.dependencia = actualizarExpediente.dependencia;
+    if (actualizarExpediente.estado_civil !== undefined) {
+      const estadoCivil = getEstadoCivilById(Number(actualizarExpediente.estado_civil));
+      if (!estadoCivil) throw new BadRequestException('Estado civil inválido. Debe ser 1 o 2');
+      expediente.residente.estado_civil = estadoCivil;
     }
 
-      if (actualizarExpediente.encargados && actualizarExpediente.encargados.length > 0) {
-        for (const encargadoDto of actualizarExpediente.encargados) {
-          if (encargadoDto.id) {
-            const encargadoExistente = expediente.residente.encargados.find(e => e.id === encargadoDto.id);
+    if (actualizarExpediente.dependencia !== undefined) {
+      const dependencia = getDependenciaById(Number(actualizarExpediente.dependencia));
+      if (!dependencia) throw new BadRequestException('Dependencia inválida. Debe ser 1 o 2');
+      expediente.residente.dependencia = dependencia;
+    }
+
+    if(actualizarExpediente.correo){
+      expediente.residente.email = actualizarExpediente.correo;
+    }
+
+    if (actualizarExpediente.fecha_nacimiento) {
+    const fecha = new Date(actualizarExpediente.fecha_nacimiento);
+    if (isNaN(fecha.getTime())) {
+      throw new BadRequestException('Formato de fecha inválido. Debe ser YYYY-MM-DD');
+    }
+    expediente.residente.fecha_nacimiento = fecha;
+  }
+
+    if (actualizarExpediente.encargados && actualizarExpediente.encargados.length > 0) {
+      for (const encargadoDto of actualizarExpediente.encargados) {
+        if (encargadoDto.id) {
+          const encargadoExistente = expediente.residente.encargados.find(e => e.id === encargadoDto.id);
             if (encargadoExistente) {
               if (encargadoDto.nombre !== undefined) encargadoExistente.nombre = encargadoDto.nombre;
               if (encargadoDto.apellido1 !== undefined) encargadoExistente.apellido1 = encargadoDto.apellido1;
@@ -297,6 +321,7 @@ export class ResidentesService {
 
     await this.residenteRepository.save(expediente.residente);
 
+    await this.expedienteResidenteRepository.save(expediente);
 
     return {message: 'Información general del expediente actualizada correctamente'};
 
