@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Residente } from './entities/residente.entity';
-import { NumericType, Repository } from 'typeorm';
+import { In, NumericType, Repository } from 'typeorm';
 import { Expediente_Residente } from './entities/expedientes.entity';
 import { Encargado } from './entities/encargado.entity';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
@@ -12,7 +12,12 @@ import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
 import { plainToInstance } from 'class-transformer';
 import { GetExpedienteResidenteDto } from './dto/getExpedienteDto';
 import { ActualizarExpediente } from './dto/actualizarExpediente';
-import { ActualizarEncargadorDto } from './dto/actualizarEncargadoDto';
+import { CreatePatologiaDto } from './dto/createPatologia.Dto';
+import { Patologias } from './entities/patologias.entity';
+import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
+import { Tipo_medicamento } from './entities/tipo_medicamento.entity';
+import { Medicamentos } from './entities/medicamento.entity';
+import { TurnoOpts } from 'src/common/enums/turno.enum';
 
 
 @Injectable()
@@ -28,6 +33,15 @@ export class ResidentesService {
 
         @InjectRepository(Encargado)
         private readonly encargadoRepository: Repository<Encargado>,
+        
+        @InjectRepository(Patologias)
+        private readonly patologiasRepository: Repository<Patologias>,
+
+        @InjectRepository(Tipo_medicamento)
+        private readonly tipoMedicamentoRepository: Repository<Tipo_medicamento>,
+
+        @InjectRepository(Medicamentos)
+        private readonly medicamentoRepository: Repository<Medicamentos>,
     ){}
 
 
@@ -164,45 +178,6 @@ export class ResidentesService {
 
   }
 
-    async findPreviewsExpedientesByNombre(
-    nombre: string,
-  ): Promise<ExpedienteResidentePreviewDto[]> {
-    if (!nombre) {
-      throw new BadRequestException('El nombre es requerido');
-    }
-
-    // Normaliza el nombre buscado (quita tildes, espacios y pasa a minúsculas)
-    const normalizeString = (str: string) =>
-      str
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // quita tildes
-        .replace(/\s+/g, '') // quita espacios
-        .toLowerCase();
-
-    const nombreBuscado = normalizeString(nombre);
-
-    // Consulta en MySQL ignorando tildes/mayúsculas con COLLATE
-    const expedientes = await this.expedienteResidenteRepository
-      .createQueryBuilder('expediente')
-      .leftJoinAndSelect('expediente.residente', 'residente')
-      .leftJoinAndSelect('residente.encargados', 'encargados')
-      .where(
-        `REPLACE(residente.nombre COLLATE utf8mb4_0900_ai_ci, ' ', '') LIKE :nombre`,
-        { nombre: `%${nombreBuscado}%` },
-      )
-      .getMany();
-
-    if (expedientes.length === 0) {
-      throw new NotFoundException('No se encontraron expedientes con ese nombre');
-    }
-
-    return expedientes.map((exp) =>
-      plainToInstance(ExpedienteResidentePreviewDto, exp, {
-        excludeExtraneousValues: true,
-      }),
-    );
-  }
-
   async actualizarInformacionGeneralExpediente(idExpediente: number, actualizarExpediente: Partial<ActualizarExpediente>): Promise<{message: string}> {
 
     const expediente = await this.expedienteResidenteRepository.findOne({
@@ -244,10 +219,10 @@ export class ResidentesService {
       expediente.residente.sexo = actualizarExpediente.sexo;
     }
 
-    if (actualizarExpediente.estado_civil !== undefined) {
-      const estadoCivil = getEstadoCivilById(Number(actualizarExpediente.estado_civil));
-      if (!estadoCivil) throw new BadRequestException('Estado civil inválido. Debe ser 1 o 2');
-      expediente.residente.estado_civil = estadoCivil;
+    if (actualizarExpediente.tipo_pension !== undefined && actualizarExpediente.tipo_pension !== null)  {
+      const tipoPension = getTipoPensionById(Number(actualizarExpediente.tipo_pension));
+      if (!tipoPension) throw new BadRequestException('Tipo de pensión inválido. Debe ser 1 o 2');
+      expediente.tipo_pension = tipoPension;
     }
 
     if (actualizarExpediente.estado_civil !== undefined) {
@@ -326,6 +301,102 @@ export class ResidentesService {
     return {message: 'Información general del expediente actualizada correctamente'};
 
   }
+
+  async createPatologia(createPatologiaDto: CreatePatologiaDto){
+    const patologia = this.patologiasRepository.create(createPatologiaDto);
+    await this.patologiasRepository.save(patologia);
+    return "Patología creada correctamente";
+  }
+
+  async getPatologias(){
+    return this.patologiasRepository.find();
+  }
+
+  async agregarPatologiaExpediente(id_expediente: number, id_patologia: number){
+
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: {id_expediente: id_expediente},
+      relations: ['patologias']
+    })
+
+    const patologia = await this.patologiasRepository.findOne({
+      where: {id_patologia: id_patologia},
+    })
+
+    if(!expediente){
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    if(!patologia){
+      throw new NotFoundException('Patología no encontrada');
+    }
+
+    expediente.patologias.push(patologia);
+    await this.expedienteResidenteRepository.save(expediente);
+
+    return "Patología agregada al expediente correctamente";
+  }
+
+  async crearTipoMedicamento(createTipoMedicamento: Tipo_MedicamentoDto){
+    const nuevoTipoMedicamento = this.tipoMedicamentoRepository.create(createTipoMedicamento);
+    await this.tipoMedicamentoRepository.save(nuevoTipoMedicamento);
+    return "Tipo de medicamento creado correctamente";
+  }
+
+  async getTiposMedicamento(){
+    return this.tipoMedicamentoRepository.find();
+  }
+
+  async asociarMedicamentoATipoMedicamento(idTipoMedicamento: number, nombreMedicamento: string){
+
+    const tipoMedicamento = await this.tipoMedicamentoRepository.findOne({ where: {id_tipo_medicamento: idTipoMedicamento } });
+
+
+    if (!tipoMedicamento) {
+      throw new NotFoundException('Tipo de medicamento no encontrado');
+    }
+
+
+    const nombreMinuscula = nombreMedicamento.toLowerCase();
+
+    const medicamentoExistente = await this.medicamentoRepository.findOne({
+        where: { 
+            nombre: nombreMinuscula, 
+            tipo: { id_tipo_medicamento: idTipoMedicamento } 
+        },
+        relations: ['tipo'] 
+    });
+
+    if (medicamentoExistente) {
+        throw new BadRequestException('El medicamento ya existe para este tipo');
+    }
+    const nuevoMedicamento = this.medicamentoRepository.create({ nombre: nombreMinuscula, tipo: tipoMedicamento });
+
+    await this.medicamentoRepository.save(nuevoMedicamento);
+
+    return "Medicamento asociado al tipo de medicamento correctamente";
+
+  }
+
+  async getMedicamentos(){
+    return this.medicamentoRepository.find({
+      relations: ['tipo']
+    });
+  }
+
+  getTurnos() {
+    return TurnoOpts.map(opt => ({
+      id: opt.id,
+      nombre: opt.nombre, 
+    }));
+  }
+
+  
+
+  
+
+
+
 
 }
 
