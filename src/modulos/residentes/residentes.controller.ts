@@ -160,4 +160,9 @@ export class ResidentesController {
         return this.residentesService.getBitacoras();
     }
 
+    @Get('expedientes/enfermeria/consultasEspecialistas/:idTipoConsulta/:idExpediente')
+    async getConsultasEspecialistas(@Param('idTipoConsulta', ParseIntPipe) idTipoConsulta: number, @Param('idExpediente', ParseIntPipe) idExpediente: number) {
+        return this.residentesService.getConsultasEspecialistas(idTipoConsulta, idExpediente);
+    }
+
 }

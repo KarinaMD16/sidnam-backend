@@ -30,6 +30,7 @@ import { Tipo_Consulta } from './entities/tipoConsulta.entity';
 import { CreateConsultaEspecialista } from './dto/createConsultaEspecialistaDto';
 import { Consulta_Especialista } from './entities/consultaEspecialista.entity';
 import { Bitacoras, BitacorasOpts } from 'src/common/enums/bitacaras.enum';
+import { MostrarConsultaEspecialistaDto } from './dto/mostrarConsultaEspecialistaDto';
 
 
 @Injectable()
@@ -560,7 +561,7 @@ export class ResidentesService {
 
     const expedienteEnfermeria = await this.expedienteResidenteRepository.findOne({
         where: { id_expediente: idExpediente },
-        relations: ['residente', 'notas', 'patologias', 'curaciones', 'consultasEbais', 'consultasEspecialistas', 'consultasEspecialistas.tipoConsulta'],
+        relations: ['residente', 'patologias'],
     });
 
     if(!expedienteEnfermeria){
@@ -648,9 +649,19 @@ export class ResidentesService {
     }));
   }
 
+  async getConsultasEspecialistas(idTipoConsulta: number, idExpediente: number) {
+    const consultas = await this.consultaEspecialistaRepository.find({
+      where: {
+        expediente: { id_expediente: idExpediente },
+        tipoConsulta: { id_tipo_consulta: idTipoConsulta },
+      },
+      relations: ['tipoConsulta'],
+    });
 
-  
+    if(!consultas) throw new NotFoundException('Consultas no encontradas');
 
+    return plainToInstance(MostrarConsultaEspecialistaDto, consultas, { excludeExtraneousValues: true });
+  }
 
 }
 
