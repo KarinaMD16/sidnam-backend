@@ -230,6 +230,10 @@ export class ResidentesService {
     if(actualizarExpediente.edad){
       expediente.residente.edad = actualizarExpediente.edad;
     }
+    
+    if (actualizarExpediente.sexo) {
+      expediente.residente.sexo = actualizarExpediente.sexo;
+    }
 
     if (actualizarExpediente.cedula) {
       const cedulaExistenteResidente = await this.residenteRepository.findOne({

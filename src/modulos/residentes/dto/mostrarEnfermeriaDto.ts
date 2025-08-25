@@ -26,7 +26,7 @@ export class NotaEnfermeriaDto {
 
 export class PatologiaDto {
   @Expose()
-  id: number;
+  id_patologia: number;
 
   @Expose()
   nombre: string;
