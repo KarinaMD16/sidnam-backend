@@ -155,7 +155,7 @@ export class ResidentesController {
         return this.residentesService.asociarTipoConusltaAConsulta(idTipoConsulta, idExpediente, createConsulta);
     }
 
-    @Get('bitacoras')
+    @Get('expedientes/enfermeria/bitacoras')
     async getBitacoras() {
         return this.residentesService.getBitacoras();
     }
@@ -163,6 +163,11 @@ export class ResidentesController {
     @Get('expedientes/enfermeria/consultasEspecialistas/:idTipoConsulta/:idExpediente')
     async getConsultasEspecialistas(@Param('idTipoConsulta', ParseIntPipe) idTipoConsulta: number, @Param('idExpediente', ParseIntPipe) idExpediente: number) {
         return this.residentesService.getConsultasEspecialistas(idTipoConsulta, idExpediente);
+    }
+
+    @Get('tipos-consulta')
+    async getTiposConsulta() {
+        return this.residentesService.getTipoConsultas();
     }
 
 }
