@@ -6,6 +6,10 @@ import { ActualizarExpediente } from './dto/actualizarExpediente';
 import { CreatePatologiaDto } from './dto/createPatologia.Dto';
 import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
 import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
+import { CreateCuracionDto } from './dto/createCuracionDto';
+import { createConsultaEbaisDto } from './dto/createConsultaEabisDto';
+import { createTipoConsultaDto } from './dto/createTipoConsultaDto';
+import { CreateConsultaEspecialista } from './dto/createConsultaEspecialistaDto';
 
 @Controller('residentes')
 export class ResidentesController {
@@ -129,6 +133,31 @@ export class ResidentesController {
     @Get('expediente/enfermeria/:idExpediente')
     async getExpedienteEnfermeriaPorResidente(@Param('idExpediente', ParseIntPipe) idExpediente: number) {
         return this.residentesService.getExpedienteEnfermeria(idExpediente);
+    }
+
+    @Post('expedientes/curaciones/:idExpediente')
+    async createCuracion(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body() createCuracionDto: CreateCuracionDto) {
+        return this.residentesService.createCuracion(createCuracionDto, idExpediente);
+    }
+
+    @Post('expedientes/consultas_ebais/:idExpediente')
+    async createConsultaEbais(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body() createConsulta: createConsultaEbaisDto) {
+        return this.residentesService.createConsultaEbais(createConsulta, idExpediente);
+    }
+
+    @Post('tipo-consulta')
+    async createTipoConsulta(@Body() createTipoConsulta: createTipoConsultaDto) {
+        return this.residentesService.createTipoConsulta(createTipoConsulta);
+    }
+
+    @Post('expedientes/consultas_especialistas/:id_tipo_consulta/:idExpediente')
+    async createConsultaEspecialista(@Param('id_tipo_consulta', ParseIntPipe) idTipoConsulta: number, @Param('idExpediente', ParseIntPipe) idExpediente: number, @Body() createConsulta: CreateConsultaEspecialista) {
+        return this.residentesService.asociarTipoConusltaAConsulta(idTipoConsulta, idExpediente, createConsulta);
+    }
+
+    @Get('bitacoras')
+    async getBitacoras() {
+        return this.residentesService.getBitacoras();
     }
 
 }

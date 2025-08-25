@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Residente } from './entities/residente.entity';
-import { In, IsNull, Not, NumericType, Repository } from 'typeorm';
+import { In, IsNull, Not, Repository } from 'typeorm';
 import { Expediente_Residente } from './entities/expedientes.entity';
 import { Encargado } from './entities/encargado.entity';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
-import { getTipoPensionById, TipoPensionOptions } from 'src/common/enums/tipoPension.enum';
-import { EstadoCivilOptios, getEstadoCivilById } from 'src/common/enums/estadoCivil.enum';
-import { DependenciaOpts, getDependenciaById } from 'src/common/enums/dependencia.enum';
+import { TipoPensionOptions } from 'src/common/enums/tipoPension.enum';
+import { EstadoCivilOptios } from 'src/common/enums/estadoCivil.enum';
+import { DependenciaOpts } from 'src/common/enums/dependencia.enum';
 import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
 import { plainToInstance } from 'class-transformer';
 import { GetExpedienteResidenteDto } from './dto/getExpedienteDto';
@@ -21,6 +21,15 @@ import { TurnoOpts } from 'src/common/enums/turno.enum';
 import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
 import { formatFecha } from 'src/common/utils/fechaFormato';
 import { ExpedienteEnfermeriaDto } from './dto/mostrarEnfermeriaDto';
+import { CreateCuracionDto } from './dto/createCuracionDto';
+import { Curaciones } from './entities/curaciones.entity';
+import { Consulta_Ebais } from './entities/consultaEbais.entity';
+import { createConsultaEbaisDto } from './dto/createConsultaEabisDto';
+import { createTipoConsultaDto } from './dto/createTipoConsultaDto';
+import { Tipo_Consulta } from './entities/tipoConsulta.entity';
+import { CreateConsultaEspecialista } from './dto/createConsultaEspecialistaDto';
+import { Consulta_Especialista } from './entities/consultaEspecialista.entity';
+import { Bitacoras, BitacorasOpts } from 'src/common/enums/bitacaras.enum';
 
 
 @Injectable()
@@ -48,6 +57,18 @@ export class ResidentesService {
 
         @InjectRepository(NotaEnfermeria)
         private readonly notaEnfermeriaRepository: Repository<NotaEnfermeria>,
+        
+        @InjectRepository(Curaciones)
+        private readonly curacionesRepository: Repository<Curaciones>,
+
+        @InjectRepository(Consulta_Ebais)
+        private readonly consultaEbaisRepository: Repository<Consulta_Ebais>,
+
+        @InjectRepository(Tipo_Consulta)
+        private readonly tipoConsultaRepository: Repository<Tipo_Consulta>,
+
+        @InjectRepository(Consulta_Especialista)
+        private readonly consultaEspecialistaRepository: Repository<Consulta_Especialista>,
     ){}
 
      private MAX_SEGMENT_LENGTH = 1000;
@@ -227,11 +248,19 @@ export class ResidentesService {
       );
     }
 
+    if(actualizarExpediente.fecha_nacimiento){
+      expediente.residente.fecha_nacimiento = actualizarExpediente.fecha_nacimiento;
+    }
+
     if(actualizarExpediente.edad){
       expediente.residente.edad = actualizarExpediente.edad;
     }
     
     if (actualizarExpediente.sexo) {
+      expediente.residente.sexo = actualizarExpediente.sexo;
+    }
+
+    if(actualizarExpediente.sexo){
       expediente.residente.sexo = actualizarExpediente.sexo;
     }
 
@@ -531,7 +560,7 @@ export class ResidentesService {
 
     const expedienteEnfermeria = await this.expedienteResidenteRepository.findOne({
         where: { id_expediente: idExpediente },
-        relations: ['residente', 'notas', 'patologias'],
+        relations: ['residente', 'notas', 'patologias', 'curaciones', 'consultasEbais', 'consultasEspecialistas', 'consultasEspecialistas.tipoConsulta'],
     });
 
     if(!expedienteEnfermeria){
@@ -542,6 +571,86 @@ export class ResidentesService {
 
     return dtos;
   }
+
+  async createCuracion(createCuracionDto: CreateCuracionDto, id: number): Promise<Curaciones> {
+
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: { id_expediente: id }
+    })
+
+    if(!expediente){
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    const curacion = this.curacionesRepository.create({
+      ...createCuracionDto,
+      expediente
+    });
+
+    return this.curacionesRepository.save(curacion);
+  }
+
+  async createConsultaEbais(createConsulta: createConsultaEbaisDto, id: number): Promise<Consulta_Ebais> {
+
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: { id_expediente: id }
+    })
+
+    if(!expediente){
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    const consulta = this.consultaEbaisRepository.create({
+      ...createConsulta,
+      expediente
+    });
+
+    return this.consultaEbaisRepository.save(consulta);
+  }
+
+  async createTipoConsulta(createTipoConsulta: createTipoConsultaDto): Promise<{message: string}> {
+    const nuevoTipoConsulta = this.tipoConsultaRepository.create(createTipoConsulta);
+    await this.tipoConsultaRepository.save(nuevoTipoConsulta);
+    return { message: 'Tipo de consulta creado' };
+  }
+
+  async asociarTipoConusltaAConsulta(id_tipo_consulta: number, id_expediente: number, createConsulta: CreateConsultaEspecialista){
+    
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: {id_expediente: id_expediente}
+    })
+
+    if(!expediente){
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    const tipoConsulta = await this.tipoConsultaRepository.findOne({
+      where: { id_tipo_consulta: id_tipo_consulta }
+    })
+
+    if(!tipoConsulta){
+      throw new NotFoundException('Tipo de consulta no encontrado');
+    }
+
+    const consultaEspecialista = this.consultaEspecialistaRepository.create({
+      ...createConsulta,
+      expediente,
+      tipoConsulta
+    });
+
+    return this.consultaEspecialistaRepository.save(consultaEspecialista);
+  }
+
+  getBitacoras() {
+    return BitacorasOpts.map(opt => ({
+      id: opt.id,
+      nombre: opt.nombre, 
+    }));
+  }
+
+
+  
+
 
 }
 
