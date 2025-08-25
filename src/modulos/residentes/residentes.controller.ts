@@ -126,7 +126,7 @@ export class ResidentesController {
         return this.residentesService.getExpedienteEnfermeria(idExpediente);
     }
 
-    @Get('expediente/enfermeria/residente/:idExpediente')
+    @Get('expediente/enfermeria/:idExpediente')
     async getExpedienteEnfermeriaPorResidente(@Param('idExpediente', ParseIntPipe) idExpediente: number) {
         return this.residentesService.getExpedienteEnfermeria(idExpediente);
     }
