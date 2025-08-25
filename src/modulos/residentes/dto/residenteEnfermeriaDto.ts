@@ -13,4 +13,7 @@ export class ResidneteEnfermeriaDto {
 
   @Expose()
   cedula: string;
+
+  @Expose()
+  sexo: string;
 }
