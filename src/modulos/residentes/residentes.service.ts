@@ -649,6 +649,10 @@ export class ResidentesService {
     }));
   }
 
+  async getTipoConsultas(){
+    return this.tipoConsultaRepository.find();
+  }
+  
   async getConsultasEspecialistas(idTipoConsulta: number, idExpediente: number) {
     const consultas = await this.consultaEspecialistaRepository.find({
       where: {
@@ -658,7 +662,13 @@ export class ResidentesService {
       relations: ['tipoConsulta'],
     });
 
-    if(!consultas) throw new NotFoundException('Consultas no encontradas');
+    const Tipo_Consulta = await this.tipoConsultaRepository.findOne({
+      where: { id_tipo_consulta: idTipoConsulta }
+    });
+
+    if(!Tipo_Consulta){
+      throw new NotFoundException('Tipo de consulta no encontrada');
+    }
 
     return plainToInstance(MostrarConsultaEspecialistaDto, consultas, { excludeExtraneousValues: true });
   }
