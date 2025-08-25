@@ -39,7 +39,7 @@ export class ActualizarExpediente{
     edad?: number;
 
     @IsOptional()
-    fecha_nacimiento: string;
+    fecha_nacimiento: Date;
 
     @IsOptional()
     dependencia?: number;
