@@ -170,4 +170,14 @@ export class ResidentesController {
         return this.residentesService.getTipoConsultas();
     }
 
+    @Get('expedientes/enfermeria/curaciones/:idExpediente')
+    async getCuraciones(@Param('idExpediente', ParseIntPipe) idExpediente: number) {
+        return this.residentesService.getCuraciones(idExpediente);
+    }
+
+    @Get('expedientes/enfermeria/consultasEbais/:idExpediente')
+    async getConsultasEbais(@Param('idExpediente', ParseIntPipe) idExpediente: number) {
+        return this.residentesService.getConsultaEbais(idExpediente);
+    }
+
 }

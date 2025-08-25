@@ -31,6 +31,8 @@ import { CreateConsultaEspecialista } from './dto/createConsultaEspecialistaDto'
 import { Consulta_Especialista } from './entities/consultaEspecialista.entity';
 import { Bitacoras, BitacorasOpts } from 'src/common/enums/bitacaras.enum';
 import { MostrarConsultaEspecialistaDto } from './dto/mostrarConsultaEspecialistaDto';
+import { MostrarCuracionDto } from './dto/mostrarCuracionDto';
+import { MostrarConsultaEbais } from './dto/mostrarConsultasEbaisDto';
 
 
 @Injectable()
@@ -673,6 +675,22 @@ export class ResidentesService {
     return plainToInstance(MostrarConsultaEspecialistaDto, consultas, { excludeExtraneousValues: true });
   }
 
+  async getCuraciones(idExpediente: number) {
+    const curaciones = await this.curacionesRepository.find({
+      where: { expediente: { id_expediente: idExpediente } },
+    });
+
+    return plainToInstance(MostrarCuracionDto, curaciones, { excludeExtraneousValues: true });
+  }
+
+  async getConsultaEbais(idExpediente: number) {
+    const consultas = await this.consultaEbaisRepository.find({
+      where: { expediente: { id_expediente: idExpediente } },
+    });
+
+    return plainToInstance(MostrarConsultaEbais, consultas, { excludeExtraneousValues: true });
+  }
+  
 }
 
 
