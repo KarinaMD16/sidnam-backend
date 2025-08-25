@@ -103,12 +103,12 @@ export class ResidentesController {
        return this.residentesService.getTurnos();
    }
 
-   @Post('notas-enfermeria/:idExpediente')
+   @Post('expedientes/notas-enfermeria/:idExpediente')
    async crearNota(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body('textoCompleto') textoCompleto: string, @Body('titulo') titulo: string): Promise<NotaEnfermeria> {
        return this.residentesService.crearNotaEnfermeria(idExpediente, textoCompleto, titulo);
    }
 
-   @Get('expediente/notas/:id')
+   @Get('expedientes/notas-enfermeria/:id')
    async obtenerNotasPorExpediente(@Param('id') expedienteId: number): Promise<{ id: number; nota: string }[]> {
        return this.residentesService.obtenerNotasPorExpediente(expedienteId);
    }
