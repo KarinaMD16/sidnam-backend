@@ -10,6 +10,7 @@ import { CreateCuracionDto } from './dto/createCuracionDto';
 import { createConsultaEbaisDto } from './dto/createConsultaEabisDto';
 import { createTipoConsultaDto } from './dto/createTipoConsultaDto';
 import { CreateConsultaEspecialista } from './dto/createConsultaEspecialistaDto';
+import { CrearNotaDto } from './dto/CrearNotaDto';
 
 @Controller('residentes')
 export class ResidentesController {
@@ -104,9 +105,11 @@ export class ResidentesController {
    }
 
    @Post('expedientes/notas-enfermeria/:idExpediente')
-   async crearNota(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body('textoCompleto') textoCompleto: string, @Body('titulo') titulo: string): Promise<NotaEnfermeria> {
+    async crearNota(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body() crearNotaDto: CrearNotaDto): Promise<NotaEnfermeria> {
+       const { titulo, textoCompleto } = crearNotaDto;
        return this.residentesService.crearNotaEnfermeria(idExpediente, textoCompleto, titulo);
-   }
+    }
+
 
    @Get('expedientes/notas-enfermeria/:id')
    async obtenerNotasPorExpediente(@Param('id') expedienteId: number): Promise<{ id: number; nota: string }[]> {
