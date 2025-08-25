@@ -20,6 +20,7 @@ import { Medicamentos } from './entities/medicamento.entity';
 import { TurnoOpts } from 'src/common/enums/turno.enum';
 import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
 import { formatFecha } from 'src/common/utils/fechaFormato';
+import { ExpedienteEnfermeriaDto } from './dto/mostrarEnfermeriaDto';
 
 
 @Injectable()
@@ -520,6 +521,22 @@ export class ResidentesService {
       }
 
       return resultado;
+  }
+
+  async getExpedienteEnfermeria(idExpediente: number) {
+
+    const expedienteEnfermeria = await this.expedienteResidenteRepository.findOne({
+        where: { id_expediente: idExpediente },
+        relations: ['residente', 'notas', 'patologias'],
+    });
+
+    if(!expedienteEnfermeria){
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    const dtos = plainToInstance(ExpedienteEnfermeriaDto, expedienteEnfermeria, { excludeExtraneousValues: true });
+
+    return dtos;
   }
 
 }

@@ -121,5 +121,14 @@ export class ResidentesController {
         return this.residentesService.eliminarPatologia(id, id_patologia);
     }
 
+    @Get('expediente/enfermeria/:idExpediente')
+    async getExpedienteEnfermeria(@Param('idExpediente', ParseIntPipe) idExpediente: number) {
+        return this.residentesService.getExpedienteEnfermeria(idExpediente);
+    }
+
+    @Get('expediente/enfermeria/residente/:idExpediente')
+    async getExpedienteEnfermeriaPorResidente(@Param('idExpediente', ParseIntPipe) idExpediente: number) {
+        return this.residentesService.getExpedienteEnfermeria(idExpediente);
+    }
 
 }
