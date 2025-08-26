@@ -40,6 +40,10 @@ import { Medicamentos } from './modulos/residentes/entities/medicamento.entity';
 import { Tipo_medicamento } from './modulos/residentes/entities/tipo_medicamento.entity';
 import { AdministracionesEspeciales } from './modulos/residentes/entities/administracionEspecial.entity';
 import { NotaEnfermeria } from './modulos/residentes/entities/NotaEnfermeria.entity';
+import { Producto } from './modulos/inventarios/entities/producto.entity';
+import { Inventario } from './modulos/inventarios/entities/inventario.entity';
+import { Entrada } from './modulos/inventarios/entities/entrada.entity';
+import { Salida } from './modulos/inventarios/entities/salida.entity';
 
 
 dotenv.config();
@@ -85,6 +89,10 @@ dotenv.config();
         Tipo_medicamento,
         AdministracionesEspeciales,
         NotaEnfermeria  
+        Producto,
+        Inventario,
+        Entrada,
+        Salida,
       ],
       synchronize: true,
       dropSchema: false,
