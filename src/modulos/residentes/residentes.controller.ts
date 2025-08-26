@@ -6,6 +6,11 @@ import { ActualizarExpediente } from './dto/actualizarExpediente';
 import { CreatePatologiaDto } from './dto/createPatologia.Dto';
 import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
 import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
+import { CreateCuracionDto } from './dto/createCuracionDto';
+import { createConsultaEbaisDto } from './dto/createConsultaEabisDto';
+import { createTipoConsultaDto } from './dto/createTipoConsultaDto';
+import { CreateConsultaEspecialista } from './dto/createConsultaEspecialistaDto';
+import { CrearNotaDto } from './dto/CrearNotaDto';
 
 @Controller('residentes')
 export class ResidentesController {
@@ -99,12 +104,14 @@ export class ResidentesController {
        return this.residentesService.getTurnos();
    }
 
-   @Post('notas-enfermeria/:idExpediente')
-   async crearNota(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body('textoCompleto') textoCompleto: string, @Body('titulo') titulo: string): Promise<NotaEnfermeria> {
+   @Post('expedientes/notas-enfermeria/:idExpediente')
+    async crearNota(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body() crearNotaDto: CrearNotaDto): Promise<NotaEnfermeria> {
+       const { titulo, textoCompleto } = crearNotaDto;
        return this.residentesService.crearNotaEnfermeria(idExpediente, textoCompleto, titulo);
-   }
+    }
 
-   @Get('expediente/notas/:id')
+
+   @Get('expedientes/notas-enfermeria/:id')
    async obtenerNotasPorExpediente(@Param('id') expedienteId: number): Promise<{ id: number; nota: string }[]> {
        return this.residentesService.obtenerNotasPorExpediente(expedienteId);
    }
@@ -129,6 +136,51 @@ export class ResidentesController {
     @Get('expediente/enfermeria/:idExpediente')
     async getExpedienteEnfermeriaPorResidente(@Param('idExpediente', ParseIntPipe) idExpediente: number) {
         return this.residentesService.getExpedienteEnfermeria(idExpediente);
+    }
+
+    @Post('expedientes/curaciones/:idExpediente')
+    async createCuracion(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body() createCuracionDto: CreateCuracionDto) {
+        return this.residentesService.createCuracion(createCuracionDto, idExpediente);
+    }
+
+    @Post('expedientes/consultas_ebais/:idExpediente')
+    async createConsultaEbais(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body() createConsulta: createConsultaEbaisDto) {
+        return this.residentesService.createConsultaEbais(createConsulta, idExpediente);
+    }
+
+    @Post('tipo-consulta')
+    async createTipoConsulta(@Body() createTipoConsulta: createTipoConsultaDto) {
+        return this.residentesService.createTipoConsulta(createTipoConsulta);
+    }
+
+    @Post('expedientes/consultas_especialistas/:id_tipo_consulta/:idExpediente')
+    async createConsultaEspecialista(@Param('id_tipo_consulta', ParseIntPipe) idTipoConsulta: number, @Param('idExpediente', ParseIntPipe) idExpediente: number, @Body() createConsulta: CreateConsultaEspecialista) {
+        return this.residentesService.asociarTipoConusltaAConsulta(idTipoConsulta, idExpediente, createConsulta);
+    }
+
+    @Get('expedientes/enfermeria/bitacoras')
+    async getBitacoras() {
+        return this.residentesService.getBitacoras();
+    }
+
+    @Get('expedientes/enfermeria/consultasEspecialistas/:idTipoConsulta/:idExpediente')
+    async getConsultasEspecialistas(@Param('idTipoConsulta', ParseIntPipe) idTipoConsulta: number, @Param('idExpediente', ParseIntPipe) idExpediente: number) {
+        return this.residentesService.getConsultasEspecialistas(idTipoConsulta, idExpediente);
+    }
+
+    @Get('tipos-consulta')
+    async getTiposConsulta() {
+        return this.residentesService.getTipoConsultas();
+    }
+
+    @Get('expedientes/enfermeria/curaciones/:idExpediente')
+    async getCuraciones(@Param('idExpediente', ParseIntPipe) idExpediente: number) {
+        return this.residentesService.getCuraciones(idExpediente);
+    }
+
+    @Get('expedientes/enfermeria/consultasEbais/:idExpediente')
+    async getConsultasEbais(@Param('idExpediente', ParseIntPipe) idExpediente: number) {
+        return this.residentesService.getConsultaEbais(idExpediente);
     }
 
 }

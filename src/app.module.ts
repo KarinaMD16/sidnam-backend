@@ -40,6 +40,10 @@ import { Medicamentos } from './modulos/residentes/entities/medicamento.entity';
 import { Tipo_medicamento } from './modulos/residentes/entities/tipo_medicamento.entity';
 import { AdministracionesEspeciales } from './modulos/residentes/entities/administracionEspecial.entity';
 import { NotaEnfermeria } from './modulos/residentes/entities/NotaEnfermeria.entity';
+import { Curaciones } from './modulos/residentes/entities/curaciones.entity';
+import { Consulta_Ebais } from './modulos/residentes/entities/consultaEbais.entity';
+import { Consulta_Especialista } from './modulos/residentes/entities/consultaEspecialista.entity';
+import { Tipo_Consulta } from './modulos/residentes/entities/tipoConsulta.entity';
 import { Producto } from './modulos/inventarios/entities/producto.entity';
 import { Inventario } from './modulos/inventarios/entities/inventario.entity';
 import { Entrada } from './modulos/inventarios/entities/entrada.entity';
@@ -88,11 +92,15 @@ dotenv.config();
         Medicamentos,
         Tipo_medicamento,
         AdministracionesEspeciales,
-        NotaEnfermeria  
+        NotaEnfermeria,
+        Curaciones,
+        Consulta_Ebais,
+        Consulta_Especialista,
+        Tipo_Consulta,
         Producto,
         Inventario,
         Entrada,
-        Salida,
+        Salida
       ],
       synchronize: true,
       dropSchema: false,

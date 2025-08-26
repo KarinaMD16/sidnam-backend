@@ -1,5 +1,8 @@
 import { Expose, Transform, Type } from "class-transformer";
 import { ResidneteEnfermeriaDto } from "./residenteEnfermeriaDto";
+import { MostrarCuracionDto } from "./mostrarCuracionDto";
+import { MostrarConsultaEbais } from "./mostrarConsultasEbaisDto";
+import { MostrarConsultaEspecialistaDto } from "./mostrarConsultaEspecialistaDto";
 
 export class NotaEnfermeriaDto {
   @Expose()
@@ -26,7 +29,7 @@ export class NotaEnfermeriaDto {
 
 export class PatologiaDto {
   @Expose()
-  id: number;
+  id_patologia: number;
 
   @Expose()
   nombre: string;
@@ -44,4 +47,5 @@ export class ExpedienteEnfermeriaDto {
   @Expose()
   @Type(() => PatologiaDto)
   patologias: PatologiaDto[];
+
 }

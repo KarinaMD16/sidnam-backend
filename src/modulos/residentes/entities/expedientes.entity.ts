@@ -5,6 +5,9 @@ import { Patologias } from './patologias.entity';
 import { Administraciones } from './administraciones.entity';
 import { AdministracionesEspeciales } from './administracionEspecial.entity';
 import { NotaEnfermeria } from './NotaEnfermeria.entity';
+import { Curaciones } from './curaciones.entity';
+import { Consulta_Ebais } from './consultaEbais.entity';
+import { Consulta_Especialista } from './consultaEspecialista.entity';
 
 @Entity()
 export class Expediente_Residente {
@@ -43,5 +46,14 @@ export class Expediente_Residente {
 
   @OneToMany(() => NotaEnfermeria, nota => nota.expediente)
   notas: NotaEnfermeria[];
+
+  @OneToMany(() => Curaciones, curacion => curacion.expediente)
+  curaciones: Curaciones[];
+
+  @OneToMany(() => Consulta_Ebais, consulta => consulta.expediente)
+  consultasEbais: Consulta_Ebais[];
+
+  @OneToMany(() => Consulta_Especialista, consulta => consulta.expediente)
+  consultasEspecialistas: Consulta_Especialista[];
 
 }
