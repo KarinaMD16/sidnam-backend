@@ -1,5 +1,6 @@
 import { CategoriasPrincipalesProductos } from "src/common/enums/categoriasPrincipalesProductos.enum";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Producto } from "./producto.entity";
 
 
 @Entity()
@@ -20,4 +21,6 @@ export class Categoria_Producto {
     @Column()
     descripcion: string;
 
+    @OneToMany(() => Producto, producto => producto.categoria)
+    productos: Producto[];
 }
