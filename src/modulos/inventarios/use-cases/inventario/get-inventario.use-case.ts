@@ -17,17 +17,21 @@ export class GetInventarioUseCase {
     ) {}
 
 
-    async findAllInventarios(page?: number, limit?: number): Promise<{ data: InventarioPreviewDto[]; total: number }> {
-                  const [data, total] = await this.inventarioRepository.findAndCount({
-                      skip: page && limit ? (page - 1) * limit : 0,
-                      take: limit,
-                      order: { id: 'DESC' },
-                      relations: {producto:{categoria:true}}, 
-                  });
-              
-                  const dtos = plainToInstance(InventarioPreviewDto, data, { excludeExtraneousValues: true });
-              
-                  return { data: dtos, total };
-           }
+  async findAllInventarios(categoriaId: number, page?: number, limit?: number): Promise<{ data: InventarioPreviewDto[]; total: number }> {
+
+  const [data, total] = await this.inventarioRepository.findAndCount({
+    where: { producto: { categoria: { id: categoriaId } } },   
+    relations: { producto: { categoria: true } },
+    order: { id: 'DESC' },
+    skip: page && limit ? (page - 1) * limit : 0,
+    take: limit,
+  });
+
+  const dtos = plainToInstance(InventarioPreviewDto, data, { excludeExtraneousValues: true });
+  return { data: dtos, total };
+}
+
+
+
     
 }

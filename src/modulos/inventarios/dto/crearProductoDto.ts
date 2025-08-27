@@ -11,9 +11,6 @@ export class ProductoDto {
     @IsNotEmpty()
     codigo: string;
 
-    @IsBoolean()
-    @IsOptional()
-    archivado: boolean;
 
     @IsString()
     @IsNotEmpty()
