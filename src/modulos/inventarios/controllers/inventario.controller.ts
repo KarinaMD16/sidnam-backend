@@ -10,6 +10,7 @@ import { DeleteProductoUseCase } from "../use-cases/producto/delete-producto.use
 import { GetInventarioUseCase } from "../use-cases/inventario/get-inventario.use-case";
 import { CrearInventarioDto } from "../dto/crearInventarioDto";
 import { CreateInventarioUseCase } from "../use-cases/inventario/create-inventario.use-case";
+import { PatchEditarInventarioDto } from "../dto/actualizarInventarioDto";
 
 
 @Controller('inventario')
@@ -53,6 +54,14 @@ export class InventarioController {
         return this.updateProductosUseCase.updateProducto(idProducto, dto);
     }
 
+    @Patch('inventarios/:inventarioId')
+    updateInventario(
+      @Param('inventarioId', ParseIntPipe) inventarioId: number,
+      @Body() dto: PatchEditarInventarioDto,
+    ) {
+      return this.updateProductosUseCase.updateInventario(inventarioId, dto);
+   } 
+
     @Delete('productos/:idProducto')
         async removeProducto(@Param('idProducto', ParseIntPipe) id: number){
             await this.deleteProductosUseCase.deleteProducto(id);
@@ -70,16 +79,19 @@ export class InventarioController {
         return this.getProductoUseCase.findByCategoriaId(categoriaId);
    }
 
-   @Get('getInventarios')
-    getInventario(
-        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
-        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
-    ){
-        if (page && limit) {
-            return this.getInventarioUseCase.findAllInventarios(page, limit);
-        }
-        return this.getInventarioUseCase.findAllInventarios();
-    }  
+   
+   @Get('categoria/:categoriaId')
+   getInventarioPorCategoria(
+     @Param('categoriaId', ParseIntPipe) categoriaId: number,
+     @Query('page') page?: string,
+     @Query('limit') limit?: string,
+   ) {
+     const p = page ? Number(page) : undefined;
+     const l = limit ? Number(limit) : undefined;
+     return this.getInventarioUseCase.findAllInventarios(categoriaId, p, l); 
+  }
+
+
 
     @Post('crearInventario')
        crearInventario(@Body() dto: CrearInventarioDto) {
@@ -87,22 +99,23 @@ export class InventarioController {
     }
 
 
-    @Patch('inventarios/:inventarioId')
+    @Patch(':inventarioId')
       toggleArchivadoPorInventario(
       @Param('inventarioId', ParseIntPipe) inventarioId: number
     ) {
       return this.updateProductosUseCase.updateArchivadoProducto(inventarioId);
     }
 
-    @Get('getProductosArchivados')
-    findProductosArchivados(
-      @Query('page') page?: string,
-      @Query('limit') limit?: string,
+    @Get('productos/:categoriaId/archivados')
+    findProductosArchivadosPorCategoria(
+       @Param('categoriaId', ParseIntPipe) categoriaId: number,
+       @Query('page') page?: string,
+       @Query('limit') limit?: string,
     ) {
       const p = page ? Number(page) : undefined;
       const l = limit ? Number(limit) : undefined;
-      return this.getProductoUseCase.findByArchivado(true, p, l);
-    }
+      return this.getProductoUseCase.findByArchivadoYCategoria(true, categoriaId, p, l);
+   }
 
     @Get('getProductosActivos') 
     findProductosActivos(

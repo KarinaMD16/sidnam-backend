@@ -4,6 +4,7 @@ import { Producto } from "../../entities/producto.entity";
 import { Repository } from "typeorm";
 import { Categoria_Producto } from "../../entities/categoriaProducto.entity";
 import { ProductoDto } from "../../dto/crearProductoDto";
+import { Inventario } from "../../entities/inventario.entity";
 
 
 @Injectable()
@@ -15,6 +16,9 @@ export class CreateProductoUseCase {
 
         @InjectRepository(Categoria_Producto)
         private readonly categoriaProducto: Repository<Categoria_Producto>,
+
+        @InjectRepository(Inventario)
+        private readonly inventarioRepository: Repository<Inventario>,
 
   ){}
 
@@ -33,12 +37,17 @@ export class CreateProductoUseCase {
        const crearProducto = this.productoRepository.create({
            nombre: producto.nombre,
            codigo: producto.codigo,
-           archivado: producto.archivado,
            unidadMedida: producto.unidadMedida,
            categoria,
        })
 
         const productoCreado = await this.productoRepository.save(crearProducto);
+
+        const inventario = this.inventarioRepository.create({
+          stock: 0,
+          producto: productoCreado,
+        });
+        await this.inventarioRepository.save(inventario);
 
         return productoCreado;
 
