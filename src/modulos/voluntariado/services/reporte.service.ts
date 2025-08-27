@@ -29,7 +29,11 @@ export class ReporteService {
     }
 
     const html = this.generarHtml(solicitud);
-    await this.pdfHtmlService.generarDesdeHtml(html, res);
+    await this.pdfHtmlService.generarDesdeHtml(html, res, {
+      
+      waitUntil: 'networkidle0', 
+      ensureAssets: true,        
+    });
   }
 
   private generarHtml(solicitud: SolicitudAprobada): string {
