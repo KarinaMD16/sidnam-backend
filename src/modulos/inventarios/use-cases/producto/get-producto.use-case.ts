@@ -25,23 +25,32 @@ export class GetProductosUseCase {
       });
     }
 
-  async findByArchivadoYCategoria(archivado: boolean, categoriaId: number, page?: number, limit?: number): Promise<{ data: Array<{ id: number; nombre: string; codigo: string; unidadMedida: string }>; total: number }> {
+  async findByArchivadoYCategoria(archivado: boolean, categoriaId: number, page?: number, limit?: number): Promise<{ data: Array<{ inventarioId: number; nombre: string; codigo: string; unidadMedida: string }>; total: number }> {
 
-  const [rows, total] = await this.productoRepository.findAndCount({
-    where: { archivado, categoria: { id: categoriaId } },
-    select: {
-      id: true,
-      nombre: true,
-      codigo: true,
-      unidadMedida: true,
-    },
-    order: { id: 'DESC' },
-    skip: page && limit ? (page - 1) * limit : 0,
-    take: limit,
-  });
+  const qb = this.productoRepository
+    .createQueryBuilder('p')
+    .innerJoin('p.categoria', 'c')
+    .innerJoin('p.inventarios', 'inv')
+    .where('p.archivado = :archivado', { archivado })
+    .andWhere('c.id = :categoriaId', { categoriaId });
+
+  const total = await qb.clone().select('p.id').distinct(true).getCount();
+
+  qb.select([
+    'inv.id AS "inventarioId"',
+    'p.nombre AS "nombre"',
+    'p.codigo AS "codigo"',
+    'p.unidadMedida AS "unidadMedida"',
+  ])
+  .orderBy('p.id', 'DESC');
+
+  if (page && limit) {
+    qb.skip((page - 1) * limit).take(limit);
+  }
+
+  const rows = await qb.getRawMany();
 
   return { data: rows, total };
-}
-
+ }
 
 }
