@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Producto } from "../../entities/producto.entity";
 import { Repository } from "typeorm";
@@ -19,67 +19,29 @@ export class GetProductosUseCase {
 
     async findAllProductos() {
       return this.productoRepository.find({
-        relations: { categoria: true },              
-        select: {                                    
-          id: true, nombre: true, codigo: true, archivado: true, unidadMedida: true,
-          categoria: { id: true, nombre: true }
-        },
+        where: { archivado: false },
+        select: { nombre: true, codigo: true, unidadMedida: true, },
         order: { id: 'DESC' },
-    });
-   }
-
-   async findByCategoriaId(categoriaId: number, page?: number, limit?: number): Promise<{ data: any[]; total: number}> {
-        const categoria = await this.categoriaRepository.exist({ where: { id: categoriaId } });
-          if (!categoria) throw new NotFoundException('Categoría no encontrada');
-
-        const [data, total] = await this.productoRepository.findAndCount({
-            where: { categoria: { id: categoriaId } },
-            relations: { categoria: true },
-            select: {
-            id: true, nombre: true, codigo: true, archivado: true, unidadMedida: true,
-            categoria: { id: true, nombre: true },
-            },
-            order: { id: 'DESC' },
-            skip: page && limit ? (page - 1) * limit : 0,   
-            take: limit,                                     
-            });
-
-             return { data, total };
+      });
     }
 
-    async findByArchivado(archivado: boolean, page?: number, limit?: number): Promise<{ data: any[]; total: number }> {
-       const [data, total] = await this.productoRepository.findAndCount({
-        where: { archivado },
-        relations: { categoria: true },
-        select: {
-          id: true,
-          nombre: true,
-          codigo: true,
-          unidadMedida: true,
-          archivado: true,
-          categoria: { id: true, nombre: true },
-       },
-       order: { id: 'DESC' },
-       skip: page && limit ? (page - 1) * limit : 0,
-       take: limit,
-     });
+  async findByArchivadoYCategoria(archivado: boolean, categoriaId: number, page?: number, limit?: number): Promise<{ data: Array<{ id: number; nombre: string; codigo: string; unidadMedida: string }>; total: number }> {
 
-     return { data, total };
-  }
+  const [rows, total] = await this.productoRepository.findAndCount({
+    where: { archivado, categoria: { id: categoriaId } },
+    select: {
+      id: true,
+      nombre: true,
+      codigo: true,
+      unidadMedida: true,
+    },
+    order: { id: 'DESC' },
+    skip: page && limit ? (page - 1) * limit : 0,
+    take: limit,
+  });
 
-  async findByArchivadoYCategoria(archivado: boolean, categoriaId: number, page?: number, limit?: number): Promise<{ data: any[]; total: number }> {
-     const [data, total] = await this.productoRepository.findAndCount({
-       where: { archivado, categoria: { id: categoriaId } },
-       relations: { categoria: true },
-       select: {
-        id: true, nombre: true, codigo: true, unidadMedida: true, archivado: true,
-        categoria: { id: true, nombre: true },
-      },
-      order: { id: 'DESC' },
-      skip: page && limit ? (page - 1) * limit : 0,
-      take: limit,
-    });
-    return { data, total };
-  }
+  return { data: rows, total };
+}
+
 
 }
