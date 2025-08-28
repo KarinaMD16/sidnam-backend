@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Producto } from "../../entities/producto.entity";
 import { Repository } from "typeorm";
 import { Categoria_Producto } from "../../entities/categoriaProducto.entity";
+import { Inventario } from "../../entities/inventario.entity";
 
 
 @Injectable()
@@ -14,6 +15,9 @@ export class GetProductosUseCase {
 
         @InjectRepository(Categoria_Producto)
         private readonly categoriaRepository: Repository<Categoria_Producto>,
+
+        @InjectRepository(Inventario)
+    private readonly inventarioRepository: Repository<Inventario>,
     ){}
 
 
@@ -25,32 +29,30 @@ export class GetProductosUseCase {
       });
     }
 
-  async findByArchivadoYCategoria(archivado: boolean, categoriaId: number, page?: number, limit?: number): Promise<{ data: Array<{ inventarioId: number; nombre: string; codigo: string; unidadMedida: string }>; total: number }> {
+  async findByArchivadoYCategoria(archivado: boolean, categoriaId: number, page?: number, limit?: number): Promise<{data: { inventarioId: number; nombre: string; codigo: string; unidadMedida: string }[];total: number;}> {
+  const [rows, total] = await this.inventarioRepository.findAndCount({
+    where: { producto: { archivado, categoria: { id: categoriaId } } }, 
+    relations: { producto: { categoria: true } },                       
+    select: {
+      id: true,                                                        
+      producto: { nombre: true, codigo: true, unidadMedida: true },
+    },
+    order: { id: 'DESC' },
+    skip: page && limit ? (page - 1) * limit : 0,                       
+    take: limit,                                                        
+  });
 
-  const qb = this.productoRepository
-    .createQueryBuilder('p')
-    .innerJoin('p.categoria', 'c')
-    .innerJoin('p.inventarios', 'inv')
-    .where('p.archivado = :archivado', { archivado })
-    .andWhere('c.id = :categoriaId', { categoriaId });
+  const data = rows.map(i => ({
+    inventarioId: i.id,
+    nombre: i.producto.nombre,
+    codigo: i.producto.codigo,
+    unidadMedida: i.producto.unidadMedida,
+  }));
 
-  const total = await qb.clone().select('p.id').distinct(true).getCount();
+  return { data, total };
+}
 
-  qb.select([
-    'inv.id AS "inventarioId"',
-    'p.nombre AS "nombre"',
-    'p.codigo AS "codigo"',
-    'p.unidadMedida AS "unidadMedida"',
-  ])
-  .orderBy('p.id', 'DESC');
 
-  if (page && limit) {
-    qb.skip((page - 1) * limit).take(limit);
-  }
 
-  const rows = await qb.getRawMany();
-
-  return { data: rows, total };
- }
 
 }
