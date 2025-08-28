@@ -38,51 +38,50 @@ export class InventarioController {
         return this.createProductoUseCase.crearProducto(Producto)
     }
 
-    //De acá para arriba esta bien
-
+    
     @Get('productos')
     findAllProductos() {
         return this.getProductoUseCase.findAllProductos();
-    }//Este hay que modificarlo, validar que traiga SOLO los NO archivados, y en el json que lleve solo nombre, codigo y unidadMedida.
+    }
   
 
-    @Patch('inventarios/:inventarioId')
+    @Patch('update/:inventarioId')
     updateInventario(
       @Param('inventarioId', ParseIntPipe) inventarioId: number,
       @Body() dto: PatchEditarInventarioDto,
     ) {
       return this.updateProductosUseCase.updateInventario(inventarioId, dto);
-   } //bien, solo cambiarle la ruta, ponerle update/:inventarioId
+   } 
 
     
    @Get('categoria/:categoriaId')
    getInventarioPorCategoria(
      @Param('categoriaId', ParseIntPipe) categoriaId: number,
-     @Query('page') page?: string,
-     @Query('limit') limit?: string,
+     @Query('page') page?: number,
+     @Query('limit') limit?: number,
    ) {
      const p = page ? Number(page) : undefined;
      const l = limit ? Number(limit) : undefined;
      return this.getInventarioUseCase.findAllInventarios(categoriaId, p, l); 
-  }//Que solo traiga los archivados = false, simplificar el Json que no lleve mucha info extra.
+  }
 
 
-    @Patch(':inventarioId')
+    @Patch('handleArchivado/:inventarioId')
       toggleArchivadoPorInventario(
       @Param('inventarioId', ParseIntPipe) inventarioId: number
     ) {
       return this.updateProductosUseCase.updateArchivadoProducto(inventarioId);
-    }//esta bien, solo cambiar la ruta, ponerle handleArchivado/:inventarioId
+    }
 
-    @Get('productos/:categoriaId/archivados')
+    @Get('archivados/:categoriaId')
     findProductosArchivadosPorCategoria(
        @Param('categoriaId', ParseIntPipe) categoriaId: number,
-       @Query('page') page?: string,
-       @Query('limit') limit?: string,
-    ) {
+       @Query('page') page?: number,
+       @Query('limit') limit?: number,
+    ) { 
       const p = page ? Number(page) : undefined;
       const l = limit ? Number(limit) : undefined;
       return this.getProductoUseCase.findByArchivadoYCategoria(true, categoriaId, p, l);
-   }//simplificar el Json que no lleve tanta info extra, cambiar la ruta a archivados/:categoriaId
+   }
 
 }
