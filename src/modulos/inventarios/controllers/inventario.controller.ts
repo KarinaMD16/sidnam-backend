@@ -1,15 +1,11 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
 import { InventarioService } from "../services/inventario.service";
 import { CategoriaProductoDto } from "../dto/crearCategoriaProductoDto";
 import { CreateProductoUseCase } from "../use-cases/producto/create-producto.use-case";
 import { ProductoDto } from "../dto/crearProductoDto";
 import { GetProductosUseCase } from "../use-cases/producto/get-producto.use-case";
-import { ActualizarProductoDto } from "../dto/actualizarProductoDto";
 import { UpdateProductoUseCase } from "../use-cases/producto/update-producto.use-case";
-import { DeleteProductoUseCase } from "../use-cases/producto/delete-producto.use-case";
 import { GetInventarioUseCase } from "../use-cases/inventario/get-inventario.use-case";
-import { CrearInventarioDto } from "../dto/crearInventarioDto";
-import { CreateInventarioUseCase } from "../use-cases/inventario/create-inventario.use-case";
 import { PatchEditarInventarioDto } from "../dto/actualizarInventarioDto";
 
 
@@ -22,9 +18,7 @@ export class InventarioController {
         private readonly createProductoUseCase: CreateProductoUseCase,
         private readonly getProductoUseCase: GetProductosUseCase,
         private readonly updateProductosUseCase: UpdateProductoUseCase,
-        private readonly deleteProductosUseCase: DeleteProductoUseCase,
         private readonly getInventarioUseCase: GetInventarioUseCase,
-        private readonly createInventarioUseCase: CreateInventarioUseCase,
     
     ){}
 
@@ -44,15 +38,13 @@ export class InventarioController {
         return this.createProductoUseCase.crearProducto(Producto)
     }
 
+    //De acá para arriba esta bien
+
     @Get('productos')
     findAllProductos() {
         return this.getProductoUseCase.findAllProductos();
-    }
-
-    @Patch('productos/:idProducto')
-    updateProducto(@Param('idProducto', ParseIntPipe) idProducto: number, @Body() dto: ActualizarProductoDto) {
-        return this.updateProductosUseCase.updateProducto(idProducto, dto);
-    }
+    }//Este hay que modificarlo, validar que traiga SOLO los NO archivados, y en el json que lleve solo nombre, codigo y unidadMedida.
+  
 
     @Patch('inventarios/:inventarioId')
     updateInventario(
@@ -60,26 +52,9 @@ export class InventarioController {
       @Body() dto: PatchEditarInventarioDto,
     ) {
       return this.updateProductosUseCase.updateInventario(inventarioId, dto);
-   } 
+   } //bien, solo cambiarle la ruta, ponerle update/:inventarioId
 
-    @Delete('productos/:idProducto')
-        async removeProducto(@Param('idProducto', ParseIntPipe) id: number){
-            await this.deleteProductosUseCase.deleteProducto(id);
-    }
-
-    @Get('productos/:categoriaId')
-    findByCategoriaId(
-        @Param('categoriaId', ParseIntPipe) categoriaId: number,
-        @Query('page', new ParseIntPipe({optional: true})) page?: number,
-        @Query('limit', new ParseIntPipe({optional: true})) limit?: number,
-    ) {
-        if(page && limit){
-            return this.getProductoUseCase.findByCategoriaId(categoriaId, page, limit);
-        }
-        return this.getProductoUseCase.findByCategoriaId(categoriaId);
-   }
-
-   
+    
    @Get('categoria/:categoriaId')
    getInventarioPorCategoria(
      @Param('categoriaId', ParseIntPipe) categoriaId: number,
@@ -89,14 +64,7 @@ export class InventarioController {
      const p = page ? Number(page) : undefined;
      const l = limit ? Number(limit) : undefined;
      return this.getInventarioUseCase.findAllInventarios(categoriaId, p, l); 
-  }
-
-
-
-    @Post('crearInventario')
-       crearInventario(@Body() dto: CrearInventarioDto) {
-       return this.createInventarioUseCase.crearInventario(dto);
-    }
+  }//Que solo traiga los archivados = false, simplificar el Json que no lleve mucha info extra.
 
 
     @Patch(':inventarioId')
@@ -104,7 +72,7 @@ export class InventarioController {
       @Param('inventarioId', ParseIntPipe) inventarioId: number
     ) {
       return this.updateProductosUseCase.updateArchivadoProducto(inventarioId);
-    }
+    }//esta bien, solo cambiar la ruta, ponerle handleArchivado/:inventarioId
 
     @Get('productos/:categoriaId/archivados')
     findProductosArchivadosPorCategoria(
@@ -115,16 +83,6 @@ export class InventarioController {
       const p = page ? Number(page) : undefined;
       const l = limit ? Number(limit) : undefined;
       return this.getProductoUseCase.findByArchivadoYCategoria(true, categoriaId, p, l);
-   }
-
-    @Get('getProductosActivos') 
-    findProductosActivos(
-      @Query('page') page?: string,
-      @Query('limit') limit?: string,
-    ) {
-      const p = page ? Number(page) : undefined;
-      const l = limit ? Number(limit) : undefined;
-      return this.getProductoUseCase.findByArchivado(false, p, l);
-    }
+   }//simplificar el Json que no lleve tanta info extra, cambiar la ruta a archivados/:categoriaId
 
 }
