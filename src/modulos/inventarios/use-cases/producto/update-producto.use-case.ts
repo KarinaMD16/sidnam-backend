@@ -134,9 +134,14 @@ export class UpdateProductoUseCase {
        }
 
     
-       if (touchedProd) await this.productoRepository.save(inventario.producto);
-       if (touchedInv) await this.inventarioRepository.save(inventario);
+       if (touchedProd){ 
+        await this.productoRepository.save(inventario.producto);
+       }
 
+       if (touchedInv){
+         await this.inventarioRepository.save(inventario);
+       }
+       
           return { message: 'Inventario y/o producto actualizados exitosamente' };
       }
 
