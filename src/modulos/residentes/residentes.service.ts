@@ -5,9 +5,9 @@ import { In, IsNull, Not, Repository } from 'typeorm';
 import { Expediente_Residente } from './entities/expedientes.entity';
 import { Encargado } from './entities/encargado.entity';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
-import { TipoPensionOptions } from 'src/common/enums/tipoPension.enum';
-import { EstadoCivilOptios } from 'src/common/enums/estadoCivil.enum';
-import { DependenciaOpts } from 'src/common/enums/dependencia.enum';
+import { getTipoPensionById, TipoPensionOptions } from 'src/common/enums/tipoPension.enum';
+import { EstadoCivilOptios, getEstadoCivilById } from 'src/common/enums/estadoCivil.enum';
+import { DependenciaOpts, getDependenciaById } from 'src/common/enums/dependencia.enum';
 import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
 import { plainToInstance } from 'class-transformer';
 import { GetExpedienteResidenteDto } from './dto/getExpedienteDto';
@@ -251,16 +251,61 @@ export class ResidentesService {
       );
     }
 
+    if (actualizarExpediente.estado_civil !== undefined) {
+      const estadoCivilEnum = getEstadoCivilById(actualizarExpediente.estado_civil);
+
+      if (!estadoCivilEnum) {
+        throw new BadRequestException(
+          'Estado civil con id ${ actualizarExpediente.estado_civil } no es válido'
+        );
+      }
+
+      expediente.residente.estado_civil = estadoCivilEnum;
+    }
+
     if(actualizarExpediente.fecha_nacimiento){
       expediente.residente.fecha_nacimiento = actualizarExpediente.fecha_nacimiento;
+    }
+
+    if (actualizarExpediente.correo) {
+      expediente.residente.email = actualizarExpediente.correo;
+    }
+
+    if (actualizarExpediente.fecha_ingreso) {
+      expediente.fecha_ingreso = actualizarExpediente.fecha_ingreso;
     }
 
     if(actualizarExpediente.edad){
       expediente.residente.edad = actualizarExpediente.edad;
     }
     
-    if (actualizarExpediente.sexo) {
-      expediente.residente.sexo = actualizarExpediente.sexo;
+    if (actualizarExpediente.nombre) {
+      expediente.residente.nombre = actualizarExpediente.nombre;
+    }
+
+    if (actualizarExpediente.tipo_pension !== undefined) {
+      const estadoCivilEnum = getTipoPensionById(actualizarExpediente.tipo_pension);
+
+      if (!estadoCivilEnum) {
+        throw new BadRequestException(
+          'Estado civil con id ${ actualizarExpediente.estado_civil } no es válido'
+        );
+      }
+
+      expediente.tipo_pension = estadoCivilEnum;
+    }
+
+
+    if (actualizarExpediente.dependencia !== undefined) {
+      const estadoCivilEnum = getDependenciaById(actualizarExpediente.dependencia);
+
+      if (!estadoCivilEnum) {
+        throw new BadRequestException(
+          'Estado civil con id ${ actualizarExpediente.estado_civil } no es válido'
+        );
+      }
+
+      expediente.residente.dependencia = estadoCivilEnum;
     }
 
     if(actualizarExpediente.sexo){
