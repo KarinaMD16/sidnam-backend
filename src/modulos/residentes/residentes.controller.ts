@@ -11,6 +11,8 @@ import { createConsultaEbaisDto } from './dto/createConsultaEabisDto';
 import { createTipoConsultaDto } from './dto/createTipoConsultaDto';
 import { CreateConsultaEspecialista } from './dto/createConsultaEspecialistaDto';
 import { CrearNotaDto } from './dto/CrearNotaDto';
+import { CreateUnidadMedidaDto } from './dto/createUnidadMedidaDto';
+import { CreateAdministracionDto } from './dto/registrarMedicamentoDto';
 
 @Controller('residentes')
 export class ResidentesController {
@@ -183,4 +185,21 @@ export class ResidentesController {
         return this.residentesService.getConsultaEbais(idExpediente);
     }
 
+    @Post('expedientes/enfermeria/unidades-medida')
+    async createUnidadMedida(@Body() createUnidadMedidaDto: CreateUnidadMedidaDto) {
+        return this.residentesService.createUnidadMedida(createUnidadMedidaDto);
+    }
+
+    @Get('expedientes/enfermeria/unidades-medida')
+    async getUnidadesMedida() {
+        return this.residentesService.getUnidadesMedida();
+    }
+
+    @Post('expedientes/enfermeria/medicamentos/:id_expediente')
+    async agregarMedicamentoAExpediente(@Param('id_expediente', ParseIntPipe) idExpediente: number, @Body() agregarRegistro: CreateAdministracionDto) {
+        return this.residentesService.agregarMedicamentoExpediente(idExpediente, agregarRegistro);
+    }
+
+
 }
+    

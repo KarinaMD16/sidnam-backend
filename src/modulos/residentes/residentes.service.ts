@@ -17,7 +17,7 @@ import { Patologias } from './entities/patologias.entity';
 import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
 import { Tipo_medicamento } from './entities/tipo_medicamento.entity';
 import { Medicamentos } from './entities/medicamento.entity';
-import { TurnoOpts } from 'src/common/enums/turno.enum';
+import { Turno, TurnoOpts } from 'src/common/enums/turno.enum';
 import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
 import { formatFecha } from 'src/common/utils/fechaFormato';
 import { ExpedienteEnfermeriaDto } from './dto/mostrarEnfermeriaDto';
@@ -33,6 +33,10 @@ import { Bitacoras, BitacorasOpts } from 'src/common/enums/bitacaras.enum';
 import { MostrarConsultaEspecialistaDto } from './dto/mostrarConsultaEspecialistaDto';
 import { MostrarCuracionDto } from './dto/mostrarCuracionDto';
 import { MostrarConsultaEbais } from './dto/mostrarConsultasEbaisDto';
+import { Unidad_Medida } from './entities/unidadMedida.entity';
+import { CreateUnidadMedidaDto } from './dto/createUnidadMedidaDto';
+import { CreateAdministracionDto } from './dto/registrarMedicamentoDto';
+import { Administraciones } from './entities/administraciones.entity';
 
 
 @Injectable()
@@ -72,6 +76,12 @@ export class ResidentesService {
 
         @InjectRepository(Consulta_Especialista)
         private readonly consultaEspecialistaRepository: Repository<Consulta_Especialista>,
+
+        @InjectRepository(Unidad_Medida)
+        private readonly unidadMedidaRepository: Repository<Unidad_Medida>,
+
+        @InjectRepository(Administraciones)
+        private readonly administracionRepository: Repository<Administraciones>
     ){}
 
      private MAX_SEGMENT_LENGTH = 1000;
@@ -608,7 +618,7 @@ export class ResidentesService {
 
     const expedienteEnfermeria = await this.expedienteResidenteRepository.findOne({
         where: { id_expediente: idExpediente },
-        relations: ['residente', 'patologias'],
+        relations: ['residente', 'patologias', 'administraciones', 'administraciones.medicamento', 'administraciones.unidad'],
     });
 
     if(!expedienteEnfermeria){
@@ -735,7 +745,53 @@ export class ResidentesService {
 
     return plainToInstance(MostrarConsultaEbais, consultas, { excludeExtraneousValues: true });
   }
-  
+
+  async createUnidadMedida(createUnidadMedidaDto: CreateUnidadMedidaDto){
+    const unidadMedida = this.unidadMedidaRepository.create(createUnidadMedidaDto);
+    return this.unidadMedidaRepository.save(unidadMedida);
+  }
+
+  async getUnidadesMedida(){
+    return this.unidadMedidaRepository.find();
+  }
+
+  async agregarMedicamentoExpediente(idExpediente: number, agregarRegistro: CreateAdministracionDto){
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: { id_expediente: idExpediente }
+    })
+
+    if(!expediente){
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    const medicamento = await this.medicamentoRepository.findOne({
+      where: { id_medicamento: agregarRegistro.id_medicamento }
+    })
+
+    if(!medicamento){
+      throw new NotFoundException('Medicamento no encontrado');
+    }
+
+    const unidad = await this.unidadMedidaRepository.findOne({
+      where: { id_unidad: agregarRegistro.id_unidadMedida }
+    });
+
+    if(!unidad){
+      throw new NotFoundException('Unidad de medida no encontrada');
+    }
+
+    const administracion = this.administracionRepository.create({
+      turno: agregarRegistro.turno,
+      cantidad: agregarRegistro.cantidad,
+      unidad,
+      expediente,
+      medicamento: medicamento,
+    });
+
+    return this.administracionRepository.save(administracion);
+
+  }
+
 }
 
 
