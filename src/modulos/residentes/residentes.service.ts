@@ -17,7 +17,7 @@ import { Patologias } from './entities/patologias.entity';
 import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
 import { Tipo_medicamento } from './entities/tipo_medicamento.entity';
 import { Medicamentos } from './entities/medicamento.entity';
-import { TurnoOpts } from 'src/common/enums/turno.enum';
+import { Turno, TurnoOpts } from 'src/common/enums/turno.enum';
 import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
 import { formatFecha } from 'src/common/utils/fechaFormato';
 import { ExpedienteEnfermeriaDto } from './dto/mostrarEnfermeriaDto';
@@ -33,6 +33,13 @@ import { Bitacoras, BitacorasOpts } from 'src/common/enums/bitacaras.enum';
 import { MostrarConsultaEspecialistaDto } from './dto/mostrarConsultaEspecialistaDto';
 import { MostrarCuracionDto } from './dto/mostrarCuracionDto';
 import { MostrarConsultaEbais } from './dto/mostrarConsultasEbaisDto';
+import { Unidad_Medida } from './entities/unidadMedida.entity';
+import { CreateUnidadMedidaDto } from './dto/createUnidadMedidaDto';
+import { CreateAdministracionDto } from './dto/registrarMedicamentoDto';
+import { Administraciones } from './entities/administraciones.entity';
+import { CreateMedicamentoDto } from './dto/createMedicamentoDto';
+import { CreateAdministracionEspecialDto } from './dto/createAdministracionEspecialDto';
+import { AdministracionesEspeciales } from './entities/administracionEspecial.entity';
 
 
 @Injectable()
@@ -72,6 +79,15 @@ export class ResidentesService {
 
         @InjectRepository(Consulta_Especialista)
         private readonly consultaEspecialistaRepository: Repository<Consulta_Especialista>,
+
+        @InjectRepository(Unidad_Medida)
+        private readonly unidadMedidaRepository: Repository<Unidad_Medida>,
+
+        @InjectRepository(Administraciones)
+        private readonly administracionRepository: Repository<Administraciones>,
+
+        @InjectRepository(AdministracionesEspeciales)
+        private readonly administracionEspecialRepository: Repository<AdministracionesEspeciales>
     ){}
 
      private MAX_SEGMENT_LENGTH = 1000;
@@ -482,7 +498,7 @@ export class ResidentesService {
     return this.tipoMedicamentoRepository.find();
   }
 
-  async asociarMedicamentoATipoMedicamento(idTipoMedicamento: number, nombreMedicamento: string){
+  async asociarMedicamentoATipoMedicamento(idTipoMedicamento: number, createMedicamento: CreateMedicamentoDto){
 
     const tipoMedicamento = await this.tipoMedicamentoRepository.findOne({ where: {id_tipo_medicamento: idTipoMedicamento } });
 
@@ -492,7 +508,7 @@ export class ResidentesService {
     }
 
 
-    const nombreMinuscula = nombreMedicamento.toLowerCase();
+    const nombreMinuscula = createMedicamento.nombre.toLowerCase();
 
     const medicamentoExistente = await this.medicamentoRepository.findOne({
         where: { 
@@ -608,7 +624,7 @@ export class ResidentesService {
 
     const expedienteEnfermeria = await this.expedienteResidenteRepository.findOne({
         where: { id_expediente: idExpediente },
-        relations: ['residente', 'patologias'],
+        relations: ['residente', 'patologias', 'administraciones', 'administraciones.medicamento', 'administraciones.unidad', 'administracionesEspeciales', "administracionesEspeciales.medicamento", "administracionesEspeciales.unidad"],
     });
 
     if(!expedienteEnfermeria){
@@ -735,7 +751,106 @@ export class ResidentesService {
 
     return plainToInstance(MostrarConsultaEbais, consultas, { excludeExtraneousValues: true });
   }
-  
+
+  async createUnidadMedida(createUnidadMedidaDto: CreateUnidadMedidaDto){
+    const unidadMedida = this.unidadMedidaRepository.create(createUnidadMedidaDto);
+    return this.unidadMedidaRepository.save(unidadMedida);
+  }
+
+  async getUnidadesMedida(){
+    return this.unidadMedidaRepository.find();
+  }
+
+  async agregarMedicamentoExpediente(idExpediente: number, agregarRegistro: CreateAdministracionDto){
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: { id_expediente: idExpediente }
+    })
+
+    if(!expediente){
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    const medicamento = await this.medicamentoRepository.findOne({
+      where: { id_medicamento: agregarRegistro.id_medicamento },
+      relations: ['tipo']
+    })
+
+    if(!medicamento){
+      throw new NotFoundException('Medicamento no encontrado');
+    }
+
+    const tipoNombre = medicamento.tipo.nombre;
+    const tipoFormateado = tipoNombre.charAt(0).toLowerCase() + tipoNombre.slice(1);
+    if(tipoFormateado == 'antibiotico'){
+      throw new BadRequestException('El medicamento es un antibiotico no puedes registralo aca')
+    }
+
+    const unidad = await this.unidadMedidaRepository.findOne({
+      where: { id_unidad: agregarRegistro.id_unidadMedida }
+    });
+
+    if(!unidad){
+      throw new NotFoundException('Unidad de medida no encontrada');
+    }
+
+
+    const administracion = this.administracionRepository.create({
+      turno: agregarRegistro.turno,
+      cantidad: agregarRegistro.cantidad,
+      unidad,
+      expediente,
+      medicamento: medicamento,
+    });
+
+    return this.administracionRepository.save(administracion);
+
+  }
+
+  async agregarTratamientosEspeciales(idExpediente: number, createAdministracionEspecialo: CreateAdministracionEspecialDto){
+
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: {id_expediente: idExpediente}
+    })
+
+    if(!expediente){
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    const medicamento = await this.medicamentoRepository.findOne({
+      where: { id_medicamento: createAdministracionEspecialo.id_medicamento },
+      relations: ['tipo']
+    })
+
+    if(!medicamento){
+      throw new NotFoundException('Medicamento no encontrado');
+    }
+
+    const tipoNombre = medicamento.tipo.nombre;
+    const tipoFormateado = tipoNombre.charAt(0).toLowerCase() + tipoNombre.slice(1);
+    if(tipoFormateado == 'normal'){
+      throw new BadRequestException('El medicamento es un normal no puedes registralo aca')
+    }
+
+    const unidad = await this.unidadMedidaRepository.findOne({
+      where: { id_unidad: createAdministracionEspecialo.id_unidadMedida }
+    });
+
+    if(!unidad){
+      throw new NotFoundException('Unidad de medida no encontrada');
+    }
+
+   const administracion = this.administracionEspecialRepository.create({
+     hora: createAdministracionEspecialo.hora,
+     cantidad: createAdministracionEspecialo.cantidad,
+     expediente,
+     unidad,
+     medicamento: medicamento,
+   });
+
+   return this.administracionEspecialRepository.save(administracion);
+
+  }
+
 }
 
 

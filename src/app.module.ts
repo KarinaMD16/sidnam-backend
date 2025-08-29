@@ -43,11 +43,7 @@ import { Curaciones } from './modulos/residentes/entities/curaciones.entity';
 import { Consulta_Ebais } from './modulos/residentes/entities/consultaEbais.entity';
 import { Consulta_Especialista } from './modulos/residentes/entities/consultaEspecialista.entity';
 import { Tipo_Consulta } from './modulos/residentes/entities/tipoConsulta.entity';
-import { Categoria_Producto } from './modulos/inventarios/entities/categoriaProducto.entity';
-import { Producto } from './modulos/inventarios/entities/producto.entity';
-import { Inventario } from './modulos/inventarios/entities/inventario.entity';
-import { Entrada } from './modulos/inventarios/entities/entrada.entity';
-import { Salida } from './modulos/inventarios/entities/salida.entity';
+import { Unidad_Medida } from './modulos/residentes/entities/unidadMedida.entity';
 
 
 dotenv.config();
@@ -96,11 +92,7 @@ dotenv.config();
         Consulta_Ebais,
         Consulta_Especialista,
         Tipo_Consulta,
-        Categoria_Producto,
-        Producto,
-        Inventario,
-        Entrada,
-        Salida,
+        Unidad_Medida
       ],
       synchronize: true,
       dropSchema: false,
