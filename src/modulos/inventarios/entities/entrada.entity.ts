@@ -1,0 +1,24 @@
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Inventario } from "./inventario.entity";
+
+
+@Entity()
+export class Entrada{
+
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column({type: 'timestamp'})
+    fechaEntrada: Date;
+
+    @Column()
+    cantidad: number;
+
+    @Column({ name: 'lote_id', type: 'varchar', length: 36 })
+    loteId: string;    
+
+    @ManyToOne(() => Inventario, inventario => inventario.entradas)
+    @JoinColumn({ name: 'inventario_id' })
+    inventario: Inventario;
+
+}
