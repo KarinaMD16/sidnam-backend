@@ -43,6 +43,7 @@ import { Curaciones } from './modulos/residentes/entities/curaciones.entity';
 import { Consulta_Ebais } from './modulos/residentes/entities/consultaEbais.entity';
 import { Consulta_Especialista } from './modulos/residentes/entities/consultaEspecialista.entity';
 import { Tipo_Consulta } from './modulos/residentes/entities/tipoConsulta.entity';
+import { Unidad_Medida } from './modulos/residentes/entities/unidadMedida.entity';
 
 
 dotenv.config();
@@ -90,7 +91,8 @@ dotenv.config();
         Curaciones,
         Consulta_Ebais,
         Consulta_Especialista,
-        Tipo_Consulta
+        Tipo_Consulta,
+        Unidad_Medida
       ],
       synchronize: true,
       dropSchema: false,
