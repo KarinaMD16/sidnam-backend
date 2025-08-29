@@ -18,6 +18,6 @@ export class Medicamentos {
   @ManyToOne(() => Tipo_medicamento, tipo => tipo.medicamentos)
   tipo: Tipo_medicamento;
 
-  @ManyToMany(() => AdministracionesEspeciales, administracionEspecial => administracionEspecial.medicamentos)
+  @OneToMany(() => AdministracionesEspeciales, administracionEspecial => administracionEspecial.medicamento)
   administracionesEspeciales: AdministracionesEspeciales[];
 }

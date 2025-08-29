@@ -4,6 +4,7 @@ import { MostrarCuracionDto } from "./mostrarCuracionDto";
 import { MostrarConsultaEbais } from "./mostrarConsultasEbaisDto";
 import { MostrarConsultaEspecialistaDto } from "./mostrarConsultaEspecialistaDto";
 import { MostrarAdministracionesDto } from "./mostrarAdministracionesDto";
+import { MostrarMedicamentoEspecial } from "./mostrarAdministracionEspecialDto";
 
 export class NotaEnfermeriaDto {
   @Expose()
@@ -52,5 +53,9 @@ export class ExpedienteEnfermeriaDto {
   @Expose()
   @Type(() => MostrarAdministracionesDto)
   administraciones: MostrarAdministracionesDto[];
+
+  @Expose()
+  @Type(() => MostrarMedicamentoEspecial)
+  administracionesEspeciales: MostrarMedicamentoEspecial[];
 
 }
