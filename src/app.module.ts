@@ -48,6 +48,7 @@ import { Producto } from './modulos/inventarios/entities/producto.entity';
 import { Inventario } from './modulos/inventarios/entities/inventario.entity';
 import { Entrada } from './modulos/inventarios/entities/entrada.entity';
 import { Salida } from './modulos/inventarios/entities/salida.entity';
+import { Unidad_Medida } from './modulos/residentes/entities/unidadMedida.entity';
 
 
 dotenv.config();
@@ -100,7 +101,8 @@ dotenv.config();
         Producto,
         Inventario,
         Entrada,
-        Salida
+        Salida,
+        Unidad_Medida
       ],
       synchronize: true,
       dropSchema: false,

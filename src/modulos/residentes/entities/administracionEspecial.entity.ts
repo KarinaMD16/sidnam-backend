@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
 import { Expediente_Residente } from './expedientes.entity';
 import { Medicamentos } from './medicamento.entity';
+import { Unidad_Medida } from './unidadMedida.entity';
 
 @Entity()
 export class AdministracionesEspeciales {
@@ -8,16 +9,18 @@ export class AdministracionesEspeciales {
   id_administracion_especial: number;
 
   @Column()
-  dosis: string;
+  cantidad: number;
 
-  @Column()
-  hora: string;
+  @Column({ type: 'time' })
+  hora: string; 
 
+  @ManyToOne(() => Unidad_Medida, unidad => unidad.administraciones)
+  unidad: Unidad_Medida;
+  
   @ManyToOne(() => Expediente_Residente, expediente => expediente.administracionesEspeciales)
   expediente: Expediente_Residente;
 
-  @ManyToMany(() => Medicamentos, medicamento => medicamento.administracionesEspeciales, { cascade: true })
-  @JoinTable()
-  medicamentos: Medicamentos[];
+  @ManyToOne(() => Medicamentos, medicamento => medicamento.administracionesEspeciales)
+  medicamento: Medicamentos;
 
 }

@@ -15,6 +15,7 @@ import { Curaciones } from './entities/curaciones.entity';
 import { Consulta_Ebais } from './entities/consultaEbais.entity';
 import { Consulta_Especialista } from './entities/consultaEspecialista.entity';
 import { Tipo_Consulta } from './entities/tipoConsulta.entity';
+import { Unidad_Medida } from './entities/unidadMedida.entity';
 
 
 @Module({
@@ -31,7 +32,8 @@ import { Tipo_Consulta } from './entities/tipoConsulta.entity';
     Curaciones,
     Consulta_Ebais,
     Consulta_Especialista,
-    Tipo_Consulta
+    Tipo_Consulta,
+    Unidad_Medida
   ])],
   providers: [ResidentesService],
   controllers: [ResidentesController]
