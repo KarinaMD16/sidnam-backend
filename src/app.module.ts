@@ -34,6 +34,10 @@ import { Residente } from './modulos/residentes/entities/residente.entity';
 import { Encargado } from './modulos/residentes/entities/encargado.entity';
 import { InventarioModule } from './modulos/inventarios/inventario.module';
 import { Categoria_Producto } from './modulos/inventarios/entities/categoriaProducto.entity';
+import { Producto } from './modulos/inventarios/entities/producto.entity';
+import { Inventario } from './modulos/inventarios/entities/inventario.entity';
+import { Entrada } from './modulos/inventarios/entities/entrada.entity';
+import { Salida } from './modulos/inventarios/entities/salida.entity';
 import { Patologias } from './modulos/residentes/entities/patologias.entity';
 import { Administraciones } from './modulos/residentes/entities/administraciones.entity';
 import { Medicamentos } from './modulos/residentes/entities/medicamento.entity';
@@ -44,10 +48,6 @@ import { Curaciones } from './modulos/residentes/entities/curaciones.entity';
 import { Consulta_Ebais } from './modulos/residentes/entities/consultaEbais.entity';
 import { Consulta_Especialista } from './modulos/residentes/entities/consultaEspecialista.entity';
 import { Tipo_Consulta } from './modulos/residentes/entities/tipoConsulta.entity';
-import { Producto } from './modulos/inventarios/entities/producto.entity';
-import { Inventario } from './modulos/inventarios/entities/inventario.entity';
-import { Entrada } from './modulos/inventarios/entities/entrada.entity';
-import { Salida } from './modulos/inventarios/entities/salida.entity';
 import { Unidad_Medida } from './modulos/residentes/entities/unidadMedida.entity';
 
 
@@ -88,6 +88,10 @@ dotenv.config();
         Expediente_Residente, 
         Encargado,
         Categoria_Producto,
+        Producto,
+        Inventario,
+        Entrada,
+        Salida,
         Patologias,
         Administraciones,
         Medicamentos,

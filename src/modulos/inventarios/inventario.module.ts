@@ -11,6 +11,7 @@ import { GetInventarioUseCase } from './use-cases/inventario/get-inventario.use-
 import { Inventario } from './entities/inventario.entity';
 import { Entrada } from './entities/entrada.entity';
 import { Salida } from './entities/salida.entity';
+import { CreateEntradaUseCase } from './use-cases/entrada/create-entrada.use-case';
 
 
 
@@ -18,7 +19,7 @@ import { Salida } from './entities/salida.entity';
   imports: [
     TypeOrmModule.forFeature([Categoria_Producto, Producto, Inventario, Entrada, Salida]),
     ],
-  providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase,],
+  providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase],
   controllers: [InventarioController]
 })
 export class InventarioModule {}
