@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
 import { InventarioService } from "../services/inventario.service";
 import { CategoriaProductoDto } from "../dto/crearCategoriaProductoDto";
 import { CreateProductoUseCase } from "../use-cases/producto/create-producto.use-case";
@@ -75,13 +75,11 @@ export class InventarioController {
 
     @Get('archivados/:categoriaId')
     findProductosArchivadosPorCategoria(
-       @Param('categoriaId', ParseIntPipe) categoriaId: number,
-       @Query('page') page?: number,
-       @Query('limit') limit?: number,
-    ) { 
-      const p = page ? Number(page) : undefined;
-      const l = limit ? Number(limit) : undefined;
-      return this.getProductoUseCase.findByArchivadoYCategoria(true, categoriaId, p, l);
+      @Param('categoriaId', ParseIntPipe) categoriaId: number,
+      @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page: number,   
+      @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number, 
+    ) {
+     return this.getProductoUseCase.findByArchivadoYCategoria(true, categoriaId, page, limit);
    }
 
 }
