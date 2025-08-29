@@ -1,6 +1,13 @@
 import { EstadoExpediente } from 'src/common/enums/estadosExpedientes.enum';
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { Residente } from './residente.entity';
+import { Patologias } from './patologias.entity';
+import { Administraciones } from './administraciones.entity';
+import { AdministracionesEspeciales } from './administracionEspecial.entity';
+import { NotaEnfermeria } from './NotaEnfermeria.entity';
+import { Curaciones } from './curaciones.entity';
+import { Consulta_Ebais } from './consultaEbais.entity';
+import { Consulta_Especialista } from './consultaEspecialista.entity';
 
 @Entity()
 export class Expediente_Residente {
@@ -26,4 +33,27 @@ export class Expediente_Residente {
   @OneToOne(() => Residente, residente => residente.expediente)
   @JoinColumn() 
   residente: Residente;
+
+  @ManyToMany(() => Patologias, patologia => patologia.expedientes, { cascade: true })
+  @JoinTable()
+  patologias: Patologias[];
+
+  @OneToMany(() => Administraciones, administracion => administracion.expediente)
+  administraciones: Administraciones[];
+
+  @OneToMany(() => AdministracionesEspeciales, administracionEspecial => administracionEspecial.expediente)
+  administracionesEspeciales: AdministracionesEspeciales[];
+
+  @OneToMany(() => NotaEnfermeria, nota => nota.expediente)
+  notas: NotaEnfermeria[];
+
+  @OneToMany(() => Curaciones, curacion => curacion.expediente)
+  curaciones: Curaciones[];
+
+  @OneToMany(() => Consulta_Ebais, consulta => consulta.expediente)
+  consultasEbais: Consulta_Ebais[];
+
+  @OneToMany(() => Consulta_Especialista, consulta => consulta.expediente)
+  consultasEspecialistas: Consulta_Especialista[];
+
 }
