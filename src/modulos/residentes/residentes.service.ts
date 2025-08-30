@@ -40,6 +40,7 @@ import { Administraciones } from './entities/administraciones.entity';
 import { CreateMedicamentoDto } from './dto/createMedicamentoDto';
 import { CreateAdministracionEspecialDto } from './dto/createAdministracionEspecialDto';
 import { AdministracionesEspeciales } from './entities/administracionEspecial.entity';
+import { getTipoUnidadMedidaById, TipoUnidadMedidaOptions } from 'src/common/enums/tipoUnidadMedida.enum';
 
 
 @Injectable()
@@ -542,6 +543,7 @@ export class ResidentesService {
     }));
   }
 
+
   async crearNotaEnfermeria(expedienteId: number, textoCompleto: string, titulo?: string): Promise<NotaEnfermeria> {
     const expediente = await this.expedienteResidenteRepository.findOne({
         where: { id_expediente: expedienteId },
@@ -755,10 +757,6 @@ export class ResidentesService {
   async createUnidadMedida(createUnidadMedidaDto: CreateUnidadMedidaDto){
     const unidadMedida = this.unidadMedidaRepository.create(createUnidadMedidaDto);
     return this.unidadMedidaRepository.save(unidadMedida);
-  }
-
-  async getUnidadesMedida(){
-    return this.unidadMedidaRepository.find();
   }
 
   async agregarMedicamentoExpediente(idExpediente: number, agregarRegistro: CreateAdministracionDto){
