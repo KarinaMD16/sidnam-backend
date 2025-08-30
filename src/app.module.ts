@@ -50,6 +50,7 @@ import { Consulta_Especialista } from './modulos/residentes/entities/consultaEsp
 import { Tipo_Consulta } from './modulos/residentes/entities/tipoConsulta.entity';
 import { Unidad_Medida } from './modulos/residentes/entities/unidadMedida.entity';
 import { UnidadesMedidaModule } from './modulos/unidades-medida/unidades-medida.module';
+import { AdministracionMedicamento } from './modulos/residentes/entities/administracioneMedicamento';
 
 
 
@@ -106,6 +107,7 @@ dotenv.config();
         Consulta_Especialista,
         Tipo_Consulta,
         Unidad_Medida,
+        AdministracionMedicamento
       ],
       synchronize: true,
       dropSchema: false,
