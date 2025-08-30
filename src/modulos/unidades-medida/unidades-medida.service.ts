@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getTipoUnidadMedidaById, tipo_unidad_medida, TipoUnidadMedidaOptions } from 'src/common/enums/tipoUnidadMedida.enum';
 import { Repository } from 'typeorm';
-import { Unidad_Medida } from '../residentes/entities/unidadMedida.entity';
+import { Unidad_Medida } from './entities/unidadMedida.entity';
 import { CreateUnidadMedidaDto } from '../residentes/dto/createUnidadMedidaDto';
 import { UnidadDemMedidaDto } from './dtos/mostrarUnidadDto';
 import { plainToInstance } from 'class-transformer';
