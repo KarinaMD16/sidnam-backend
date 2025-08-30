@@ -23,19 +23,19 @@ export class UnidadesMedidaService {
 
     async asociarUnidadATipo(idtipoMedicamento: number, createUnidadMedida: CreateUnidadMedidaDto){
 
-    const tipo = getTipoUnidadMedidaById(idtipoMedicamento);
+        const tipo = getTipoUnidadMedidaById(idtipoMedicamento);
 
-    if (!tipo) {
-      throw new BadRequestException(
-        'Tipo de unidad de medida con id ${ idtipoMedicamento } no es válido'
-      );
+        if (!tipo) {
+        throw new BadRequestException(
+            'Tipo de unidad de medida no es válido'
+        );
+        }
+
+        const unidadMedida = this.unidadMedidaRepository.create({
+        ...createUnidadMedida,
+        tipo
+        });
+
+        return this.unidadMedidaRepository.save(unidadMedida);
     }
-
-    const unidadMedida = this.unidadMedidaRepository.create({
-      ...createUnidadMedida,
-      tipo
-    });
-
-    return this.unidadMedidaRepository.save(unidadMedida);
-  }
 }
