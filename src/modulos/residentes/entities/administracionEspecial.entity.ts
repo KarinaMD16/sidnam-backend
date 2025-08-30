@@ -14,7 +14,7 @@ export class AdministracionesEspeciales {
   @Column({ type: 'time' })
   hora: string; 
 
-  @ManyToOne(() => Unidad_Medida, unidad => unidad.administraciones)
+  @ManyToOne(() => Unidad_Medida, unidad => unidad.administracionesEspeciales)
   unidad: Unidad_Medida;
   
   @ManyToOne(() => Expediente_Residente, expediente => expediente.administracionesEspeciales)
