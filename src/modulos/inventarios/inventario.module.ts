@@ -12,7 +12,8 @@ import { Inventario } from './entities/inventario.entity';
 import { Entrada } from './entities/entrada.entity';
 import { Salida } from './entities/salida.entity';
 import { CreateEntradaUseCase } from './use-cases/entrada/create-entrada.use-case';
-import { Unidad_Medida } from '../residentes/entities/unidadMedida.entity';
+import { Unidad_Medida } from '../unidades-medida/entities/unidadMedida.entity';
+import { GetEntradaUseCase } from './use-cases/entrada/get-entrada.use-case';
 
 
 
@@ -20,7 +21,7 @@ import { Unidad_Medida } from '../residentes/entities/unidadMedida.entity';
   imports: [
     TypeOrmModule.forFeature([Categoria_Producto, Producto, Inventario, Entrada, Salida, Unidad_Medida]),
     ],
-  providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase],
+  providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase, GetEntradaUseCase],
   controllers: [InventarioController]
 })
 export class InventarioModule {}

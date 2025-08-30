@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColum
 import { Producto } from "./producto.entity";
 import { Entrada } from "./entrada.entity";
 import { Salida } from "./salida.entity";
-import { Unidad_Medida } from "src/modulos/residentes/entities/unidadMedida.entity";
+import { Unidad_Medida } from "src/modulos/unidades-medida/entities/unidadMedida.entity";
 
 
 @Entity()

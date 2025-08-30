@@ -5,7 +5,7 @@ import { Repository } from "typeorm";
 import { Categoria_Producto } from "../../entities/categoriaProducto.entity";
 import { ProductoDto } from "../../dto/crearProductoDto";
 import { Inventario } from "../../entities/inventario.entity";
-import { Unidad_Medida } from "src/modulos/residentes/entities/unidadMedida.entity";
+import { Unidad_Medida } from "src/modulos/unidades-medida/entities/unidadMedida.entity";
 
 
 @Injectable()

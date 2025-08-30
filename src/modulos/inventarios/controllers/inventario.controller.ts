@@ -7,8 +7,9 @@ import { GetProductosUseCase } from "../use-cases/producto/get-producto.use-case
 import { UpdateProductoUseCase } from "../use-cases/producto/update-producto.use-case";
 import { GetInventarioUseCase } from "../use-cases/inventario/get-inventario.use-case";
 import { PatchEditarInventarioDto } from "../dto/actualizarInventarioDto";
-import { CrearEntradaLoteDto } from "../dto/crearEntradaDto";
+import { CrearEntradaDto } from "../dto/crearEntradaDto";
 import { CreateEntradaUseCase } from "../use-cases/entrada/create-entrada.use-case";
+import { GetEntradaUseCase } from "../use-cases/entrada/get-entrada.use-case";
 
 
 @Controller('inventario')
@@ -21,7 +22,8 @@ export class InventarioController {
         private readonly getProductoUseCase: GetProductosUseCase,
         private readonly updateProductosUseCase: UpdateProductoUseCase,
         private readonly getInventarioUseCase: GetInventarioUseCase,
-        private readonly createEntradaUseCase: CreateEntradaUseCase
+        private readonly createEntradaUseCase: CreateEntradaUseCase,
+        private readonly getEntradaUseCase: GetEntradaUseCase
     
     ){}
 
@@ -90,9 +92,20 @@ export class InventarioController {
      return this.getProductoUseCase.findByArchivadoYCategoria(true, categoriaId, page, limit);
    }
 
-   @Post('entradas/lote')
-   crearEntradaLote(@Body() dto: CrearEntradaLoteDto) {
-      return this.createEntradaUseCase.crearEntradasLote(dto);
-   }
+     //Entradas
+     @Post('entrada')
+     crearEntradas(@Body() dto: CrearEntradaDto) {
+        return this.createEntradaUseCase.crearEntradas(dto);
+     }
+
+     @Get('entradas/:anio/:mes')
+      getEntradasPorMes(
+         @Param('anio', ParseIntPipe) anio: number,
+         @Param('mes',  ParseIntPipe) mes: number,
+         @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page: number,   // 1 por defecto
+         @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,  // 0 = sin límite
+      ) {
+       return this.getEntradaUseCase.getEntradasPorMes(mes, anio, page, limit);
+     }
 
 }
