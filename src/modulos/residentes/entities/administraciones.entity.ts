@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTabl
 import { Expediente_Residente } from './expedientes.entity';
 import { Medicamentos } from './medicamento.entity';
 import { Turno } from 'src/common/enums/turno.enum';
-import { Unidad_Medida } from './unidadMedida.entity';
+import { Unidad_Medida } from '../../unidades-medida/entities/unidadMedida.entity';
 import { AdministracionMedicamento } from './administracioneMedicamento';
 
 @Entity()

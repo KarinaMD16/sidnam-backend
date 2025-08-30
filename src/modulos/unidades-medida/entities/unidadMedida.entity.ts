@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable, OneToMany } from 'typeorm';
-import { Administraciones } from './administraciones.entity';
-import { AdministracionesEspeciales } from './administracionEspecial.entity';
+import { Administraciones } from '../../residentes/entities/administraciones.entity';
+import { AdministracionesEspeciales } from '../../residentes/entities/administracionEspecial.entity';
 import { tipo_unidad_medida } from 'src/common/enums/tipoUnidadMedida.enum';
-import { AdministracionMedicamento } from './administracioneMedicamento';
+import { AdministracionMedicamento } from '../../residentes/entities/administracioneMedicamento';
 
 
 @Entity()
