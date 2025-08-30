@@ -40,7 +40,8 @@ import { Administraciones } from './entities/administraciones.entity';
 import { CreateMedicamentoDto } from './dto/createMedicamentoDto';
 import { CreateAdministracionEspecialDto } from './dto/createAdministracionEspecialDto';
 import { AdministracionesEspeciales } from './entities/administracionEspecial.entity';
-import { getTipoUnidadMedidaById, TipoUnidadMedidaOptions } from 'src/common/enums/tipoUnidadMedida.enum';
+import { AdministracionMedicamento } from './entities/administracioneMedicamento';
+
 
 
 @Injectable()
@@ -88,7 +89,10 @@ export class ResidentesService {
         private readonly administracionRepository: Repository<Administraciones>,
 
         @InjectRepository(AdministracionesEspeciales)
-        private readonly administracionEspecialRepository: Repository<AdministracionesEspeciales>
+        private readonly administracionEspecialRepository: Repository<AdministracionesEspeciales>,
+
+        @InjectRepository(AdministracionMedicamento)
+        private readonly administracionMedicamentoRepository: Repository<AdministracionMedicamento>
     ){}
 
      private MAX_SEGMENT_LENGTH = 1000;
@@ -622,18 +626,48 @@ export class ResidentesService {
       return resultado;
   }
 
-  async getExpedienteEnfermeria(idExpediente: number) {
+   async getExpedienteEnfermeria(idExpediente: number) {
 
     const expedienteEnfermeria = await this.expedienteResidenteRepository.findOne({
-        where: { id_expediente: idExpediente },
-        relations: ['residente', 'patologias', 'administraciones', 'administraciones.medicamento', 'administraciones.unidad', 'administracionesEspeciales', "administracionesEspeciales.medicamento", "administracionesEspeciales.unidad"],
+      where: { id_expediente: idExpediente },
+      relations: [
+        'residente',
+        'patologias',
+        'administraciones',
+        'administracionesEspeciales',
+        'administracionesEspeciales.medicamento',
+        'administracionesEspeciales.unidad',
+      ],
     });
 
-    if(!expedienteEnfermeria){
+    if (!expedienteEnfermeria) {
       throw new NotFoundException('Expediente no encontrado');
     }
 
-    const dtos = plainToInstance(ExpedienteEnfermeriaDto, expedienteEnfermeria, { excludeExtraneousValues: true });
+    const administracionesRaw = await this.administracionRepository.find({
+      where: { expediente: { id_expediente: idExpediente } },
+      relations: ['administracionMedicamentos', 'administracionMedicamentos.medicamento', 'administracionMedicamentos.unidad'],
+    });
+
+    const administracionesPorTurno = administracionesRaw.map(admin => ({
+      id_administracion: admin.id_administracion,
+      turno: admin.turno,
+      medicamentos: admin.administracionMedicamentos.map(am => ({
+        id_medicamento: am.medicamento.id_medicamento,
+        nombre: am.medicamento.nombre,
+        cantidad: am.cantidad,
+        unidad: am.unidad ? { nombre: am.unidad.nombre, abreviatura: am.unidad.abreviatura } : null,
+      })),
+    }));
+
+    const dtos = plainToInstance(
+      ExpedienteEnfermeriaDto,
+      {
+        ...expedienteEnfermeria,
+        administraciones: administracionesPorTurno,
+      },
+      { excludeExtraneousValues: true },
+    );
 
     return dtos;
   }
@@ -759,50 +793,63 @@ export class ResidentesService {
     return this.unidadMedidaRepository.save(unidadMedida);
   }
 
-  async agregarMedicamentoExpediente(idExpediente: number, agregarRegistro: CreateAdministracionDto){
-    const expediente = await this.expedienteResidenteRepository.findOne({
-      where: { id_expediente: idExpediente }
-    })
+  async agregarMedicamentoExpediente(
+  idExpediente: number, 
+  agregarRegistro: CreateAdministracionDto
+) {
+  const expediente = await this.expedienteResidenteRepository.findOne({
+    where: { id_expediente: idExpediente }
+  });
 
-    if(!expediente){
-      throw new NotFoundException('Expediente no encontrado');
-    }
-
-    const medicamento = await this.medicamentoRepository.findOne({
-      where: { id_medicamento: agregarRegistro.id_medicamento },
-      relations: ['tipo']
-    })
-
-    if(!medicamento){
-      throw new NotFoundException('Medicamento no encontrado');
-    }
-
-    const tipoNombre = medicamento.tipo.nombre;
-    const tipoFormateado = tipoNombre.charAt(0).toLowerCase() + tipoNombre.slice(1);
-    if(tipoFormateado == 'antibiotico'){
-      throw new BadRequestException('El medicamento es un antibiotico no puedes registralo aca')
-    }
-
-    const unidad = await this.unidadMedidaRepository.findOne({
-      where: { id_unidad: agregarRegistro.id_unidadMedida }
-    });
-
-    if(!unidad){
-      throw new NotFoundException('Unidad de medida no encontrada');
-    }
-
-
-    const administracion = this.administracionRepository.create({
-      turno: agregarRegistro.turno,
-      cantidad: agregarRegistro.cantidad,
-      unidad,
-      expediente,
-      medicamento: medicamento,
-    });
-
-    return this.administracionRepository.save(administracion);
-
+  if (!expediente) {
+    throw new NotFoundException('Expediente no encontrado');
   }
+
+  const medicamento = await this.medicamentoRepository.findOne({
+    where: { id_medicamento: agregarRegistro.id_medicamento },
+    relations: ['tipo']
+  });
+
+  if (!medicamento) {
+    throw new NotFoundException('Medicamento no encontrado');
+  }
+
+  const tipoNombre = medicamento.tipo.nombre;
+  const tipoFormateado = tipoNombre.charAt(0).toLowerCase() + tipoNombre.slice(1);
+  if (tipoFormateado === 'antibiotico') {
+    throw new BadRequestException('El medicamento es un antibiótico, no puedes registrarlo aquí');
+  }
+
+  const unidad = await this.unidadMedidaRepository.findOne({
+    where: { id_unidad: agregarRegistro.id_unidadMedida }
+  });
+
+  if (!unidad) {
+    throw new NotFoundException('Unidad de medida no encontrada');
+  }
+
+  let administracion = await this.administracionRepository.findOne({
+    where: { expediente: { id_expediente: idExpediente }, turno: agregarRegistro.turno }
+  });
+
+  if (!administracion) {
+    administracion = this.administracionRepository.create({
+      turno: agregarRegistro.turno,
+      expediente
+    });
+    administracion = await this.administracionRepository.save(administracion);
+  }
+
+  const adminMed = this.administracionMedicamentoRepository.create({
+    administracion,
+    medicamento,
+    cantidad: agregarRegistro.cantidad,
+    unidad
+  });
+
+  return this.administracionMedicamentoRepository.save(adminMed);
+}
+
 
   async agregarTratamientosEspeciales(idExpediente: number, createAdministracionEspecialo: CreateAdministracionEspecialDto){
 

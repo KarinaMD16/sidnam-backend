@@ -16,6 +16,7 @@ import { Consulta_Ebais } from './entities/consultaEbais.entity';
 import { Consulta_Especialista } from './entities/consultaEspecialista.entity';
 import { Tipo_Consulta } from './entities/tipoConsulta.entity';
 import { Unidad_Medida } from './entities/unidadMedida.entity';
+import { AdministracionMedicamento } from './entities/administracioneMedicamento';
 
 
 
@@ -35,6 +36,7 @@ import { Unidad_Medida } from './entities/unidadMedida.entity';
     Consulta_Especialista,
     Tipo_Consulta,
     Unidad_Medida,
+    AdministracionMedicamento
 
   ])],
   providers: [ResidentesService],

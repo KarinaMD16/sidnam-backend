@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTabl
 import { Administraciones } from './administraciones.entity';
 import { AdministracionesEspeciales } from './administracionEspecial.entity';
 import { tipo_unidad_medida } from 'src/common/enums/tipoUnidadMedida.enum';
+import { AdministracionMedicamento } from './administracioneMedicamento';
 
 
 @Entity()
@@ -18,10 +19,10 @@ export class Unidad_Medida {
   @Column({type: 'enum', enum: tipo_unidad_medida})
   tipo: tipo_unidad_medida;
 
-  @OneToMany(() => Administraciones, administracion => administracion.unidad)
-  administraciones: Administraciones[];
+  @OneToMany(() => AdministracionMedicamento, am => am.unidad)
+  administracionMedicamentos: AdministracionMedicamento[];
 
-  @OneToMany(() => AdministracionesEspeciales, administracion => administracion.unidad)
+  @OneToMany(() => AdministracionesEspeciales, adminEsp => adminEsp.unidad)
   administracionesEspeciales: AdministracionesEspeciales[];
 
 
