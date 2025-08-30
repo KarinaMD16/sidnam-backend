@@ -18,4 +18,9 @@ export class UnidadesMedidaController {
     return this.unidadesMedidaService.asociarUnidadATipo(idTipoUnidad, createUnidadMedidaDto);
   }
 
+  @Get('unidades/:tipo')
+  async obtenerUnidadesMedida(@Param('tipo', ParseIntPipe) tipo: number) {
+    return this.unidadesMedidaService.obtenerUnidadesMedidaPorTipo(tipo);
+  }
+
 }
