@@ -33,7 +33,7 @@ import { Bitacoras, BitacorasOpts } from 'src/common/enums/bitacaras.enum';
 import { MostrarConsultaEspecialistaDto } from './dto/mostrarConsultaEspecialistaDto';
 import { MostrarCuracionDto } from './dto/mostrarCuracionDto';
 import { MostrarConsultaEbais } from './dto/mostrarConsultasEbaisDto';
-import { Unidad_Medida } from './entities/unidadMedida.entity';
+import { Unidad_Medida } from '../unidades-medida/entities/unidadMedida.entity';
 import { CreateUnidadMedidaDto } from './dto/createUnidadMedidaDto';
 import { CreateAdministracionDto } from './dto/registrarMedicamentoDto';
 import { Administraciones } from './entities/administraciones.entity';

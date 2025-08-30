@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Administraciones } from './administraciones.entity';
 import { Medicamentos } from './medicamento.entity';
-import { Unidad_Medida } from './unidadMedida.entity';
+import { Unidad_Medida } from '../../unidades-medida/entities/unidadMedida.entity';
 
 @Entity()
 export class AdministracionMedicamento {

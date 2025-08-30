@@ -15,7 +15,7 @@ import { Curaciones } from './entities/curaciones.entity';
 import { Consulta_Ebais } from './entities/consultaEbais.entity';
 import { Consulta_Especialista } from './entities/consultaEspecialista.entity';
 import { Tipo_Consulta } from './entities/tipoConsulta.entity';
-import { Unidad_Medida } from './entities/unidadMedida.entity';
+import { Unidad_Medida } from '../unidades-medida/entities/unidadMedida.entity';
 import { AdministracionMedicamento } from './entities/administracioneMedicamento';
 
 
