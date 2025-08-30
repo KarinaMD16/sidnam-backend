@@ -192,11 +192,6 @@ export class ResidentesController {
         return this.residentesService.createUnidadMedida(createUnidadMedidaDto);
     }
 
-    @Get('expedientes/enfermeria/unidades-medida')
-    async getUnidadesMedida() {
-        return this.residentesService.getUnidadesMedida();
-    }
-
     @Post('expedientes/enfermeria/medicamentos/:id_expediente')
     async agregarMedicamentoAExpediente(@Param('id_expediente', ParseIntPipe) idExpediente: number, @Body() agregarRegistro: CreateAdministracionDto) {
         return this.residentesService.agregarMedicamentoExpediente(idExpediente, agregarRegistro);
@@ -206,7 +201,6 @@ export class ResidentesController {
     async agregarMedicamentoEspecialesAExpediente(@Param('id_expediente', ParseIntPipe) idExpediente: number, @Body() createRegistroEspecial: CreateAdministracionEspecialDto) {
         return this.residentesService.agregarTratamientosEspeciales(idExpediente, createRegistroEspecial);
     }
-
 
 }
     
