@@ -12,12 +12,13 @@ import { Inventario } from './entities/inventario.entity';
 import { Entrada } from './entities/entrada.entity';
 import { Salida } from './entities/salida.entity';
 import { CreateEntradaUseCase } from './use-cases/entrada/create-entrada.use-case';
+import { Unidad_Medida } from '../residentes/entities/unidadMedida.entity';
 
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Categoria_Producto, Producto, Inventario, Entrada, Salida]),
+    TypeOrmModule.forFeature([Categoria_Producto, Producto, Inventario, Entrada, Salida, Unidad_Medida]),
     ],
   providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase],
   controllers: [InventarioController]

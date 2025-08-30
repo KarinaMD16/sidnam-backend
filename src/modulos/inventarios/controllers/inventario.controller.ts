@@ -36,6 +36,11 @@ export class InventarioController {
         return this.inventarioService.getAllCategoriasProductos()
     }
 
+    @Get()
+  async getCategorias() {
+    return this.inventarioService.getCategorias();
+  }
+
     @Post('productos')
     crearProducto(@Body() Producto: ProductoDto){
         return this.createProductoUseCase.crearProducto(Producto)

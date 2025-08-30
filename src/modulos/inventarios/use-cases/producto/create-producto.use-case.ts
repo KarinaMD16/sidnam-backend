@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 import { Categoria_Producto } from "../../entities/categoriaProducto.entity";
 import { ProductoDto } from "../../dto/crearProductoDto";
 import { Inventario } from "../../entities/inventario.entity";
+import { Unidad_Medida } from "src/modulos/residentes/entities/unidadMedida.entity";
 
 
 @Injectable()
@@ -20,6 +21,9 @@ export class CreateProductoUseCase {
         @InjectRepository(Inventario)
         private readonly inventarioRepository: Repository<Inventario>,
 
+        @InjectRepository(Unidad_Medida)
+        private readonly unidadMedidaRepository: Repository<Unidad_Medida>
+
   ){}
 
 
@@ -33,11 +37,20 @@ export class CreateProductoUseCase {
              throw new NotFoundException(`Categoria con el id ${producto.categoriaProducto} no encontrada`);
        }
 
+       const unidadMedida = await this.unidadMedidaRepository.findOne({
+            where: { id_unidad: producto.unidadMedida },
+       });
+
+       
+        if (!unidadMedida) {
+                throw new NotFoundException(`Unidad de medida con el id ${producto.unidadMedida} no encontrada`,
+         );
+       }
+
 
        const crearProducto = this.productoRepository.create({
            nombre: producto.nombre,
            codigo: producto.codigo,
-           unidadMedida: producto.unidadMedida,
            categoria,
        })
 
@@ -46,6 +59,7 @@ export class CreateProductoUseCase {
         const inventario = this.inventarioRepository.create({
           stock: 0,
           producto: productoCreado,
+          unidad_medida: unidadMedida,
         });
         await this.inventarioRepository.save(inventario);
 

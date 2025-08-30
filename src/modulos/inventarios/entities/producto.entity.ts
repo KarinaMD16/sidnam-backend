@@ -18,13 +18,9 @@ export class Producto {
     @Column({ default: false, nullable: true })
     archivado: boolean;
 
-    @Column()
-    unidadMedida: string;
-
     @ManyToOne(() => Categoria_Producto, categoria => categoria.productos)
     @JoinColumn({ name: 'categoria_producto_id' })
     categoria: Categoria_Producto;
-
 
     @OneToMany(() => Inventario, inventario => inventario.producto)
     inventarios: Inventario[];

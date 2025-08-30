@@ -11,9 +11,8 @@ export class ProductoDto {
     @IsNotEmpty()
     codigo: string;
 
-    @IsString()
     @IsNotEmpty()
-    unidadMedida: string;
+    unidadMedida: number;
 
     @IsNotEmpty()
     categoriaProducto: number;

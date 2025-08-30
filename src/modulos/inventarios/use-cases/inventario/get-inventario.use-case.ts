@@ -15,10 +15,10 @@ export class GetInventarioUseCase {
     ) {}
 
 
-  async findAllInventarios(categoriaId: number, page?: number, limit?: number): Promise<{ data: Array<{ id: number; stock: number; codigo: string; nombre: string; unidadMedida: string; categoriaId: number }>; total: number }> {
+  async findAllInventarios(categoriaId: number, page?: number, limit?: number): Promise<{ data: Array<{ id: number; stock: number; codigo: string; nombre: string; categoriaId: number }>; total: number }> {
 
     const [rows, total] = await this.inventarioRepository.findAndCount({
-    where: { producto: { archivado: false, categoria: { id: categoriaId } } }, // 👈 solo NO archivados
+    where: { producto: { archivado: false, categoria: { id: categoriaId } } },
     relations: { producto: { categoria: true } },
     select: {
       id: true,
@@ -27,7 +27,7 @@ export class GetInventarioUseCase {
         id: true,
         nombre: true,
         codigo: true,
-        unidadMedida: true,
+        //unidadMedida: true,
         categoria: { id: true },
       },
     },
@@ -42,7 +42,7 @@ export class GetInventarioUseCase {
     stock: i.stock,
     codigo: i.producto.codigo,
     nombre: i.producto.nombre,
-    unidadMedida: i.producto.unidadMedida,
+   // unidadMedida: i.producto.unidadMedida,
     categoriaId: i.producto.categoria.id,
   }));
 

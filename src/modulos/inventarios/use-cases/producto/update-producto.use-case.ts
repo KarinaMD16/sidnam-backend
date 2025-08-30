@@ -93,12 +93,6 @@ export class UpdateProductoUseCase {
           inventario.producto.codigo = dto.codigo;
           touchedProd = true;
        }
-
-       if (dto.unidadMedida !== undefined) {
-          inventario.producto.unidadMedida = dto.unidadMedida;
-          touchedProd = true;
-       }
-
     
        if (touchedProd){ 
         await this.productoRepository.save(inventario.producto);

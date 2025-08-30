@@ -3,6 +3,7 @@ import { Administraciones } from './administraciones.entity';
 import { AdministracionesEspeciales } from './administracionEspecial.entity';
 import { tipo_unidad_medida } from 'src/common/enums/tipoUnidadMedida.enum';
 import { AdministracionMedicamento } from './administracioneMedicamento';
+import { Inventario } from 'src/modulos/inventarios/entities/inventario.entity';
 
 
 @Entity()
@@ -24,6 +25,9 @@ export class Unidad_Medida {
 
   @OneToMany(() => AdministracionesEspeciales, adminEsp => adminEsp.unidad)
   administracionesEspeciales: AdministracionesEspeciales[];
+
+  @OneToMany(() => Inventario, inventario => inventario.unidad_medida)
+  inventarios: Inventario[];
 
 
 }

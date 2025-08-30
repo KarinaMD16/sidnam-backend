@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { CategoriasPrincipalesProductos } from "src/common/enums/categoriasPrincipalesProductos.enum";
+import { CategoriasOptions, CategoriasPrincipalesProductos } from "src/common/enums/categoriasPrincipalesProductos.enum";
 import { Categoria_Producto } from "../entities/categoriaProducto.entity";
 import { Repository } from "typeorm";
 import { CategoriaProductoDto } from "../dto/crearCategoriaProductoDto";
@@ -29,5 +29,13 @@ export class InventarioService {
     async getAllCategoriasProductos(): Promise<CategoriaProductoDto[]>{
         return await this.categoriaProducto.find()
     }
+
+    
+    getCategorias() {
+            return CategoriasOptions.map(opt => ({
+              id: opt.id,
+              nombre: opt.nombre, 
+            }));
+        }
     
 }
