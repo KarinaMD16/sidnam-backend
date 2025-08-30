@@ -18,6 +18,7 @@ import { Tipo_Consulta } from './entities/tipoConsulta.entity';
 import { Unidad_Medida } from './entities/unidadMedida.entity';
 
 
+
 @Module({
   imports: [TypeOrmModule.forFeature([
     Residente, 
@@ -33,7 +34,8 @@ import { Unidad_Medida } from './entities/unidadMedida.entity';
     Consulta_Ebais,
     Consulta_Especialista,
     Tipo_Consulta,
-    Unidad_Medida
+    Unidad_Medida,
+
   ])],
   providers: [ResidentesService],
   controllers: [ResidentesController]

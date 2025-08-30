@@ -49,6 +49,9 @@ import { Consulta_Ebais } from './modulos/residentes/entities/consultaEbais.enti
 import { Consulta_Especialista } from './modulos/residentes/entities/consultaEspecialista.entity';
 import { Tipo_Consulta } from './modulos/residentes/entities/tipoConsulta.entity';
 import { Unidad_Medida } from './modulos/residentes/entities/unidadMedida.entity';
+import { UnidadesMedidaModule } from './modulos/unidades-medida/unidades-medida.module';
+
+
 
 
 dotenv.config();
@@ -102,10 +105,6 @@ dotenv.config();
         Consulta_Ebais,
         Consulta_Especialista,
         Tipo_Consulta,
-        Producto,
-        Inventario,
-        Entrada,
-        Salida,
         Unidad_Medida
       ],
       synchronize: true,
@@ -118,6 +117,7 @@ dotenv.config();
     SolicitudDonacionModule,
     ResidentesModule,
     InventarioModule,
+    UnidadesMedidaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
