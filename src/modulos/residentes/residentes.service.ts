@@ -1218,7 +1218,22 @@ export class ResidentesService {
     return { message: 'Medicamento eliminado correctamente' };
   }
 
+  async eliminarAntibioticoDeAdministracion(idAdministracion: number){
 
+    const administracion = await this.administracionEspecialRepository.findOne({
+      where: {
+        id_administracion_especial: idAdministracion
+      },
+    })
+
+    if(!administracion){
+      throw new NotFoundException('Administracion no encontrada')
+    }
+
+    await this.administracionEspecialRepository.remove(administracion)
+
+    return { message: 'Medicamento eliminado correctamente' };
+  }
 
 }
 
