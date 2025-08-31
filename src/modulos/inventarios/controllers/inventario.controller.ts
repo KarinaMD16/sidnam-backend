@@ -1,4 +1,5 @@
-import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from "@nestjs/common";
+import { Response as ExpressResponse } from 'express';
 import { InventarioService } from "../services/inventario.service";
 import { CategoriaProductoDto } from "../dto/crearCategoriaProductoDto";
 import { CreateProductoUseCase } from "../use-cases/producto/create-producto.use-case";
@@ -10,6 +11,12 @@ import { PatchEditarInventarioDto } from "../dto/actualizarInventarioDto";
 import { CrearEntradaDto } from "../dto/crearEntradaDto";
 import { CreateEntradaUseCase } from "../use-cases/entrada/create-entrada.use-case";
 import { GetEntradaUseCase } from "../use-cases/entrada/get-entrada.use-case";
+import { CrearSalidaDto } from "../dto/crearSalidaDto";
+import { CreateSalidaUseCase } from "../use-cases/salida/create-salida.use-case";
+import { GetSalidaUseCase } from "../use-cases/salida/get-salida.use-case";
+import { ReportesInventarioService } from "../services/reporteInventario.service";
+import { ReporteMovimientosDto } from "../dto/reporteMovimientosDto";
+import { ApiOkResponse, ApiOperation, ApiProduces, ApiQuery } from "@nestjs/swagger";
 
 
 @Controller('inventario')
@@ -23,7 +30,10 @@ export class InventarioController {
         private readonly updateProductosUseCase: UpdateProductoUseCase,
         private readonly getInventarioUseCase: GetInventarioUseCase,
         private readonly createEntradaUseCase: CreateEntradaUseCase,
-        private readonly getEntradaUseCase: GetEntradaUseCase
+        private readonly getEntradaUseCase: GetEntradaUseCase,
+        private readonly createSalidaUseCase: CreateSalidaUseCase,
+        private readonly getSalidasUsecase: GetSalidaUseCase,
+        private readonly reporteInventarioService: ReportesInventarioService,
     
     ){}
 
@@ -92,6 +102,13 @@ export class InventarioController {
      return this.getProductoUseCase.findByArchivadoYCategoria(true, categoriaId, page, limit);
    }
 
+    @Get('categoria/:categoriaId/all')
+    getInventariosPorCategoriaSinPaginacion(
+       @Param('categoriaId', ParseIntPipe) categoriaId: number,
+     ) {
+        return this.getInventarioUseCase.findAllByCategoriaSinPaginacion(categoriaId);
+     }
+
      //Entradas
      @Post('entrada')
      crearEntradas(@Body() dto: CrearEntradaDto) {
@@ -102,10 +119,63 @@ export class InventarioController {
       getEntradasPorMes(
          @Param('anio', ParseIntPipe) anio: number,
          @Param('mes',  ParseIntPipe) mes: number,
-         @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page: number,   // 1 por defecto
-         @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,  // 0 = sin límite
+         @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page?: number,   
+         @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,  
       ) {
        return this.getEntradaUseCase.getEntradasPorMes(mes, anio, page, limit);
      }
 
+
+     //Salidas
+     @Post('salidas') 
+     crearSalidas(@Body() dto: CrearSalidaDto) {
+        return this.createSalidaUseCase.crearSalidas(dto);
+     }
+
+     @Get('salidas/:anio/:mes')
+     getSalidasPorMes(
+        @Param('anio', ParseIntPipe) anio: number,
+        @Param('mes',  ParseIntPipe) mes: number,
+        @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page?: number,   
+        @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number, 
+       ) {
+        return this.getSalidasUsecase.getSalidasPorMes(mes, anio, page, limit);
+     }
+
+
+     //reporte de entradas/salidas
+
+     @Get('reportes/entradas/pdf')
+     @ApiOperation({ summary: 'Descargar PDF de entradas por categoría/mes/año' })
+     @ApiProduces('application/pdf')
+     @ApiOkResponse({
+     description: 'Archivo PDF',
+     content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
+    })
+    @ApiQuery({ name: 'categoriaId', required: true, type: Number })
+    @ApiQuery({ name: 'mes', required: true, type: Number, description: '1-12' })
+    @ApiQuery({ name: 'anio', required: true, type: Number })
+      async reporteEntradasPdf(
+      @Query() q: ReporteMovimientosDto,
+      @Res() res: ExpressResponse
+      ) {
+         await this.reporteInventarioService.generarReporteEntradas(q, res);
+      }
+
+     @Get('reportes/salidas/pdf')
+     @ApiOperation({ summary: 'Descargar PDF de salidas por categoría/mes/año' })
+     @ApiProduces('application/pdf')
+     @ApiOkResponse({
+     description: 'Archivo PDF',
+     content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
+     })
+     @ApiQuery({ name: 'categoriaId', required: true, type: Number })
+     @ApiQuery({ name: 'mes', required: true, type: Number, description: '1-12' })
+     @ApiQuery({ name: 'anio', required: true, type: Number })
+       async reporteSalidasPdf(
+       @Query() q: ReporteMovimientosDto,
+       @Res() res: ExpressResponse
+       ) {
+         await this.reporteInventarioService.generarReporteSalidas(q, res);
+       }
 }
