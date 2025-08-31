@@ -41,6 +41,8 @@ import { AdministracionesEspeciales } from './entities/administracionEspecial.en
 import { AdministracionMedicamento } from './entities/administracioneMedicamento';
 import { getTiposMedicamentos, TipoMedicamentoOpts } from 'src/common/enums/tipoMedicamento.enum';
 import { Libro_Campo } from './entities/libroCampo.entity';
+import { EstadoExpedienteOptions, getEstadoExpedientesById } from 'src/common/enums/estadosExpedientes.enum';
+import e from 'express';
 
 
 
@@ -731,16 +733,21 @@ export class ResidentesService {
       relations: ['administracionMedicamentos', 'administracionMedicamentos.medicamento', 'administracionMedicamentos.unidad'],
     });
 
-    const administracionesPorTurno = administracionesRaw.map(admin => ({
-      id_administracion: admin.id_administracion,
-      turno: admin.turno,
-      medicamentos: admin.administracionMedicamentos.map(am => ({
-        id_medicamento: am.medicamento.id_medicamento,
-        nombre: am.medicamento.nombre,
-        cantidad: am.cantidad,
-        unidad: am.unidad ? { nombre: am.unidad.nombre, abreviatura: am.unidad.abreviatura } : null,
-      })),
-    }));
+    const ordenTurnos = ['AM', 'MD', 'PM', 'MN'];
+
+    const administracionesPorTurno = administracionesRaw
+      .map(admin => ({
+        id_administracion: admin.id_administracion,
+        turno: admin.turno,
+        medicamentos: admin.administracionMedicamentos.map(am => ({
+          id_medicamento: am.medicamento.id_medicamento,
+          nombre: am.medicamento.nombre,
+          cantidad: am.cantidad,
+          unidad: am.unidad ? { nombre: am.unidad.nombre, abreviatura: am.unidad.abreviatura } : null,
+        })),
+      }))
+      .sort((a, b) => ordenTurnos.indexOf(a.turno) - ordenTurnos.indexOf(b.turno));
+
 
     const dtos = plainToInstance(
       ExpedienteEnfermeriaDto,
@@ -987,6 +994,49 @@ export class ResidentesService {
 
     return medicamentos;
 
+  }
+
+  async getEstados() {
+    return EstadoExpedienteOptions.map(opt => ({
+      id: opt.id,
+      nombre: opt.nombre
+    }));
+  }
+
+  async cambiarEstado(estado: number, id_expediente: number) {
+
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: { id_expediente: id_expediente }
+    });
+
+    if(!expediente){
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    const estadoExpedientes = getEstadoExpedientesById(estado);
+
+    if(estadoExpedientes == 'Activo' && expediente.estado == 'Activo') {
+      throw new BadRequestException('No se puede cambiar a Activo ya que se encuentra activo');
+    }
+
+    if(estadoExpedientes == 'Inactivo' && expediente.estado == 'Inactivo') {
+      throw new BadRequestException('No se puede cambiar a Inactivo ya que se encuentra inactivo');
+    }
+
+    if(!estadoExpedientes){
+      throw new NotFoundException('Estado de expediente no encontrado');
+    }
+
+    if(estadoExpedientes == 'Inactivo'){
+      expediente.estado = estadoExpedientes;
+      expediente.fecha_cierre = new Date();
+    }
+
+    if(estadoExpedientes == 'Activo'){
+      expediente.estado = estadoExpedientes;
+      expediente.fecha_ingreso = new Date();
+    }
+    await this.expedienteResidenteRepository.save(expediente);
   }
 
 }

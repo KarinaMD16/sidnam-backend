@@ -29,7 +29,7 @@ export class Expediente_Residente {
   estado: EstadoExpediente;
 
   @Column({ nullable: true })
-  fecha_cierre: Date;
+  fecha_cierre: Date;;
 
   @OneToOne(() => Residente, residente => residente.expediente)
   @JoinColumn() 
