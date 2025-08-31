@@ -41,7 +41,7 @@ import { AdministracionesEspeciales } from './entities/administracionEspecial.en
 import { AdministracionMedicamento } from './entities/administracioneMedicamento';
 import { getTiposMedicamentos, TipoMedicamentoOpts } from 'src/common/enums/tipoMedicamento.enum';
 import { Libro_Campo } from './entities/libroCampo.entity';
-import { EstadoExpedienteOptions, getEstadoExpedientesById } from 'src/common/enums/estadosExpedientes.enum';
+import { EstadoExpediente, EstadoExpedienteOptions, getEstadoExpedientesById } from 'src/common/enums/estadosExpedientes.enum';
 import e from 'express';
 import { AtualizarLibroCampoDto } from './dto/actualizarLibroCampoDto';
 import { GestionUsuarioService } from '../gestion-usuario/gestion-usuario.service';
@@ -1149,6 +1149,24 @@ export class ResidentesService {
     });
 
     return resultadosTransformados;
+  }
+
+
+  async getExpedientePorEstado(estadoExpedientes: number){
+
+    const estado = getEstadoExpedientesById(estadoExpedientes)
+
+    if(!estado){
+      throw new NotFoundException('Estado no encontrado')
+    }
+
+    const expedientes = await this.expedienteResidenteRepository.find({
+      where: {estado},
+      relations: ['residente']
+    })
+
+    return plainToInstance(ExpedienteResidentePreviewDto, expedientes, { excludeExtraneousValues: true });
+    
   }
 
 }
