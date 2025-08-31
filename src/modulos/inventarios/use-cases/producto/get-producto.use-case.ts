@@ -24,18 +24,18 @@ export class GetProductosUseCase {
     async findAllProductos() {
       return this.productoRepository.find({
         where: { archivado: false },
-        select: { nombre: true, codigo: true, unidadMedida: true, },
+        select: { nombre: true, codigo: true, },
         order: { id: 'DESC' },
       });
     }
 
-  async findByArchivadoYCategoria(archivado: boolean, categoriaId: number, page?: number, limit?: number): Promise<{data: { inventarioId: number; nombre: string; codigo: string; unidadMedida: string }[];total: number;}> {
+  async findByArchivadoYCategoria(archivado: boolean, categoriaId: number, page?: number, limit?: number): Promise<{data: { inventarioId: number; nombre: string; codigo: string;}[];total: number}> {
   const [rows, total] = await this.inventarioRepository.findAndCount({
     where: { producto: { archivado, categoria: { id: categoriaId } } }, 
     relations: { producto: { categoria: true } },                       
     select: {
       id: true,                                                        
-      producto: { nombre: true, codigo: true, unidadMedida: true },
+      producto: { nombre: true, codigo: true, },
     },
     order: { id: 'DESC' },
     skip: page && limit ? (page - 1) * limit : 0,                       
@@ -46,7 +46,6 @@ export class GetProductosUseCase {
     inventarioId: i.id,
     nombre: i.producto.nombre,
     codigo: i.producto.codigo,
-    unidadMedida: i.producto.unidadMedida,
   }));
 
   return { data, total };

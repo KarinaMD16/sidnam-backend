@@ -1,19 +1,18 @@
-// dto/crear-entrada-lote.dto.ts
 import { Type } from 'class-transformer';
-import { IsArray, IsInt, ValidateNested, Min } from 'class-validator';
+import { IsArray, IsInt, Min, ValidateNested } from 'class-validator';
 
-export class CrearEntradaItemDto {
+export class CrearEntradaProductoDto {
   @IsInt()
   inventarioId: number;
 
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'La cantidad debe ser mayor a 0' })
   cantidad: number;
 }
 
-export class CrearEntradaLoteDto {
-  @IsArray()
+export class CrearEntradaDto {
+  @IsArray({ message: 'productos debe ser un arreglo' })
   @ValidateNested({ each: true })
-  @Type(() => CrearEntradaItemDto)
-  productos: CrearEntradaItemDto[];
+  @Type(() => CrearEntradaProductoDto)
+  productos: CrearEntradaProductoDto[];
 }

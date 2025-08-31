@@ -13,9 +13,7 @@ export class Entrada{
 
     @Column()
     cantidad: number;
-
-    @Column({ name: 'lote_id', type: 'varchar', length: 36 })
-    loteId: string;    
+   
 
     @ManyToOne(() => Inventario, inventario => inventario.entradas)
     @JoinColumn({ name: 'inventario_id' })
