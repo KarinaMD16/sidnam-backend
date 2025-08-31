@@ -260,6 +260,11 @@ export class ResidentesController {
     return this.residentesService.getExpedientePorEstado(idEstado, pageNumber, limitNumber);
     }
 
+    @Delete('expedientes/administraciones/:idAdministracion/:idMedicamento')
+    async eliminarMedicamentoAdministracion(@Param('idAdministracion', ParseIntPipe) idAdministracion: number, @Param('idMedicamento', ParseIntPipe) idMedicamento: number){
+        return this.residentesService.eliminarMedicamentoDeAdministracion(idAdministracion, idMedicamento)
+    }
+
 
 }
     

@@ -915,6 +915,7 @@ export class ResidentesService {
     throw new NotFoundException('Unidad de medida no encontrada');
   }
 
+
   let administracion = await this.administracionRepository.findOne({
     where: { expediente: { id_expediente: idExpediente }, turno: agregarRegistro.turno }
   });
@@ -925,6 +926,18 @@ export class ResidentesService {
       expediente
     });
     administracion = await this.administracionRepository.save(administracion);
+  }
+
+  const administracionRepetida = await this.administracionMedicamentoRepository.findOne({
+    where: {
+      administracion: {id_administracion: administracion.id_administracion},
+      medicamento: {id_medicamento: agregarRegistro.id_medicamento}
+    },
+    relations: ['medicamento']
+  })
+
+  if(administracionRepetida){
+    throw new BadRequestException('Medicamento repetido')
   }
 
   const adminMed = this.administracionMedicamentoRepository.create({
@@ -1186,6 +1199,25 @@ export class ResidentesService {
       total,
     };
   }
+
+  async eliminarMedicamentoDeAdministracion(idAdministracion: number, idMedicamento: number) {
+    const registro = await this.administracionMedicamentoRepository.findOne({
+      where: {
+        administracion: { id_administracion: idAdministracion },
+        medicamento: { id_medicamento: idMedicamento }
+      },
+      relations: ['administracion', 'medicamento']
+    });
+
+    if (!registro) {
+      throw new NotFoundException('Medicamento no encontrado en esta administración');
+    }
+
+    await this.administracionMedicamentoRepository.remove(registro);
+
+    return { message: 'Medicamento eliminado correctamente' };
+  }
+
 
 
 }
