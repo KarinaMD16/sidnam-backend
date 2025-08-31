@@ -41,7 +41,6 @@ import { Salida } from './modulos/inventarios/entities/salida.entity';
 import { Patologias } from './modulos/residentes/entities/patologias.entity';
 import { Administraciones } from './modulos/residentes/entities/administraciones.entity';
 import { Medicamentos } from './modulos/residentes/entities/medicamento.entity';
-import { Tipo_medicamento } from './modulos/residentes/entities/tipo_medicamento.entity';
 import { AdministracionesEspeciales } from './modulos/residentes/entities/administracionEspecial.entity';
 import { NotaEnfermeria } from './modulos/residentes/entities/NotaEnfermeria.entity';
 import { Curaciones } from './modulos/residentes/entities/curaciones.entity';
@@ -99,7 +98,6 @@ dotenv.config();
         Patologias,
         Administraciones,
         Medicamentos,
-        Tipo_medicamento,
         AdministracionesEspeciales,
         NotaEnfermeria,
         Curaciones,

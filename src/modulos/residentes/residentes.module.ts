@@ -8,7 +8,6 @@ import { Encargado } from './entities/encargado.entity';
 import { Patologias } from './entities/patologias.entity';
 import { Administraciones } from './entities/administraciones.entity';
 import { Medicamentos } from './entities/medicamento.entity';
-import { Tipo_medicamento } from './entities/tipo_medicamento.entity';
 import { AdministracionesEspeciales } from './entities/administracionEspecial.entity';
 import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
 import { Curaciones } from './entities/curaciones.entity';
@@ -28,7 +27,6 @@ import { AdministracionMedicamento } from './entities/administracioneMedicamento
     Patologias, 
     Administraciones, 
     Medicamentos, 
-    Tipo_medicamento, 
     AdministracionesEspeciales, 
     NotaEnfermeria,
     Curaciones,

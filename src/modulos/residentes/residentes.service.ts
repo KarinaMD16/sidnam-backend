@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Residente } from './entities/residente.entity';
-import { In, IsNull, Not, Repository } from 'typeorm';
+import { ILike, In, IsNull, Not, Repository } from 'typeorm';
 import { Expediente_Residente } from './entities/expedientes.entity';
 import { Encargado } from './entities/encargado.entity';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
@@ -14,8 +14,6 @@ import { GetExpedienteResidenteDto } from './dto/getExpedienteDto';
 import { ActualizarExpediente } from './dto/actualizarExpediente';
 import { CreatePatologiaDto } from './dto/createPatologia.Dto';
 import { Patologias } from './entities/patologias.entity';
-import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
-import { Tipo_medicamento } from './entities/tipo_medicamento.entity';
 import { Medicamentos } from './entities/medicamento.entity';
 import { Turno, TurnoOpts } from 'src/common/enums/turno.enum';
 import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
@@ -41,6 +39,7 @@ import { CreateMedicamentoDto } from './dto/createMedicamentoDto';
 import { CreateAdministracionEspecialDto } from './dto/createAdministracionEspecialDto';
 import { AdministracionesEspeciales } from './entities/administracionEspecial.entity';
 import { AdministracionMedicamento } from './entities/administracioneMedicamento';
+import { getTiposMedicamentos, TipoMedicamentoOpts } from 'src/common/enums/tipoMedicamento.enum';
 
 
 
@@ -60,9 +59,6 @@ export class ResidentesService {
         
         @InjectRepository(Patologias)
         private readonly patologiasRepository: Repository<Patologias>,
-
-        @InjectRepository(Tipo_medicamento)
-        private readonly tipoMedicamentoRepository: Repository<Tipo_medicamento>,
 
         @InjectRepository(Medicamentos)
         private readonly medicamentoRepository: Repository<Medicamentos>,
@@ -493,35 +489,24 @@ export class ResidentesService {
     return expediente.patologias;
   }
 
-  async crearTipoMedicamento(createTipoMedicamento: Tipo_MedicamentoDto){
-    const nuevoTipoMedicamento = this.tipoMedicamentoRepository.create(createTipoMedicamento);
-    await this.tipoMedicamentoRepository.save(nuevoTipoMedicamento);
-    return "Tipo de medicamento creado correctamente";
-  }
-
-  async getTiposMedicamento(){
-    return this.tipoMedicamentoRepository.find();
-  }
 
   async asociarMedicamentoATipoMedicamento(idTipoMedicamento: number, createMedicamento: CreateMedicamentoDto){
 
-    const tipoMedicamento = await this.tipoMedicamentoRepository.findOne({ where: {id_tipo_medicamento: idTipoMedicamento } });
-
+    const tipoMedicamento = getTiposMedicamentos(idTipoMedicamento);
 
     if (!tipoMedicamento) {
       throw new NotFoundException('Tipo de medicamento no encontrado');
     }
 
-
     const nombreMinuscula = createMedicamento.nombre.toLowerCase();
 
     const medicamentoExistente = await this.medicamentoRepository.findOne({
-        where: { 
-            nombre: nombreMinuscula, 
-            tipo: { id_tipo_medicamento: idTipoMedicamento } 
-        },
-        relations: ['tipo'] 
+      where: { 
+        tipo: tipoMedicamento,             
+        nombre: ILike(createMedicamento.nombre.trim()), 
+      },
     });
+
 
     if (medicamentoExistente) {
         throw new BadRequestException('El medicamento ya existe para este tipo');
@@ -535,9 +520,7 @@ export class ResidentesService {
   }
 
   async getMedicamentos(){
-    return this.medicamentoRepository.find({
-      relations: ['tipo']
-    });
+    return this.medicamentoRepository.find({});
   }
 
   getTurnos() {
@@ -793,10 +776,7 @@ export class ResidentesService {
     return this.unidadMedidaRepository.save(unidadMedida);
   }
 
-  async agregarMedicamentoExpediente(
-  idExpediente: number, 
-  agregarRegistro: CreateAdministracionDto
-) {
+  async agregarMedicamentoExpediente(idExpediente: number, agregarRegistro: CreateAdministracionDto) {
   const expediente = await this.expedienteResidenteRepository.findOne({
     where: { id_expediente: idExpediente }
   });
@@ -807,17 +787,14 @@ export class ResidentesService {
 
   const medicamento = await this.medicamentoRepository.findOne({
     where: { id_medicamento: agregarRegistro.id_medicamento },
-    relations: ['tipo']
   });
 
   if (!medicamento) {
     throw new NotFoundException('Medicamento no encontrado');
   }
 
-  const tipoNombre = medicamento.tipo.nombre;
-  const tipoFormateado = tipoNombre.charAt(0).toLowerCase() + tipoNombre.slice(1);
-  if (tipoFormateado === 'antibiotico') {
-    throw new BadRequestException('El medicamento es un antibiótico, no puedes registrarlo aquí');
+  if(medicamento.tipo == 'ANTIBIOTICO'){
+    throw new BadRequestException('No se pueden registrar antibióticos en administraciones regulares');
   }
 
   const unidad = await this.unidadMedidaRepository.findOne({
@@ -870,12 +847,6 @@ export class ResidentesService {
       throw new NotFoundException('Medicamento no encontrado');
     }
 
-    const tipoNombre = medicamento.tipo.nombre;
-    const tipoFormateado = tipoNombre.charAt(0).toLowerCase() + tipoNombre.slice(1);
-    if(tipoFormateado == 'normal'){
-      throw new BadRequestException('El medicamento es un normal no puedes registralo aca')
-    }
-
     const unidad = await this.unidadMedidaRepository.findOne({
       where: { id_unidad: createAdministracionEspecialo.id_unidadMedida }
     });
@@ -893,6 +864,29 @@ export class ResidentesService {
    });
 
    return this.administracionEspecialRepository.save(administracion);
+
+  }
+
+  async getTipos_Medicamentos(){
+    return TipoMedicamentoOpts.map(opt => ({
+      id: opt.id,
+      nombre: opt.nombre
+    }));
+  }
+
+  async getMedicamentosPorTipo(id_tipoMedicamento: number){
+
+    const tipo = getTiposMedicamentos(id_tipoMedicamento);
+
+    if(!tipo){
+      throw new NotFoundException('Tipo de medicamento no encontrado');
+    }
+
+    const medicamentos = await this.medicamentoRepository.find({
+      where: {tipo}
+    });
+
+    return medicamentos;
 
   }
 
