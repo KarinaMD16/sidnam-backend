@@ -2,17 +2,11 @@ import { Expose, Type } from "class-transformer";
 import { MostrarAdministracionMedicamentoDto } from "./MostrarAdministracionMedicamentoDto";
 
 
-
-export class MostrarAdministracionesDto{
-
+export class MostrarAdministracionMedicamentosDto{
     @Expose()
-    id_administracion: number;
-
-    @Expose()
-    turno: string
+    cantidad: number;
 
     @Expose()
     @Type(() => MostrarAdministracionMedicamentoDto)
-    medicamentos: MostrarAdministracionMedicamentoDto;
-
+    medicamento: MostrarAdministracionMedicamentoDto;
 }

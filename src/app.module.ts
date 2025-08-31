@@ -41,14 +41,20 @@ import { Salida } from './modulos/inventarios/entities/salida.entity';
 import { Patologias } from './modulos/residentes/entities/patologias.entity';
 import { Administraciones } from './modulos/residentes/entities/administraciones.entity';
 import { Medicamentos } from './modulos/residentes/entities/medicamento.entity';
-import { Tipo_medicamento } from './modulos/residentes/entities/tipo_medicamento.entity';
 import { AdministracionesEspeciales } from './modulos/residentes/entities/administracionEspecial.entity';
 import { NotaEnfermeria } from './modulos/residentes/entities/NotaEnfermeria.entity';
 import { Curaciones } from './modulos/residentes/entities/curaciones.entity';
 import { Consulta_Ebais } from './modulos/residentes/entities/consultaEbais.entity';
 import { Consulta_Especialista } from './modulos/residentes/entities/consultaEspecialista.entity';
 import { Tipo_Consulta } from './modulos/residentes/entities/tipoConsulta.entity';
-import { Unidad_Medida } from './modulos/residentes/entities/unidadMedida.entity';
+import { Unidad_Medida } from './modulos/unidades-medida/entities/unidadMedida.entity';
+import { UnidadesMedidaModule } from './modulos/unidades-medida/unidades-medida.module';
+import { AdministracionMedicamento } from './modulos/residentes/entities/administracioneMedicamento';
+import { Libro_Campo } from './modulos/residentes/entities/libroCampo.entity';
+import { HistorialPatologias } from './modulos/residentes/entities/historiaoPatologias.entity';
+import { HistorialCuraciones } from './modulos/residentes/entities/historialCuraciones.entity';
+
+
 
 
 dotenv.config();
@@ -95,14 +101,17 @@ dotenv.config();
         Patologias,
         Administraciones,
         Medicamentos,
-        Tipo_medicamento,
         AdministracionesEspeciales,
         NotaEnfermeria,
         Curaciones,
         Consulta_Ebais,
         Consulta_Especialista,
         Tipo_Consulta,
-        Unidad_Medida
+        Unidad_Medida,
+        AdministracionMedicamento,
+        Libro_Campo,
+        HistorialPatologias,
+        HistorialCuraciones,
       ],
       synchronize: true,
       dropSchema: false,
@@ -114,6 +123,7 @@ dotenv.config();
     SolicitudDonacionModule,
     ResidentesModule,
     InventarioModule,
+    UnidadesMedidaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

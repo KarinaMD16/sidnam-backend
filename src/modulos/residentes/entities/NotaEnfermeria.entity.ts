@@ -18,6 +18,7 @@ export class NotaEnfermeria {
 
   @ManyToOne(() => NotaEnfermeria, nota => nota.segmentosHijos, { nullable: true })
   notaPadre: NotaEnfermeria; 
+  
   @OneToMany(() => NotaEnfermeria, nota => nota.notaPadre)
   segmentosHijos: NotaEnfermeria[]; 
 

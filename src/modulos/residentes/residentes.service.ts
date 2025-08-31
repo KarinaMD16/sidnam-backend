@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Residente } from './entities/residente.entity';
-import { In, IsNull, Not, Repository } from 'typeorm';
+import { ILike, In, IsNull, Not, Repository } from 'typeorm';
 import { Expediente_Residente } from './entities/expedientes.entity';
 import { Encargado } from './entities/encargado.entity';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
@@ -14,8 +14,6 @@ import { GetExpedienteResidenteDto } from './dto/getExpedienteDto';
 import { ActualizarExpediente } from './dto/actualizarExpediente';
 import { CreatePatologiaDto } from './dto/createPatologia.Dto';
 import { Patologias } from './entities/patologias.entity';
-import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
-import { Tipo_medicamento } from './entities/tipo_medicamento.entity';
 import { Medicamentos } from './entities/medicamento.entity';
 import { Turno, TurnoOpts } from 'src/common/enums/turno.enum';
 import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
@@ -33,13 +31,23 @@ import { Bitacoras, BitacorasOpts } from 'src/common/enums/bitacaras.enum';
 import { MostrarConsultaEspecialistaDto } from './dto/mostrarConsultaEspecialistaDto';
 import { MostrarCuracionDto } from './dto/mostrarCuracionDto';
 import { MostrarConsultaEbais } from './dto/mostrarConsultasEbaisDto';
-import { Unidad_Medida } from './entities/unidadMedida.entity';
+import { Unidad_Medida } from '../unidades-medida/entities/unidadMedida.entity';
 import { CreateUnidadMedidaDto } from './dto/createUnidadMedidaDto';
 import { CreateAdministracionDto } from './dto/registrarMedicamentoDto';
 import { Administraciones } from './entities/administraciones.entity';
 import { CreateMedicamentoDto } from './dto/createMedicamentoDto';
 import { CreateAdministracionEspecialDto } from './dto/createAdministracionEspecialDto';
 import { AdministracionesEspeciales } from './entities/administracionEspecial.entity';
+import { AdministracionMedicamento } from './entities/administracioneMedicamento';
+import { getTiposMedicamentos, TipoMedicamentoOpts } from 'src/common/enums/tipoMedicamento.enum';
+import { Libro_Campo } from './entities/libroCampo.entity';
+import { EstadoExpediente, EstadoExpedienteOptions, getEstadoExpedientesById } from 'src/common/enums/estadosExpedientes.enum';
+import e from 'express';
+import { AtualizarLibroCampoDto } from './dto/actualizarLibroCampoDto';
+import { GestionUsuarioService } from '../gestion-usuario/gestion-usuario.service';
+import { HistorialPatologias } from './entities/historiaoPatologias.entity';
+import { HistorialCuraciones } from './entities/historialCuraciones.entity';
+
 
 
 @Injectable()
@@ -58,9 +66,6 @@ export class ResidentesService {
         
         @InjectRepository(Patologias)
         private readonly patologiasRepository: Repository<Patologias>,
-
-        @InjectRepository(Tipo_medicamento)
-        private readonly tipoMedicamentoRepository: Repository<Tipo_medicamento>,
 
         @InjectRepository(Medicamentos)
         private readonly medicamentoRepository: Repository<Medicamentos>,
@@ -87,7 +92,21 @@ export class ResidentesService {
         private readonly administracionRepository: Repository<Administraciones>,
 
         @InjectRepository(AdministracionesEspeciales)
-        private readonly administracionEspecialRepository: Repository<AdministracionesEspeciales>
+        private readonly administracionEspecialRepository: Repository<AdministracionesEspeciales>,
+
+        @InjectRepository(AdministracionMedicamento)
+        private readonly administracionMedicamentoRepository: Repository<AdministracionMedicamento>,
+
+        @InjectRepository(Libro_Campo)
+        private readonly libroCampoRepository: Repository<Libro_Campo>,
+
+        @InjectRepository(HistorialPatologias)
+        private readonly historialPatologiasRepository: Repository<HistorialPatologias>,
+
+        @InjectRepository(HistorialCuraciones)
+        private readonly historialCuracionesRepository: Repository<HistorialCuraciones>,
+
+        private readonly usuariosGestion: GestionUsuarioService
     ){}
 
      private MAX_SEGMENT_LENGTH = 1000;
@@ -421,8 +440,9 @@ export class ResidentesService {
     });
 
     await this.patologiasRepository.save(patologia);
-    return "Patología creada correctamente";
+
   }
+
 
   async getPatologias() {
     const patologias = await this.patologiasRepository.find();
@@ -459,6 +479,13 @@ export class ResidentesService {
     expediente.patologias.push(patologia);
     await this.expedienteResidenteRepository.save(expediente);
 
+    const historial = this.historialPatologiasRepository.create({
+      residente: { id_expediente: expediente.id_expediente },
+      patologia: { id_patologia: patologia.id_patologia },
+      estado: 'activo'
+    });
+    await this.historialPatologiasRepository.save(historial);
+
     return "Patología agregada al expediente correctamente";
   }
 
@@ -488,35 +515,24 @@ export class ResidentesService {
     return expediente.patologias;
   }
 
-  async crearTipoMedicamento(createTipoMedicamento: Tipo_MedicamentoDto){
-    const nuevoTipoMedicamento = this.tipoMedicamentoRepository.create(createTipoMedicamento);
-    await this.tipoMedicamentoRepository.save(nuevoTipoMedicamento);
-    return "Tipo de medicamento creado correctamente";
-  }
-
-  async getTiposMedicamento(){
-    return this.tipoMedicamentoRepository.find();
-  }
 
   async asociarMedicamentoATipoMedicamento(idTipoMedicamento: number, createMedicamento: CreateMedicamentoDto){
 
-    const tipoMedicamento = await this.tipoMedicamentoRepository.findOne({ where: {id_tipo_medicamento: idTipoMedicamento } });
-
+    const tipoMedicamento = getTiposMedicamentos(idTipoMedicamento);
 
     if (!tipoMedicamento) {
       throw new NotFoundException('Tipo de medicamento no encontrado');
     }
 
-
     const nombreMinuscula = createMedicamento.nombre.toLowerCase();
 
     const medicamentoExistente = await this.medicamentoRepository.findOne({
-        where: { 
-            nombre: nombreMinuscula, 
-            tipo: { id_tipo_medicamento: idTipoMedicamento } 
-        },
-        relations: ['tipo'] 
+      where: { 
+        tipo: tipoMedicamento,             
+        nombre: ILike(createMedicamento.nombre.trim()), 
+      },
     });
+
 
     if (medicamentoExistente) {
         throw new BadRequestException('El medicamento ya existe para este tipo');
@@ -530,9 +546,7 @@ export class ResidentesService {
   }
 
   async getMedicamentos(){
-    return this.medicamentoRepository.find({
-      relations: ['tipo']
-    });
+    return this.medicamentoRepository.find({});
   }
 
   getTurnos() {
@@ -541,6 +555,7 @@ export class ResidentesService {
       nombre: opt.nombre, 
     }));
   }
+
 
   async crearNotaEnfermeria(expedienteId: number, textoCompleto: string, titulo?: string): Promise<NotaEnfermeria> {
     const expediente = await this.expedienteResidenteRepository.findOne({
@@ -620,18 +635,148 @@ export class ResidentesService {
       return resultado;
   }
 
-  async getExpedienteEnfermeria(idExpediente: number) {
-
-    const expedienteEnfermeria = await this.expedienteResidenteRepository.findOne({
-        where: { id_expediente: idExpediente },
-        relations: ['residente', 'patologias', 'administraciones', 'administraciones.medicamento', 'administraciones.unidad', 'administracionesEspeciales', "administracionesEspeciales.medicamento", "administracionesEspeciales.unidad"],
+    async crearNotaLibroCampo(expedienteId: number, descripcionCompleta: string, problematica?: string, fecha_actividad?: string, acuerdo_alcanzado?: string): Promise<Libro_Campo> {
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: { id_expediente: expedienteId },
     });
 
-    if(!expedienteEnfermeria){
+    if (!expediente) {
       throw new NotFoundException('Expediente no encontrado');
     }
 
-    const dtos = plainToInstance(ExpedienteEnfermeriaDto, expedienteEnfermeria, { excludeExtraneousValues: true });
+    let notaPadre: Libro_Campo | undefined = undefined;
+    let primeraNota: Libro_Campo | undefined = undefined;
+
+    for (let i = 0; i < descripcionCompleta.length; i += this.MAX_SEGMENT_LENGTH) {
+      const fragmento = descripcionCompleta.substring(i, i + this.MAX_SEGMENT_LENGTH);
+
+      const nota = this.libroCampoRepository.create({
+        expediente,
+        problematica_abordada: problematica,
+        fecha_actividad: fecha_actividad ? new Date(fecha_actividad) : undefined,
+        acuerdo_alcanzado: acuerdo_alcanzado,
+        descripcion: fragmento,
+        notaPadre,
+      });
+
+      await this.libroCampoRepository.save(nota);
+
+      if (!notaPadre) {
+        notaPadre = nota;
+        primeraNota = nota;
+      }
+    }
+
+    if (!primeraNota) {
+      throw new BadRequestException('No se pudo crear la nota en el libro de campo');
+    }
+
+    return primeraNota;
+  }
+
+  async obtenerNotaLibroCompleta(idNotaPadre: number): Promise<{ id: number; descripcion: string; problematica?: string; acuerdoAlcanzado?: string; fechaActividad?: string; fecha: string }> {
+    const notas = await this.libroCampoRepository.find({
+      where: [
+        { id_libro_campo: idNotaPadre }, 
+        { notaPadre: { id_libro_campo: idNotaPadre } }
+      ],
+      order: { id_libro_campo: 'ASC' },
+    });
+
+    if (!notas || notas.length === 0) {
+      throw new NotFoundException('Nota del libro de campo no encontrada');
+    }
+
+    const notaPadre = notas[0];
+    const descripcionCompleta = notas.map(n => n.descripcion).join('');
+
+    return {
+      id: idNotaPadre,
+      descripcion: descripcionCompleta, 
+      problematica: notaPadre.problematica_abordada,
+      acuerdoAlcanzado: notaPadre.acuerdo_alcanzado,
+      fechaActividad: notaPadre.fecha_actividad?.toISOString(),
+      fecha: notaPadre.fecha.toISOString(),
+    };
+  }
+
+
+  async obtenerNotasLibroPorExpediente(expedienteId: number): Promise<{ id: number; descripcion: string; problematica?: string; acuerdoAlcanzado?: string; fechaActividad?: string; fecha: string }[]> {
+    const notasPadre = await this.libroCampoRepository.find({
+      where: {
+        expediente: { id_expediente: expedienteId },
+        notaPadre: IsNull(),
+      },
+      order: { fecha: 'ASC' },
+    });
+
+    const resultado: {id: number; descripcion: string; problematica?: string; acuerdoAlcanzado?: string; fechaActividad?: string; fecha: string;}[] = [];
+
+    for (const notaPadre of notasPadre) {
+      const notaCompleta = await this.obtenerNotaLibroCompleta(notaPadre.id_libro_campo);
+
+      const fechaCreacion = new Date(notaCompleta.fecha).toLocaleDateString('es-CR'); 
+      const fechaActividad = notaCompleta.fechaActividad
+        ? new Date(notaCompleta.fechaActividad).toLocaleDateString('es-CR')
+        : undefined;
+
+      resultado.push({
+        ...notaCompleta,
+        fecha: fechaCreacion,
+        fechaActividad,
+      });
+    }
+
+    return resultado;
+  }
+
+   async getExpedienteEnfermeria(idExpediente: number) {
+
+    const expedienteEnfermeria = await this.expedienteResidenteRepository.findOne({
+      where: { id_expediente: idExpediente },
+      relations: [
+        'residente',
+        'patologias',
+        'administraciones',
+        'administracionesEspeciales',
+        'administracionesEspeciales.medicamento',
+        'administracionesEspeciales.unidad',
+      ],
+    });
+
+    if (!expedienteEnfermeria) {
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    const administracionesRaw = await this.administracionRepository.find({
+      where: { expediente: { id_expediente: idExpediente } },
+      relations: ['administracionMedicamentos', 'administracionMedicamentos.medicamento', 'administracionMedicamentos.unidad'],
+    });
+
+    const ordenTurnos = ['AM', 'MD', 'PM', 'MN'];
+
+    const administracionesPorTurno = administracionesRaw
+      .map(admin => ({
+        id_administracion: admin.id_administracion,
+        turno: admin.turno,
+        medicamentos: admin.administracionMedicamentos.map(am => ({
+          id_medicamento: am.medicamento.id_medicamento,
+          nombre: am.medicamento.nombre,
+          cantidad: am.cantidad,
+          unidad: am.unidad ? { nombre: am.unidad.nombre, abreviatura: am.unidad.abreviatura } : null,
+        })),
+      }))
+      .sort((a, b) => ordenTurnos.indexOf(a.turno) - ordenTurnos.indexOf(b.turno));
+
+
+    const dtos = plainToInstance(
+      ExpedienteEnfermeriaDto,
+      {
+        ...expedienteEnfermeria,
+        administraciones: administracionesPorTurno,
+      },
+      { excludeExtraneousValues: true },
+    );
 
     return dtos;
   }
@@ -651,7 +796,18 @@ export class ResidentesService {
       expediente
     });
 
+    const historial = this.historialCuracionesRepository.create({
+      residente: { id_expediente: expediente.id_expediente },
+      titulo: createCuracionDto.titulo,
+      descripcion: createCuracionDto.descripcion,
+      fecha_curacion: createCuracionDto.fecha_curacion
+    });
+
+    await this.historialCuracionesRepository.save(historial);
+
     return this.curacionesRepository.save(curacion);
+
+    
   }
 
   async createConsultaEbais(createConsulta: createConsultaEbaisDto, id: number): Promise<Consulta_Ebais> {
@@ -757,54 +913,70 @@ export class ResidentesService {
     return this.unidadMedidaRepository.save(unidadMedida);
   }
 
-  async getUnidadesMedida(){
-    return this.unidadMedidaRepository.find();
+  async agregarMedicamentoExpediente(idExpediente: number, agregarRegistro: CreateAdministracionDto) {
+  const expediente = await this.expedienteResidenteRepository.findOne({
+    where: { id_expediente: idExpediente }
+  });
+
+  if (!expediente) {
+    throw new NotFoundException('Expediente no encontrado');
   }
 
-  async agregarMedicamentoExpediente(idExpediente: number, agregarRegistro: CreateAdministracionDto){
-    const expediente = await this.expedienteResidenteRepository.findOne({
-      where: { id_expediente: idExpediente }
-    })
+  const medicamento = await this.medicamentoRepository.findOne({
+    where: { id_medicamento: agregarRegistro.id_medicamento },
+  });
 
-    if(!expediente){
-      throw new NotFoundException('Expediente no encontrado');
-    }
+  if (!medicamento) {
+    throw new NotFoundException('Medicamento no encontrado');
+  }
 
-    const medicamento = await this.medicamentoRepository.findOne({
-      where: { id_medicamento: agregarRegistro.id_medicamento },
-      relations: ['tipo']
-    })
+  if(medicamento.tipo == 'ANTIBIOTICO'){
+    throw new BadRequestException('No se pueden registrar antibióticos en administraciones regulares');
+  }
 
-    if(!medicamento){
-      throw new NotFoundException('Medicamento no encontrado');
-    }
+  const unidad = await this.unidadMedidaRepository.findOne({
+    where: { id_unidad: agregarRegistro.id_unidadMedida }
+  });
 
-    const tipoNombre = medicamento.tipo.nombre;
-    const tipoFormateado = tipoNombre.charAt(0).toLowerCase() + tipoNombre.slice(1);
-    if(tipoFormateado == 'antibiotico'){
-      throw new BadRequestException('El medicamento es un antibiotico no puedes registralo aca')
-    }
-
-    const unidad = await this.unidadMedidaRepository.findOne({
-      where: { id_unidad: agregarRegistro.id_unidadMedida }
-    });
-
-    if(!unidad){
-      throw new NotFoundException('Unidad de medida no encontrada');
-    }
+  if (!unidad) {
+    throw new NotFoundException('Unidad de medida no encontrada');
+  }
 
 
-    const administracion = this.administracionRepository.create({
+  let administracion = await this.administracionRepository.findOne({
+    where: { expediente: { id_expediente: idExpediente }, turno: agregarRegistro.turno }
+  });
+
+  if (!administracion) {
+    administracion = this.administracionRepository.create({
       turno: agregarRegistro.turno,
-      cantidad: agregarRegistro.cantidad,
-      unidad,
-      expediente,
-      medicamento: medicamento,
+      expediente
     });
-
-    return this.administracionRepository.save(administracion);
-
+    administracion = await this.administracionRepository.save(administracion);
   }
+
+  const administracionRepetida = await this.administracionMedicamentoRepository.findOne({
+    where: {
+      administracion: {id_administracion: administracion.id_administracion},
+      medicamento: {id_medicamento: agregarRegistro.id_medicamento}
+    },
+    relations: ['medicamento']
+  })
+
+  if(administracionRepetida){
+    throw new BadRequestException('Medicamento repetido')
+  }
+
+  const adminMed = this.administracionMedicamentoRepository.create({
+    administracion,
+    medicamento,
+    cantidad: agregarRegistro.cantidad,
+    unidad
+  });
+
+  return this.administracionMedicamentoRepository.save(adminMed);
+}
+
 
   async agregarTratamientosEspeciales(idExpediente: number, createAdministracionEspecialo: CreateAdministracionEspecialDto){
 
@@ -818,17 +990,11 @@ export class ResidentesService {
 
     const medicamento = await this.medicamentoRepository.findOne({
       where: { id_medicamento: createAdministracionEspecialo.id_medicamento },
-      relations: ['tipo']
+
     })
 
     if(!medicamento){
       throw new NotFoundException('Medicamento no encontrado');
-    }
-
-    const tipoNombre = medicamento.tipo.nombre;
-    const tipoFormateado = tipoNombre.charAt(0).toLowerCase() + tipoNombre.slice(1);
-    if(tipoFormateado == 'normal'){
-      throw new BadRequestException('El medicamento es un normal no puedes registralo aca')
     }
 
     const unidad = await this.unidadMedidaRepository.findOne({
@@ -849,6 +1015,251 @@ export class ResidentesService {
 
    return this.administracionEspecialRepository.save(administracion);
 
+  }
+
+  async getTipos_Medicamentos(){
+    return TipoMedicamentoOpts.map(opt => ({
+      id: opt.id,
+      nombre: opt.nombre
+    }));
+  }
+
+  async getMedicamentosPorTipo(id_tipoMedicamento: number){
+
+    const tipo = getTiposMedicamentos(id_tipoMedicamento);
+
+    if(!tipo){
+      throw new NotFoundException('Tipo de medicamento no encontrado');
+    }
+
+    const medicamentos = await this.medicamentoRepository.find({
+      where: {tipo}
+    });
+
+    return medicamentos;
+
+  }
+
+  async getEstados() {
+    return EstadoExpedienteOptions.map(opt => ({
+      id: opt.id,
+      nombre: opt.nombre
+    }));
+  }
+
+  async cambiarEstado(estado: number, id_expediente: number, idUsuairo: number): Promise<{message: string}>{
+
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: { id_expediente: id_expediente }
+    });
+
+    if(!expediente){
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    const estadoExpedientes = getEstadoExpedientesById(estado);
+
+    if(estadoExpedientes == 'Activo' && expediente.estado == 'Activo') {
+      throw new BadRequestException('No se puede cambiar a Activo ya que se encuentra activo');
+    }
+
+    if(estadoExpedientes == 'Inactivo' && expediente.estado == 'Inactivo') {
+      throw new BadRequestException('No se puede cambiar a Inactivo ya que se encuentra inactivo');
+    }
+
+    if(!estadoExpedientes){
+      throw new NotFoundException('Estado de expediente no encontrado');
+    }
+
+    if(estadoExpedientes == 'Inactivo'){
+      const usuario = await this.usuariosGestion.findOneById(idUsuairo);
+      expediente.usuario_cierre = usuario.name;
+      expediente.estado = estadoExpedientes;
+      expediente.fecha_cierre = new Date();
+      
+    }
+
+    if(estadoExpedientes == 'Activo'){
+      expediente.estado = estadoExpedientes;
+      expediente.fecha_ingreso = new Date();
+    }
+    await this.expedienteResidenteRepository.save(expediente);
+
+    return {message: 'Expediente actualizado'}
+  }
+
+  async updateNotasLibro(
+  idNotaPadre: number,
+  actualizarLibroCampo: Partial<AtualizarLibroCampoDto>
+  ): Promise<{ message: string }> {
+
+    const notas = await this.libroCampoRepository.find({
+      where: [
+        { id_libro_campo: idNotaPadre },
+        { notaPadre: { id_libro_campo: idNotaPadre } }
+      ],
+      order: { id_libro_campo: 'ASC' },
+      relations: ['expediente'] 
+    });
+
+    if (!notas || notas.length === 0) {
+      throw new NotFoundException('Nota del libro de campo no encontrada');
+    }
+
+    const notaPadre = notas[0];
+
+    if (!notaPadre.expediente) {
+      throw new Error('La nota padre no tiene expediente asignado');
+    }
+
+    const textoCompleto = actualizarLibroCampo.descripcionCompleta ?? notaPadre.descripcion;
+
+
+    const fragmentos: string[] = [];
+    for (let i = 0; i < textoCompleto.length; i += this.MAX_SEGMENT_LENGTH) {
+      fragmentos.push(textoCompleto.substring(i, i + this.MAX_SEGMENT_LENGTH));
+    }
+
+    notaPadre.descripcion = fragmentos[0];
+    notaPadre.problematica_abordada = actualizarLibroCampo.problematica ?? notaPadre.problematica_abordada;
+    notaPadre.acuerdo_alcanzado = actualizarLibroCampo.acuerdo_alcanzado ?? notaPadre.acuerdo_alcanzado;
+    notaPadre.fecha_actividad = actualizarLibroCampo.fecha_actividad
+      ? new Date(actualizarLibroCampo.fecha_actividad)
+      : notaPadre.fecha_actividad;
+
+    await this.libroCampoRepository.save(notaPadre);
+
+    for (let i = 1; i < fragmentos.length; i++) {
+      if (i < notas.length) {
+        notas[i].descripcion = fragmentos[i];
+        notas[i].fecha_actividad = notaPadre.fecha_actividad;
+        notas[i].problematica_abordada = notaPadre.problematica_abordada;
+        notas[i].acuerdo_alcanzado = notaPadre.acuerdo_alcanzado;
+        notas[i].expediente = notaPadre.expediente;
+        await this.libroCampoRepository.save(notas[i]);
+      } else {
+        const nuevoHijo = this.libroCampoRepository.create({
+          descripcion: fragmentos[i],
+          notaPadre: notaPadre,
+          expediente: notaPadre.expediente,
+          fecha_actividad: notaPadre.fecha_actividad,
+          problematica_abordada: notaPadre.problematica_abordada,
+          acuerdo_alcanzado: notaPadre.acuerdo_alcanzado,
+        });
+        await this.libroCampoRepository.save(nuevoHijo);
+      }
+    }
+
+    for (let i = fragmentos.length; i < notas.length; i++) {
+      await this.libroCampoRepository.remove(notas[i]);
+    }
+
+    return { message: 'Nota actualizada correctamente' };
+  }
+
+
+  async buscarResidentesPorNombre(filtro: string) {
+    const filtroNormalizado = filtro.toLowerCase().replace(/\s+/g, '');
+
+    const expedientes = await this.residenteRepository
+      .createQueryBuilder('residente')
+      .leftJoinAndSelect('residente.expediente', 'expediente') 
+      .where(`
+        REPLACE(
+          LOWER(
+            CONCAT(
+              COALESCE(residente.nombre, ''), 
+              COALESCE(residente.apellido1, ''), 
+              COALESCE(residente.apellido2, '')
+            )
+          ), ' ', ''
+        ) LIKE :filtro
+      `, { filtro: `%${filtroNormalizado}%` })
+      .getMany();
+
+    const resultadosTransformados = expedientes.map(exp => {
+      const expedienteObj = {
+        id_expediente: exp.expediente?.id_expediente,
+        tipo_pension: exp.expediente?.tipo_pension,
+        fecha_ingreso: exp.expediente?.fecha_ingreso,
+        estado: exp.expediente?.estado,
+        residente: exp, 
+      };
+      return plainToInstance(ExpedienteResidentePreviewDto, expedienteObj, { excludeExtraneousValues: true });
+    });
+
+    return resultadosTransformados;
+  }
+
+
+  async getExpedientePorEstado(
+  estadoExpedientes: number,
+  page: number = 1,
+  limit: number = 10,
+  ): Promise<{ data: ExpedienteResidentePreviewDto[]; total: number }> {
+
+    const estado = getEstadoExpedientesById(estadoExpedientes);
+
+    if (!estado) {
+      throw new NotFoundException('Estado no encontrado');
+    }
+
+    const [expedientes, total] = await this.expedienteResidenteRepository
+      .createQueryBuilder('expediente')
+      .leftJoinAndSelect('expediente.residente', 'residente')
+      .where('expediente.estado = :estado', { estado })
+      .orderBy('expediente.id_expediente', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    if (total === 0) {
+      throw new NotFoundException('No se encontraron expedientes para este estado');
+    }
+
+    const dtos = plainToInstance(ExpedienteResidentePreviewDto, expedientes, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      data: dtos,
+      total,
+    };
+  }
+
+  async eliminarMedicamentoDeAdministracion(idAdministracion: number, idMedicamento: number) {
+    const registro = await this.administracionMedicamentoRepository.findOne({
+      where: {
+        administracion: { id_administracion: idAdministracion },
+        medicamento: { id_medicamento: idMedicamento }
+      },
+      relations: ['administracion', 'medicamento']
+    });
+
+    if (!registro) {
+      throw new NotFoundException('Medicamento no encontrado en esta administración');
+    }
+
+    await this.administracionMedicamentoRepository.remove(registro);
+
+    return { message: 'Medicamento eliminado correctamente' };
+  }
+
+  async eliminarAntibioticoDeAdministracion(idAdministracion: number){
+
+    const administracion = await this.administracionEspecialRepository.findOne({
+      where: {
+        id_administracion_especial: idAdministracion
+      },
+    })
+
+    if(!administracion){
+      throw new NotFoundException('Administracion no encontrada')
+    }
+
+    await this.administracionEspecialRepository.remove(administracion)
+
+    return { message: 'Medicamento eliminado correctamente' };
   }
 
 }
