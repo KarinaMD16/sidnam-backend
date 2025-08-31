@@ -939,7 +939,7 @@ export class ResidentesService {
 
     const medicamento = await this.medicamentoRepository.findOne({
       where: { id_medicamento: createAdministracionEspecialo.id_medicamento },
-      relations: ['tipo']
+
     })
 
     if(!medicamento){
