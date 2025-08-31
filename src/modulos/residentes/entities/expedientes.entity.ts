@@ -8,6 +8,7 @@ import { NotaEnfermeria } from './NotaEnfermeria.entity';
 import { Curaciones } from './curaciones.entity';
 import { Consulta_Ebais } from './consultaEbais.entity';
 import { Consulta_Especialista } from './consultaEspecialista.entity';
+import { Libro_Campo } from './libroCampo.entity';
 
 @Entity()
 export class Expediente_Residente {
@@ -55,5 +56,8 @@ export class Expediente_Residente {
 
   @OneToMany(() => Consulta_Especialista, consulta => consulta.expediente)
   consultasEspecialistas: Consulta_Especialista[];
+
+  @OneToMany(() => Libro_Campo, libro => libro.expediente)
+  librosCampo: Libro_Campo[];
 
 }

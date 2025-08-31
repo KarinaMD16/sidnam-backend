@@ -16,6 +16,7 @@ import { Consulta_Especialista } from './entities/consultaEspecialista.entity';
 import { Tipo_Consulta } from './entities/tipoConsulta.entity';
 import { Unidad_Medida } from '../unidades-medida/entities/unidadMedida.entity';
 import { AdministracionMedicamento } from './entities/administracioneMedicamento';
+import { Libro_Campo } from './entities/libroCampo.entity';
 
 
 
@@ -34,7 +35,8 @@ import { AdministracionMedicamento } from './entities/administracioneMedicamento
     Consulta_Especialista,
     Tipo_Consulta,
     Unidad_Medida,
-    AdministracionMedicamento
+    AdministracionMedicamento,
+    Libro_Campo
 
   ])],
   providers: [ResidentesService],

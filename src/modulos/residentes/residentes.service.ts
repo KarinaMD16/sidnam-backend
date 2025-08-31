@@ -40,6 +40,7 @@ import { CreateAdministracionEspecialDto } from './dto/createAdministracionEspec
 import { AdministracionesEspeciales } from './entities/administracionEspecial.entity';
 import { AdministracionMedicamento } from './entities/administracioneMedicamento';
 import { getTiposMedicamentos, TipoMedicamentoOpts } from 'src/common/enums/tipoMedicamento.enum';
+import { Libro_Campo } from './entities/libroCampo.entity';
 
 
 
@@ -88,7 +89,10 @@ export class ResidentesService {
         private readonly administracionEspecialRepository: Repository<AdministracionesEspeciales>,
 
         @InjectRepository(AdministracionMedicamento)
-        private readonly administracionMedicamentoRepository: Repository<AdministracionMedicamento>
+        private readonly administracionMedicamentoRepository: Repository<AdministracionMedicamento>,
+
+        @InjectRepository(Libro_Campo)
+        private readonly libroCampoRepository: Repository<Libro_Campo>
     ){}
 
      private MAX_SEGMENT_LENGTH = 1000;
@@ -607,6 +611,101 @@ export class ResidentesService {
       }
 
       return resultado;
+  }
+
+    async crearNotaLibroCampo(expedienteId: number, descripcionCompleta: string, problematica?: string, fecha_actividad?: string, acuerdo_alcanzado?: string): Promise<Libro_Campo> {
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: { id_expediente: expedienteId },
+    });
+
+    if (!expediente) {
+      throw new NotFoundException('Expediente no encontrado');
+    }
+
+    let notaPadre: Libro_Campo | undefined = undefined;
+    let primeraNota: Libro_Campo | undefined = undefined;
+
+    for (let i = 0; i < descripcionCompleta.length; i += this.MAX_SEGMENT_LENGTH) {
+      const fragmento = descripcionCompleta.substring(i, i + this.MAX_SEGMENT_LENGTH);
+
+      const nota = this.libroCampoRepository.create({
+        expediente,
+        problematica_abordada: problematica,
+        fecha_actividad: fecha_actividad ? new Date(fecha_actividad) : undefined,
+        acuerdo_alcanzado: acuerdo_alcanzado,
+        descripcion: fragmento,
+        notaPadre,
+      });
+
+      await this.libroCampoRepository.save(nota);
+
+      if (!notaPadre) {
+        notaPadre = nota;
+        primeraNota = nota;
+      }
+    }
+
+    if (!primeraNota) {
+      throw new BadRequestException('No se pudo crear la nota en el libro de campo');
+    }
+
+    return primeraNota;
+  }
+
+  async obtenerNotaLibroCompleta(idNotaPadre: number): Promise<{ id: number; descripcion: string; problematica?: string; acuerdoAlcanzado?: string; fechaActividad?: string; fecha: string }> {
+    const notas = await this.libroCampoRepository.find({
+      where: [
+        { id_libro_campo: idNotaPadre }, 
+        { notaPadre: { id_libro_campo: idNotaPadre } }
+      ],
+      order: { id_libro_campo: 'ASC' },
+    });
+
+    if (!notas || notas.length === 0) {
+      throw new NotFoundException('Nota del libro de campo no encontrada');
+    }
+
+    const notaPadre = notas[0];
+    const descripcionCompleta = notas.map(n => n.descripcion).join('');
+
+    return {
+      id: idNotaPadre,
+      descripcion: descripcionCompleta, 
+      problematica: notaPadre.problematica_abordada,
+      acuerdoAlcanzado: notaPadre.acuerdo_alcanzado,
+      fechaActividad: notaPadre.fecha_actividad?.toISOString(),
+      fecha: notaPadre.fecha.toISOString(),
+    };
+  }
+
+
+  async obtenerNotasLibroPorExpediente(expedienteId: number): Promise<{ id: number; descripcion: string; problematica?: string; acuerdoAlcanzado?: string; fechaActividad?: string; fecha: string }[]> {
+    const notasPadre = await this.libroCampoRepository.find({
+      where: {
+        expediente: { id_expediente: expedienteId },
+        notaPadre: IsNull(),
+      },
+      order: { fecha: 'ASC' },
+    });
+
+    const resultado: {id: number; descripcion: string; problematica?: string; acuerdoAlcanzado?: string; fechaActividad?: string; fecha: string;}[] = [];
+
+    for (const notaPadre of notasPadre) {
+      const notaCompleta = await this.obtenerNotaLibroCompleta(notaPadre.id_libro_campo);
+
+      const fechaCreacion = new Date(notaCompleta.fecha).toLocaleDateString('es-CR'); 
+      const fechaActividad = notaCompleta.fechaActividad
+        ? new Date(notaCompleta.fechaActividad).toLocaleDateString('es-CR')
+        : undefined;
+
+      resultado.push({
+        ...notaCompleta,
+        fecha: fechaCreacion,
+        fechaActividad,
+      });
+    }
+
+    return resultado;
   }
 
    async getExpedienteEnfermeria(idExpediente: number) {
