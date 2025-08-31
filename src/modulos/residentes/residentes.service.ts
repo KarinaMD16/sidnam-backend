@@ -1152,22 +1152,41 @@ export class ResidentesService {
   }
 
 
-  async getExpedientePorEstado(estadoExpedientes: number){
+  async getExpedientePorEstado(
+  estadoExpedientes: number,
+  page: number = 1,
+  limit: number = 10,
+  ): Promise<{ data: ExpedienteResidentePreviewDto[]; total: number }> {
 
-    const estado = getEstadoExpedientesById(estadoExpedientes)
+    const estado = getEstadoExpedientesById(estadoExpedientes);
 
-    if(!estado){
-      throw new NotFoundException('Estado no encontrado')
+    if (!estado) {
+      throw new NotFoundException('Estado no encontrado');
     }
 
-    const expedientes = await this.expedienteResidenteRepository.find({
-      where: {estado},
-      relations: ['residente']
-    })
+    const [expedientes, total] = await this.expedienteResidenteRepository
+      .createQueryBuilder('expediente')
+      .leftJoinAndSelect('expediente.residente', 'residente')
+      .where('expediente.estado = :estado', { estado })
+      .orderBy('expediente.id_expediente', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
 
-    return plainToInstance(ExpedienteResidentePreviewDto, expedientes, { excludeExtraneousValues: true });
-    
+    if (total === 0) {
+      throw new NotFoundException('No se encontraron expedientes para este estado');
+    }
+
+    const dtos = plainToInstance(ExpedienteResidentePreviewDto, expedientes, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      data: dtos,
+      total,
+    };
   }
+
 
 }
 
