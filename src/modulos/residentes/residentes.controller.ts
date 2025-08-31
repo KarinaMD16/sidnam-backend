@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { ResidentesService } from './residentes.service';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
 import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
@@ -141,7 +141,7 @@ export class ResidentesController {
         return nota;
     }
 
-    @Get('expedientes/libro-campo/expediente/:idExpediente')
+    @Get('expedientes/libro-campo/:idExpediente')
         async obtenerNotasLibroPorExpediente(@Param('idExpediente', ParseIntPipe) idExpediente: number): Promise<{id: number;descripcion: string;problematica?: string;acuerdoAlcanzado?: string;fechaActividad?: string;fecha: string;}[]> {
         const notas = await this.residentesService.obtenerNotasLibroPorExpediente(idExpediente);
 
@@ -225,6 +225,16 @@ export class ResidentesController {
     @Post('expedientes/enfermeria/medicamentosEspeciales/:id_expediente')
     async agregarMedicamentoEspecialesAExpediente(@Param('id_expediente', ParseIntPipe) idExpediente: number, @Body() createRegistroEspecial: CreateAdministracionEspecialDto) {
         return this.residentesService.agregarTratamientosEspeciales(idExpediente, createRegistroEspecial);
+    }
+
+    @Get('estados-expedientes')
+    async getEstadosExpedientes() {
+        return this.residentesService.getEstados();
+    }
+
+    @Patch('expedientes/enfermeria/estado/:id_expediente/:id_estado')
+    async cambiarEstadoExpediente(@Param('id_expediente', ParseIntPipe) idExpediente: number, @Param('id_estado', ParseIntPipe) idEstado: number) {
+        return this.residentesService.cambiarEstado(idEstado, idExpediente);
     }
 
 }
