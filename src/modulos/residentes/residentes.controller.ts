@@ -1,10 +1,9 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Put, Query, Res } from '@nestjs/common';
 import { ResidentesService } from './residentes.service';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
 import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
 import { ActualizarExpediente } from './dto/actualizarExpediente';
 import { CreatePatologiaDto } from './dto/createPatologia.Dto';
-import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
 import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
 import { CreateCuracionDto } from './dto/createCuracionDto';
 import { createConsultaEbaisDto } from './dto/createConsultaEabisDto';
@@ -18,11 +17,16 @@ import { CreateAdministracionEspecialDto } from './dto/createAdministracionEspec
 import { Libro_Campo } from './entities/libroCampo.entity';
 import { CrearLibroCampoDto } from './dto/createLibroCampoDto';
 import { AtualizarLibroCampoDto } from './dto/actualizarLibroCampoDto';
+import { ReporteExpedienteService } from './ReporteExpediente.service';
+import { Response } from 'express';
+
 
 @Controller('residentes')
 export class ResidentesController {
 
-    constructor( private readonly residentesService: ResidentesService){}
+    constructor( 
+        private readonly residentesService: ResidentesService,
+        private readonly reporteExpedienteService: ReporteExpedienteService,){}
 
 
    @Post('expediente')
@@ -268,6 +272,11 @@ export class ResidentesController {
     @Delete('expedientes/administracionesEspecial/:idAdministracionEspecial')
     async eliminarTratamientoEspecial(@Param('idAdministracionEspecial', ParseIntPipe) idAdministracionEspecial: number){
         return this,this.residentesService.eliminarAntibioticoDeAdministracion(idAdministracionEspecial)
+    }
+
+    @Get('expedientes/:id/pdf')
+    async generarPdf(@Param('id', ParseIntPipe) idExpediente: number, @Res() res: Response) {
+        return this.reporteExpedienteService.generarPdfExpediente(idExpediente, res);
     }
 
 

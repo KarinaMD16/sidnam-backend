@@ -45,6 +45,8 @@ import { EstadoExpediente, EstadoExpedienteOptions, getEstadoExpedientesById } f
 import e from 'express';
 import { AtualizarLibroCampoDto } from './dto/actualizarLibroCampoDto';
 import { GestionUsuarioService } from '../gestion-usuario/gestion-usuario.service';
+import { HistorialPatologias } from './entities/historiaoPatologias.entity';
+import { HistorialCuraciones } from './entities/historialCuraciones.entity';
 
 
 
@@ -97,6 +99,12 @@ export class ResidentesService {
 
         @InjectRepository(Libro_Campo)
         private readonly libroCampoRepository: Repository<Libro_Campo>,
+
+        @InjectRepository(HistorialPatologias)
+        private readonly historialPatologiasRepository: Repository<HistorialPatologias>,
+
+        @InjectRepository(HistorialCuraciones)
+        private readonly historialCuracionesRepository: Repository<HistorialCuraciones>,
 
         private readonly usuariosGestion: GestionUsuarioService
     ){}
@@ -432,8 +440,9 @@ export class ResidentesService {
     });
 
     await this.patologiasRepository.save(patologia);
-    return "Patología creada correctamente";
+
   }
+
 
   async getPatologias() {
     const patologias = await this.patologiasRepository.find();
@@ -469,6 +478,13 @@ export class ResidentesService {
 
     expediente.patologias.push(patologia);
     await this.expedienteResidenteRepository.save(expediente);
+
+    const historial = this.historialPatologiasRepository.create({
+      residente: { id_expediente: expediente.id_expediente },
+      patologia: { id_patologia: patologia.id_patologia },
+      estado: 'activo'
+    });
+    await this.historialPatologiasRepository.save(historial);
 
     return "Patología agregada al expediente correctamente";
   }
@@ -780,7 +796,18 @@ export class ResidentesService {
       expediente
     });
 
+    const historial = this.historialCuracionesRepository.create({
+      residente: { id_expediente: expediente.id_expediente },
+      titulo: createCuracionDto.titulo,
+      descripcion: createCuracionDto.descripcion,
+      fecha_curacion: createCuracionDto.fecha_curacion
+    });
+
+    await this.historialCuracionesRepository.save(historial);
+
     return this.curacionesRepository.save(curacion);
+
+    
   }
 
   async createConsultaEbais(createConsulta: createConsultaEbaisDto, id: number): Promise<Consulta_Ebais> {
