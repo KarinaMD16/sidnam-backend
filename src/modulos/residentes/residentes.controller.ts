@@ -17,6 +17,7 @@ import { CreateMedicamentoDto } from './dto/createMedicamentoDto';
 import { CreateAdministracionEspecialDto } from './dto/createAdministracionEspecialDto';
 import { Libro_Campo } from './entities/libroCampo.entity';
 import { CrearLibroCampoDto } from './dto/createLibroCampoDto';
+import { AtualizarLibroCampoDto } from './dto/actualizarLibroCampoDto';
 
 @Controller('residentes')
 export class ResidentesController {
@@ -235,6 +236,11 @@ export class ResidentesController {
     @Patch('expedientes/trabajo-social/estado/:id_expediente/:id_estado')
     async cambiarEstadoExpediente(@Param('id_expediente', ParseIntPipe) idExpediente: number, @Param('id_estado', ParseIntPipe) idEstado: number) {
         return this.residentesService.cambiarEstado(idEstado, idExpediente);
+    }
+
+    @Patch('expedientes/trabajo-social/nota-libro/:idNotaPadre')
+    async actualizarNota(@Param('idNotaPadre', ParseIntPipe) idNotaPadre: number, @Body() actualizarNota: AtualizarLibroCampoDto){
+        return this.residentesService.updateNotasLibro(idNotaPadre, actualizarNota)
     }
 
 }

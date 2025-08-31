@@ -43,6 +43,7 @@ import { getTiposMedicamentos, TipoMedicamentoOpts } from 'src/common/enums/tipo
 import { Libro_Campo } from './entities/libroCampo.entity';
 import { EstadoExpedienteOptions, getEstadoExpedientesById } from 'src/common/enums/estadosExpedientes.enum';
 import e from 'express';
+import { AtualizarLibroCampoDto } from './dto/actualizarLibroCampoDto';
 
 
 
@@ -1003,7 +1004,7 @@ export class ResidentesService {
     }));
   }
 
-  async cambiarEstado(estado: number, id_expediente: number) {
+  async cambiarEstado(estado: number, id_expediente: number): Promise<{message: string}>{
 
     const expediente = await this.expedienteResidenteRepository.findOne({
       where: { id_expediente: id_expediente }
@@ -1037,7 +1038,89 @@ export class ResidentesService {
       expediente.fecha_ingreso = new Date();
     }
     await this.expedienteResidenteRepository.save(expediente);
+
+    return {message: 'Expediente actualizado'}
   }
+
+  async updateNotasLibro(
+  idNotaPadre: number,
+  actualizarLibroCampo: Partial<AtualizarLibroCampoDto>
+): Promise<{ message: string }> {
+
+  // Traer nota padre y sus hijos
+  const notas = await this.libroCampoRepository.find({
+    where: [
+      { id_libro_campo: idNotaPadre },
+      { notaPadre: { id_libro_campo: idNotaPadre } }
+    ],
+    order: { id_libro_campo: 'ASC' },
+    relations: ['expediente'] // importante para asegurarnos que expediente esté cargado
+  });
+
+  if (!notas || notas.length === 0) {
+    throw new NotFoundException('Nota del libro de campo no encontrada');
+  }
+
+  const notaPadre = notas[0];
+
+  if (!notaPadre.expediente) {
+    throw new Error('La nota padre no tiene expediente asignado');
+  }
+
+  // Texto completo a dividir
+  const textoCompleto = actualizarLibroCampo.descripcionCompleta ?? notaPadre.descripcion;
+
+
+  const fragmentos: string[] = [];
+  for (let i = 0; i < textoCompleto.length; i += this.MAX_SEGMENT_LENGTH) {
+    fragmentos.push(textoCompleto.substring(i, i + this.MAX_SEGMENT_LENGTH));
+  }
+
+  // Actualizar nota padre
+  notaPadre.descripcion = fragmentos[0];
+  notaPadre.problematica_abordada = actualizarLibroCampo.problematica ?? notaPadre.problematica_abordada;
+  notaPadre.acuerdo_alcanzado = actualizarLibroCampo.acuerdo_alcanzado ?? notaPadre.acuerdo_alcanzado;
+  notaPadre.fecha_actividad = actualizarLibroCampo.fecha_actividad
+    ? new Date(actualizarLibroCampo.fecha_actividad)
+    : notaPadre.fecha_actividad;
+
+  await this.libroCampoRepository.save(notaPadre);
+
+  // Actualizar o crear hijos
+  for (let i = 1; i < fragmentos.length; i++) {
+    if (i < notas.length) {
+      // Actualizar hijo existente
+      notas[i].descripcion = fragmentos[i];
+      notas[i].fecha_actividad = notaPadre.fecha_actividad;
+      notas[i].problematica_abordada = notaPadre.problematica_abordada;
+      notas[i].acuerdo_alcanzado = notaPadre.acuerdo_alcanzado;
+      notas[i].expediente = notaPadre.expediente;
+      await this.libroCampoRepository.save(notas[i]);
+    } else {
+      // Crear nuevo hijo
+      const nuevoHijo = this.libroCampoRepository.create({
+        descripcion: fragmentos[i],
+        notaPadre: notaPadre,
+        expediente: notaPadre.expediente,
+        fecha_actividad: notaPadre.fecha_actividad,
+        problematica_abordada: notaPadre.problematica_abordada,
+        acuerdo_alcanzado: notaPadre.acuerdo_alcanzado,
+      });
+      await this.libroCampoRepository.save(nuevoHijo);
+    }
+  }
+
+  // Eliminar hijos sobrantes
+  for (let i = fragmentos.length; i < notas.length; i++) {
+    await this.libroCampoRepository.remove(notas[i]);
+  }
+
+  return { message: 'Nota actualizada correctamente' };
+}
+
+
+
+
 
 }
 
