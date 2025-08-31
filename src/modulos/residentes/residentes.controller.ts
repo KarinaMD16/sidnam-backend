@@ -232,7 +232,7 @@ export class ResidentesController {
         return this.residentesService.getEstados();
     }
 
-    @Patch('expedientes/enfermeria/estado/:id_expediente/:id_estado')
+    @Patch('expedientes/trabajo-social/estado/:id_expediente/:id_estado')
     async cambiarEstadoExpediente(@Param('id_expediente', ParseIntPipe) idExpediente: number, @Param('id_estado', ParseIntPipe) idEstado: number) {
         return this.residentesService.cambiarEstado(idEstado, idExpediente);
     }
