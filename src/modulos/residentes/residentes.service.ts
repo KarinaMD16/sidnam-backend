@@ -731,16 +731,21 @@ export class ResidentesService {
       relations: ['administracionMedicamentos', 'administracionMedicamentos.medicamento', 'administracionMedicamentos.unidad'],
     });
 
-    const administracionesPorTurno = administracionesRaw.map(admin => ({
-      id_administracion: admin.id_administracion,
-      turno: admin.turno,
-      medicamentos: admin.administracionMedicamentos.map(am => ({
-        id_medicamento: am.medicamento.id_medicamento,
-        nombre: am.medicamento.nombre,
-        cantidad: am.cantidad,
-        unidad: am.unidad ? { nombre: am.unidad.nombre, abreviatura: am.unidad.abreviatura } : null,
-      })),
-    }));
+    const ordenTurnos = ['AM', 'MD', 'PM', 'MN'];
+
+    const administracionesPorTurno = administracionesRaw
+      .map(admin => ({
+        id_administracion: admin.id_administracion,
+        turno: admin.turno,
+        medicamentos: admin.administracionMedicamentos.map(am => ({
+          id_medicamento: am.medicamento.id_medicamento,
+          nombre: am.medicamento.nombre,
+          cantidad: am.cantidad,
+          unidad: am.unidad ? { nombre: am.unidad.nombre, abreviatura: am.unidad.abreviatura } : null,
+        })),
+      }))
+      .sort((a, b) => ordenTurnos.indexOf(a.turno) - ordenTurnos.indexOf(b.turno));
+
 
     const dtos = plainToInstance(
       ExpedienteEnfermeriaDto,
@@ -940,7 +945,7 @@ export class ResidentesService {
     const medicamento = await this.medicamentoRepository.findOne({
       where: { id_medicamento: createAdministracionEspecialo.id_medicamento },
       relations: ['tipo']
-    })
+    });
 
     if(!medicamento){
       throw new NotFoundException('Medicamento no encontrado');
