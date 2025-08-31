@@ -265,6 +265,11 @@ export class ResidentesController {
         return this.residentesService.eliminarMedicamentoDeAdministracion(idAdministracion, idMedicamento)
     }
 
+    @Delete('expedientes/administracionesEspecial/:idAdministracionEspecial')
+    async eliminarTratamientoEspecial(@Param('idAdministracionEspecial', ParseIntPipe) idAdministracionEspecial: number){
+        return this,this.residentesService.eliminarAntibioticoDeAdministracion(idAdministracionEspecial)
+    }
+
 
 }
     
