@@ -83,24 +83,24 @@ export class ResidentesController {
        return this.residentesService.getPatologias();
    }
 
-   @Post('tipos-medicamento')
-   async createTipoMedicamento(@Body() createTipoMedicamentoDto: Tipo_MedicamentoDto) {
-       return this.residentesService.crearTipoMedicamento(createTipoMedicamentoDto);
-   }
-
-   @Get('tipos-medicamento')
-   async getTiposMedicamento() {
-       return this.residentesService.getTiposMedicamento();
-   }
-
    @Post('medicamentos/:idTipoMedicamento')
    async createMedicamento(@Param('idTipoMedicamento', ParseIntPipe) idTipoMedicamento: number, @Body() createMedicamento: CreateMedicamentoDto) {
        return this.residentesService.asociarMedicamentoATipoMedicamento(idTipoMedicamento, createMedicamento);
    }
 
+   @Get('tipos-medicamentos')
+   async getTiposMedicamentos() {
+       return this.residentesService.getTipos_Medicamentos();
+   }
+
    @Get('medicamentos')
    async getMedicamentos() {
        return this.residentesService.getMedicamentos();
+   }
+
+   @Get('medicamentos/tipo/:id_tipoMedicamento')
+   async getMedicamentosPorTipo(@Param('id_tipoMedicamento', ParseIntPipe) idTipoMedicamento: number) {
+       return this.residentesService.getMedicamentosPorTipo(idTipoMedicamento);
    }
 
    @Get('turnos')
