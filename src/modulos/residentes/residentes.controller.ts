@@ -15,6 +15,8 @@ import { CreateUnidadMedidaDto } from './dto/createUnidadMedidaDto';
 import { CreateAdministracionDto } from './dto/registrarMedicamentoDto';
 import { CreateMedicamentoDto } from './dto/createMedicamentoDto';
 import { CreateAdministracionEspecialDto } from './dto/createAdministracionEspecialDto';
+import { Libro_Campo } from './entities/libroCampo.entity';
+import { CrearLibroCampoDto } from './dto/createLibroCampoDto';
 
 @Controller('residentes')
 export class ResidentesController {
@@ -108,12 +110,24 @@ export class ResidentesController {
        return this.residentesService.getTurnos();
    }
 
-   @Post('expedientes/notas-enfermeria/:idExpediente')
+    @Post('expedientes/notas-enfermeria/:idExpediente')
     async crearNota(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body() crearNotaDto: CrearNotaDto): Promise<NotaEnfermeria> {
        const { titulo, textoCompleto } = crearNotaDto;
        return this.residentesService.crearNotaEnfermeria(idExpediente, textoCompleto, titulo);
     }
 
+    @Post('expedientes/libro-campo/:idExpediente')
+    async crearNotaLibroCampo(@Param('idExpediente', ParseIntPipe) idExpediente: number,@Body() crearLibroCampoDto: CrearLibroCampoDto,): Promise<Libro_Campo> {
+        const { descripcionCompleta, problematica, fecha_actividad, acuerdo_alcanzado } = crearLibroCampoDto;
+
+        return this.residentesService.crearNotaLibroCampo(
+            idExpediente,
+            descripcionCompleta,
+            problematica,
+            fecha_actividad,
+            acuerdo_alcanzado,
+        );
+    }
 
    @Get('expedientes/notas-enfermeria/:id')
    async obtenerNotasPorExpediente(@Param('id') expedienteId: number): Promise<{ id: number; nota: string }[]> {
@@ -125,6 +139,17 @@ export class ResidentesController {
         const nota = await this.residentesService.obtenerNotaCompleta(idNotaPadre);
         if (!nota) throw new NotFoundException('Nota no encontrada');
         return nota;
+    }
+
+    @Get('expedientes/libro-campo/expediente/:idExpediente')
+        async obtenerNotasLibroPorExpediente(@Param('idExpediente', ParseIntPipe) idExpediente: number): Promise<{id: number;descripcion: string;problematica?: string;acuerdoAlcanzado?: string;fechaActividad?: string;fecha: string;}[]> {
+        const notas = await this.residentesService.obtenerNotasLibroPorExpediente(idExpediente);
+
+        if (!notas || notas.length === 0) {
+            throw new NotFoundException('No se encontraron notas del libro de campo para este expediente');
+        }
+
+        return notas;
     }
 
     @Delete('expedientes/:id/adjuntar-patologia/:id_patologia')
