@@ -243,5 +243,10 @@ export class ResidentesController {
         return this.residentesService.updateNotasLibro(idNotaPadre, actualizarNota)
     }
 
+    @Get('filtrar-nombre')
+    async getResidentesPorNombre(@Query('filtro') filtro: string){
+        return this.residentesService.buscarResidentesPorNombre(filtro);
+    }
+
 }
     
