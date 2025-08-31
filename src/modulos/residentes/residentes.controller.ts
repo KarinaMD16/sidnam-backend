@@ -234,7 +234,7 @@ export class ResidentesController {
     }
 
     @Patch('expedientes/trabajo-social/estado/:id_expediente/:id_estado/:id_usuario')
-    async cambiarEstadoExpediente(@Param('id_expediente', ParseIntPipe) idExpediente: number, @Param('id_estado', ParseIntPipe) idEstado: number, @Param('id_Usuario', ParseIntPipe) id_usuario: number) {
+    async cambiarEstadoExpediente(@Param('id_expediente', ParseIntPipe) idExpediente: number, @Param('id_estado', ParseIntPipe) idEstado: number, @Param('id_usuario', ParseIntPipe) id_usuario: number) {
         return this.residentesService.cambiarEstado(idEstado, idExpediente, id_usuario);
     }
 
