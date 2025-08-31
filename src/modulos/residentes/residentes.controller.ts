@@ -248,5 +248,10 @@ export class ResidentesController {
         return this.residentesService.buscarResidentesPorNombre(filtro);
     }
 
+    @Get('expedientes/estado/:idEstado')
+    async getExpedientesPorEstado(@Param('idEstado', ParseIntPipe) idEstado: number){
+        return this.residentesService.getExpedientePorEstado(idEstado)
+    }
+
 }
     
