@@ -249,9 +249,17 @@ export class ResidentesController {
     }
 
     @Get('expedientes/estado/:idEstado')
-    async getExpedientesPorEstado(@Param('idEstado', ParseIntPipe) idEstado: number){
-        return this.residentesService.getExpedientePorEstado(idEstado)
+    async getExpedientesPorEstado(
+    @Param('idEstado', ParseIntPipe) idEstado: number,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    ) {
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    return this.residentesService.getExpedientePorEstado(idEstado, pageNumber, limitNumber);
     }
+
 
 }
     
