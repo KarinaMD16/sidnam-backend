@@ -44,6 +44,7 @@ import { Libro_Campo } from './entities/libroCampo.entity';
 import { EstadoExpedienteOptions, getEstadoExpedientesById } from 'src/common/enums/estadosExpedientes.enum';
 import e from 'express';
 import { AtualizarLibroCampoDto } from './dto/actualizarLibroCampoDto';
+import { GestionUsuarioService } from '../gestion-usuario/gestion-usuario.service';
 
 
 
@@ -95,7 +96,9 @@ export class ResidentesService {
         private readonly administracionMedicamentoRepository: Repository<AdministracionMedicamento>,
 
         @InjectRepository(Libro_Campo)
-        private readonly libroCampoRepository: Repository<Libro_Campo>
+        private readonly libroCampoRepository: Repository<Libro_Campo>,
+
+        private readonly usuariosGestion: GestionUsuarioService
     ){}
 
      private MAX_SEGMENT_LENGTH = 1000;
@@ -1004,7 +1007,7 @@ export class ResidentesService {
     }));
   }
 
-  async cambiarEstado(estado: number, id_expediente: number): Promise<{message: string}>{
+  async cambiarEstado(estado: number, id_expediente: number, idUsuairo: number): Promise<{message: string}>{
 
     const expediente = await this.expedienteResidenteRepository.findOne({
       where: { id_expediente: id_expediente }
@@ -1029,8 +1032,11 @@ export class ResidentesService {
     }
 
     if(estadoExpedientes == 'Inactivo'){
+      const usuario = await this.usuariosGestion.findOneById(idUsuairo);
+      expediente.usuario_cierre = usuario.name;
       expediente.estado = estadoExpedientes;
       expediente.fecha_cierre = new Date();
+      
     }
 
     if(estadoExpedientes == 'Activo'){
