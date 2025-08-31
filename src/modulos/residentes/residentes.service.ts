@@ -1047,14 +1047,13 @@ export class ResidentesService {
   actualizarLibroCampo: Partial<AtualizarLibroCampoDto>
 ): Promise<{ message: string }> {
 
-  // Traer nota padre y sus hijos
   const notas = await this.libroCampoRepository.find({
     where: [
       { id_libro_campo: idNotaPadre },
       { notaPadre: { id_libro_campo: idNotaPadre } }
     ],
     order: { id_libro_campo: 'ASC' },
-    relations: ['expediente'] // importante para asegurarnos que expediente esté cargado
+    relations: ['expediente'] 
   });
 
   if (!notas || notas.length === 0) {
@@ -1067,7 +1066,6 @@ export class ResidentesService {
     throw new Error('La nota padre no tiene expediente asignado');
   }
 
-  // Texto completo a dividir
   const textoCompleto = actualizarLibroCampo.descripcionCompleta ?? notaPadre.descripcion;
 
 
@@ -1076,7 +1074,6 @@ export class ResidentesService {
     fragmentos.push(textoCompleto.substring(i, i + this.MAX_SEGMENT_LENGTH));
   }
 
-  // Actualizar nota padre
   notaPadre.descripcion = fragmentos[0];
   notaPadre.problematica_abordada = actualizarLibroCampo.problematica ?? notaPadre.problematica_abordada;
   notaPadre.acuerdo_alcanzado = actualizarLibroCampo.acuerdo_alcanzado ?? notaPadre.acuerdo_alcanzado;
@@ -1086,10 +1083,8 @@ export class ResidentesService {
 
   await this.libroCampoRepository.save(notaPadre);
 
-  // Actualizar o crear hijos
   for (let i = 1; i < fragmentos.length; i++) {
     if (i < notas.length) {
-      // Actualizar hijo existente
       notas[i].descripcion = fragmentos[i];
       notas[i].fecha_actividad = notaPadre.fecha_actividad;
       notas[i].problematica_abordada = notaPadre.problematica_abordada;
@@ -1097,7 +1092,6 @@ export class ResidentesService {
       notas[i].expediente = notaPadre.expediente;
       await this.libroCampoRepository.save(notas[i]);
     } else {
-      // Crear nuevo hijo
       const nuevoHijo = this.libroCampoRepository.create({
         descripcion: fragmentos[i],
         notaPadre: notaPadre,
@@ -1110,7 +1104,6 @@ export class ResidentesService {
     }
   }
 
-  // Eliminar hijos sobrantes
   for (let i = fragmentos.length; i < notas.length; i++) {
     await this.libroCampoRepository.remove(notas[i]);
   }
