@@ -14,6 +14,10 @@ import { Salida } from './entities/salida.entity';
 import { CreateEntradaUseCase } from './use-cases/entrada/create-entrada.use-case';
 import { Unidad_Medida } from '../unidades-medida/entities/unidadMedida.entity';
 import { GetEntradaUseCase } from './use-cases/entrada/get-entrada.use-case';
+import { CreateSalidaUseCase } from './use-cases/salida/create-salida.use-case';
+import { GetSalidaUseCase } from './use-cases/salida/get-salida.use-case';
+import { ReportesInventarioService } from './services/reporteInventario.service';
+import { PdfHtmlService } from 'src/common/services/pdf-html.service';
 
 
 
@@ -21,7 +25,7 @@ import { GetEntradaUseCase } from './use-cases/entrada/get-entrada.use-case';
   imports: [
     TypeOrmModule.forFeature([Categoria_Producto, Producto, Inventario, Entrada, Salida, Unidad_Medida]),
     ],
-  providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase, GetEntradaUseCase],
+  providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase, GetEntradaUseCase, CreateSalidaUseCase, GetSalidaUseCase, ReportesInventarioService, PdfHtmlService],
   controllers: [InventarioController]
 })
 export class InventarioModule {}

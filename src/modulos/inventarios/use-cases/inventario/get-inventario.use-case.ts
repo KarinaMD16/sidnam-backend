@@ -27,7 +27,6 @@ export class GetInventarioUseCase {
         id: true,
         nombre: true,
         codigo: true,
-        //unidadMedida: true,
         categoria: { id: true },
       },
     },
@@ -42,12 +41,31 @@ export class GetInventarioUseCase {
     stock: i.stock,
     codigo: i.producto.codigo,
     nombre: i.producto.nombre,
-   // unidadMedida: i.producto.unidadMedida,
     categoriaId: i.producto.categoria.id,
   }));
 
   return { data, total };
 }
+
+    async findAllByCategoriaSinPaginacion(categoriaId: number): Promise<Array<{ id: number; stock: number; codigo: string; nombre: string }>> {
+    const rows = await this.inventarioRepository.find({
+      where: { producto: { categoria: { id: categoriaId } } },
+      relations: { producto: true },
+      select: {
+        id: true,
+        stock: true,
+        producto: { codigo: true, nombre: true },
+      },
+      order: { id: 'DESC' },
+    });
+
+    return rows.map(i => ({
+      id: i.id,
+      stock: i.stock,
+      codigo: i.producto.codigo,
+      nombre: i.producto.nombre,
+    }));
+  }
 
 
 }
