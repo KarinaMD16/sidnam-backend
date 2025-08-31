@@ -9,6 +9,8 @@ import { Curaciones } from './curaciones.entity';
 import { Consulta_Ebais } from './consultaEbais.entity';
 import { Consulta_Especialista } from './consultaEspecialista.entity';
 import { Libro_Campo } from './libroCampo.entity';
+import { HistorialPatologias } from './historiaoPatologias.entity';
+import { HistorialCuraciones } from './historialCuraciones.entity';
 
 @Entity()
 export class Expediente_Residente {
@@ -62,5 +64,11 @@ export class Expediente_Residente {
 
   @OneToMany(() => Libro_Campo, libro => libro.expediente)
   librosCampo: Libro_Campo[];
+
+  @OneToMany(() => HistorialPatologias, historial => historial.residente)
+  historialPatologias: HistorialPatologias[];
+
+  @OneToMany(() => HistorialCuraciones, historial => historial.residente)
+  historialCuraciones: HistorialCuraciones[];
 
 }

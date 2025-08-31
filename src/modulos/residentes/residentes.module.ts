@@ -18,6 +18,11 @@ import { Unidad_Medida } from '../unidades-medida/entities/unidadMedida.entity';
 import { AdministracionMedicamento } from './entities/administracioneMedicamento';
 import { Libro_Campo } from './entities/libroCampo.entity';
 import { GestionUsuarioModule } from '../gestion-usuario/gestion-usuario.module';
+import { HistorialPatologias } from './entities/historiaoPatologias.entity';
+import { HistorialCuraciones } from './entities/historialCuraciones.entity';
+import { PdfHtmlService } from 'src/common/services/pdf-html.service';
+import { ReporteExpedienteService } from './ReporteExpediente.service';
+
 
 
 
@@ -39,10 +44,12 @@ import { GestionUsuarioModule } from '../gestion-usuario/gestion-usuario.module'
       Unidad_Medida,
       AdministracionMedicamento,
       Libro_Campo,
+      HistorialPatologias,
+      HistorialCuraciones,  
     ]),
     GestionUsuarioModule, 
   ],
-  providers: [ResidentesService],
+  providers: [ResidentesService, ReporteExpedienteService, PdfHtmlService],
   controllers: [ResidentesController],
 })
 export class ResidentesModule {}
