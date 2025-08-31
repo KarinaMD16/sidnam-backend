@@ -17,29 +17,32 @@ import { Tipo_Consulta } from './entities/tipoConsulta.entity';
 import { Unidad_Medida } from '../unidades-medida/entities/unidadMedida.entity';
 import { AdministracionMedicamento } from './entities/administracioneMedicamento';
 import { Libro_Campo } from './entities/libroCampo.entity';
+import { GestionUsuarioModule } from '../gestion-usuario/gestion-usuario.module';
 
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([
-    Residente, 
-    Expediente_Residente, 
-    Encargado, 
-    Patologias, 
-    Administraciones, 
-    Medicamentos, 
-    AdministracionesEspeciales, 
-    NotaEnfermeria,
-    Curaciones,
-    Consulta_Ebais,
-    Consulta_Especialista,
-    Tipo_Consulta,
-    Unidad_Medida,
-    AdministracionMedicamento,
-    Libro_Campo
-
-  ])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Residente, 
+      Expediente_Residente, 
+      Encargado, 
+      Patologias, 
+      Administraciones, 
+      Medicamentos, 
+      AdministracionesEspeciales, 
+      NotaEnfermeria,
+      Curaciones,
+      Consulta_Ebais,
+      Consulta_Especialista,
+      Tipo_Consulta,
+      Unidad_Medida,
+      AdministracionMedicamento,
+      Libro_Campo,
+    ]),
+    GestionUsuarioModule, 
+  ],
   providers: [ResidentesService],
-  controllers: [ResidentesController]
+  controllers: [ResidentesController],
 })
 export class ResidentesModule {}

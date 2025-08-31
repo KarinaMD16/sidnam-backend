@@ -31,6 +31,9 @@ export class Expediente_Residente {
   @Column({ nullable: true })
   fecha_cierre: Date;;
 
+  @Column({nullable: true})
+  usuario_cierre: string
+
   @OneToOne(() => Residente, residente => residente.expediente)
   @JoinColumn() 
   residente: Residente;
