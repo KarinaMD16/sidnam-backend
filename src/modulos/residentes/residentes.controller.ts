@@ -21,6 +21,7 @@ import { ReporteExpedienteService } from './ReporteExpediente.service';
 import { Response } from 'express';
 
 
+
 @Controller('residentes')
 export class ResidentesController {
 
@@ -277,6 +278,11 @@ export class ResidentesController {
     @Get('expedientes/:id/pdf')
     async generarPdf(@Param('id', ParseIntPipe) idExpediente: number, @Res() res: Response) {
         return this.reporteExpedienteService.generarPdfExpediente(idExpediente, res);
+    }
+
+    @Get('expedientes/cedula/:cedula')
+    async consultarCedulaExistente(@Param('cedula') cedula: string){
+        return this.residentesService.verificarCedula(cedula)
     }
 
 
