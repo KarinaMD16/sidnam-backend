@@ -17,6 +17,7 @@ import { GetSalidaUseCase } from "../use-cases/salida/get-salida.use-case";
 import { ReportesInventarioService } from "../services/reporteInventario.service";
 import { ReporteMovimientosDto } from "../dto/reporteMovimientosDto";
 import { ApiOkResponse, ApiOperation, ApiProduces, ApiQuery } from "@nestjs/swagger";
+import { CreateCategoriaDto } from "../dto/createCategoriaDto";
 
 
 @Controller('inventario')
@@ -38,20 +39,15 @@ export class InventarioController {
     ){}
 
     
-    @Post('categorias')
-    crearCategoriaProducto(@Body() crearCategoriaProducto: CategoriaProductoDto){
-        return this.inventarioService.crearCategoriaProducto(crearCategoriaProducto);
-    }
-
-    @Get('categorias')
-    getAllCategoriaProducto(){
-        return this.inventarioService.getAllCategoriasProductos()
-    }
-
     @Get()
   async getCategorias() {
     return this.inventarioService.getCategorias();
   }
+
+  @Post('tipo-categoria/categoria/:idCategoriaProducto')
+      async createCategoriaProducto(@Param('idCategoria', ParseIntPipe) idCategoria: number,@Body() createCategoriaDto: CreateCategoriaDto,) {
+      return this.inventarioService.crearCategoria(idCategoria, createCategoriaDto);
+    }
 
     @Post('productos')
     crearProducto(@Body() Producto: ProductoDto){
