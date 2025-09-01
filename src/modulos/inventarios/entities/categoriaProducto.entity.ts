@@ -13,7 +13,7 @@ export class Categoria_Producto {
     nombre: string;
 
     @Column({type: 'enum', enum: CategoriasPrincipalesProductos})
-      tipo: CategoriasPrincipalesProductos;
+    tipo: CategoriasPrincipalesProductos;
 
     @Column()
     icono: string;
