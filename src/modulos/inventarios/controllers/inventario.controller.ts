@@ -17,6 +17,7 @@ import { GetSalidaUseCase } from "../use-cases/salida/get-salida.use-case";
 import { ReportesInventarioService } from "../services/reporteInventario.service";
 import { ReporteMovimientosDto } from "../dto/reporteMovimientosDto";
 import { ApiOkResponse, ApiOperation, ApiProduces, ApiQuery } from "@nestjs/swagger";
+import { CreateCategoriaDto } from "../dto/createCategoriaDto";
 
 
 @Controller('inventario')
@@ -38,20 +39,15 @@ export class InventarioController {
     ){}
 
     
-    @Post('categorias')
-    crearCategoriaProducto(@Body() crearCategoriaProducto: CategoriaProductoDto){
-        return this.inventarioService.crearCategoriaProducto(crearCategoriaProducto);
-    }
-
-    @Get('categorias')
-    getAllCategoriaProducto(){
-        return this.inventarioService.getAllCategoriasProductos()
-    }
-
     @Get()
   async getCategorias() {
     return this.inventarioService.getCategorias();
   }
+
+  @Post('tipo-categoria/categoria/:idCategoriaProducto')
+      async createCategoriaProducto(@Param('idCategoria', ParseIntPipe) idCategoria: number,@Body() createCategoriaDto: CreateCategoriaDto,) {
+      return this.inventarioService.crearCategoria(idCategoria, createCategoriaDto);
+    }
 
     @Post('productos')
     crearProducto(@Body() Producto: ProductoDto){
@@ -115,15 +111,16 @@ export class InventarioController {
         return this.createEntradaUseCase.crearEntradas(dto);
      }
 
-     @Get('entradas/:anio/:mes')
-      getEntradasPorMes(
-         @Param('anio', ParseIntPipe) anio: number,
-         @Param('mes',  ParseIntPipe) mes: number,
-         @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page?: number,   
-         @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,  
-      ) {
-       return this.getEntradaUseCase.getEntradasPorMes(mes, anio, page, limit);
-     }
+     @Get('entradas/:anio/:mes/:categoriaId')
+     getEntradasPorMes(
+     @Param('anio', ParseIntPipe) anio: number,
+     @Param('mes',  ParseIntPipe) mes: number,
+     @Param('categoriaId', ParseIntPipe) categoriaId: number,        
+     @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page?: number,
+     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,
+    ) {
+       return this.getEntradaUseCase.getEntradasPorMes(mes, anio, categoriaId, page, limit);  
+    }
 
 
      //Salidas
@@ -132,15 +129,16 @@ export class InventarioController {
         return this.createSalidaUseCase.crearSalidas(dto);
      }
 
-     @Get('salidas/:anio/:mes')
+     @Get('salidas/:anio/:mes/:categoriaId')
      getSalidasPorMes(
-        @Param('anio', ParseIntPipe) anio: number,
-        @Param('mes',  ParseIntPipe) mes: number,
-        @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page?: number,   
-        @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number, 
-       ) {
-        return this.getSalidasUsecase.getSalidasPorMes(mes, anio, page, limit);
-     }
+     @Param('anio', ParseIntPipe) anio: number,
+     @Param('mes',  ParseIntPipe) mes: number,
+     @Param('categoriaId', ParseIntPipe) categoriaId: number,       
+     @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page?: number,
+     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,
+    ) {
+      return this.getSalidasUsecase.getSalidasPorMes(mes, anio, categoriaId, page, limit); 
+   }
 
 
      //reporte de entradas/salidas

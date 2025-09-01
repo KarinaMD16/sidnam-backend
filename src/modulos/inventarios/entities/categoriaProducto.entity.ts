@@ -9,11 +9,11 @@ export class Categoria_Producto {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({
-    type: 'enum',
-    enum: CategoriasPrincipalesProductos,
-    })
-    nombre: CategoriasPrincipalesProductos;
+    @Column()
+    nombre: string;
+
+    @Column({type: 'enum', enum: CategoriasPrincipalesProductos})
+      tipo: CategoriasPrincipalesProductos;
 
     @Column()
     icono: string;
