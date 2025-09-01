@@ -14,7 +14,7 @@ export class Medicamentos {
   @Column()
   tipo: string;
 
-  @OneToMany(() => AdministracionMedicamento, am => am.medicamento)
+  @OneToMany(() => AdministracionMedicamento, am => am.medicamento, { cascade: true })
   administracionMedicamentos: AdministracionMedicamento[];
 
   @OneToMany(() => AdministracionesEspeciales, administracionEspecial => administracionEspecial.medicamento)
