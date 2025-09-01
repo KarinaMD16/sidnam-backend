@@ -1,4 +1,4 @@
-// src/modulos/inventarios/reportes-inventario.service.ts
+// src/modulos/inventarios/services/reporteInventario.service.ts
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -16,6 +16,7 @@ export class ReportesInventarioService {
     private readonly pdfHtml: PdfHtmlService,
   ) {}
 
+  /* ---------------- Entradas ---------------- */
   async generarReporteEntradas(q: ReporteMovimientosDto, res: ExpressResponse) {
     this.validar(q);
 
@@ -28,6 +29,7 @@ export class ReportesInventarioService {
       .innerJoin('e.inventario', 'inv')
       .innerJoin('inv.producto', 'p')
       .innerJoin('p.categoria', 'c')
+      .leftJoin('inv.unidad_medida', 'um')
       .where('e.fechaEntrada >= :inicio AND e.fechaEntrada < :fin', { inicio, fin })
       .andWhere('c.id = :categoriaId', { categoriaId })
       .select('e.id', 'entrada_id')
@@ -35,6 +37,8 @@ export class ReportesInventarioService {
       .addSelect('e.cantidad', 'cantidad')
       .addSelect('p.codigo', 'codigo_producto')
       .addSelect('p.nombre', 'nombre')
+      .addSelect('um.nombre', 'unidad_nombre')
+      .addSelect('um.abreviatura', 'unidad_abreviatura')
       .orderBy('e.fechaEntrada', 'DESC')
       .addOrderBy('e.id', 'DESC')
       .getRawMany<{
@@ -43,21 +47,33 @@ export class ReportesInventarioService {
         cantidad: number;
         codigo_producto: string;
         nombre: string;
+        unidad_nombre: string | null;
+        unidad_abreviatura: string | null;
       }>();
 
-    if (!rows.length) throw new NotFoundException('No hay entradas para el criterio indicado.');
+    if (!rows.length) {
+      throw new NotFoundException('No hay entradas para el criterio indicado.');
+    }
 
     const html = this.buildHtmlTabla({
       titulo: 'Reporte de Entradas',
-      anio, mes, categoriaId,
-      columnas: ['Fecha', 'Código', 'Nombre', 'Cantidad'],
-      filas: rows.map(r => [r.fecha, r.codigo_producto, r.nombre, String(r.cantidad)]),
+      anio, mes, // <- ya no mostramos categoría en el encabezado
+      columnas: ['Fecha', 'Código', 'Nombre', 'Unidad', 'Cantidad'],
+      filas: rows.map(r => [
+        r.fecha,
+        r.codigo_producto,
+        r.nombre,
+        (r.unidad_nombre || r.unidad_abreviatura)
+          ? `${r.unidad_nombre ?? ''} (${r.unidad_abreviatura ?? ''})`
+          : '—',
+        String(r.cantidad),
+      ]),
       totalRegistros: rows.length,
     });
 
-    
-    const mesNombre = this.capitalize(this.mesNombreEs(anio, mes));
-    const filename = this.sanitizeFilename(`Reporte_Entradas_${mesNombre}_${anio}.pdf`);
+    // nombre de archivo tipo: Reporte_Entradas_Agosto_2025.pdf
+    const mesTexto = new Date(anio, mes - 1).toLocaleString('es-CR', { month: 'long' });
+    const filename = `Reporte_Entradas_${this.capitalize(mesTexto)}_${anio}.pdf`;
 
     await this.pdfHtml.generarDesdeHtml(html, res, {
       filename,
@@ -67,7 +83,7 @@ export class ReportesInventarioService {
     });
   }
 
-
+  /* ---------------- Salidas ---------------- */
   async generarReporteSalidas(q: ReporteMovimientosDto, res: ExpressResponse) {
     this.validar(q);
 
@@ -80,6 +96,7 @@ export class ReportesInventarioService {
       .innerJoin('s.inventario', 'inv')
       .innerJoin('inv.producto', 'p')
       .innerJoin('p.categoria', 'c')
+      .leftJoin('inv.unidad_medida', 'um')
       .where('s.fechaSalida >= :inicio AND s.fechaSalida < :fin', { inicio, fin })
       .andWhere('c.id = :categoriaId', { categoriaId })
       .select('s.id', 'salida_id')
@@ -87,6 +104,8 @@ export class ReportesInventarioService {
       .addSelect('s.cantidad', 'cantidad')
       .addSelect('p.codigo', 'codigo_producto')
       .addSelect('p.nombre', 'nombre')
+      .addSelect('um.nombre', 'unidad_nombre')
+      .addSelect('um.abreviatura', 'unidad_abreviatura')
       .orderBy('s.fechaSalida', 'DESC')
       .addOrderBy('s.id', 'DESC')
       .getRawMany<{
@@ -95,21 +114,32 @@ export class ReportesInventarioService {
         cantidad: number;
         codigo_producto: string;
         nombre: string;
+        unidad_nombre: string | null;
+        unidad_abreviatura: string | null;
       }>();
 
-    if (!rows.length) throw new NotFoundException('No hay salidas para el criterio indicado.');
+    if (!rows.length) {
+      throw new NotFoundException('No hay salidas para el criterio indicado.');
+    }
 
     const html = this.buildHtmlTabla({
       titulo: 'Reporte de Salidas',
-      anio, mes, categoriaId,
-      columnas: ['Fecha', 'Código', 'Nombre', 'Cantidad'],
-      filas: rows.map(r => [r.fecha, r.codigo_producto, r.nombre, String(r.cantidad)]),
+      anio, mes,
+      columnas: ['Fecha', 'Código', 'Nombre', 'Unidad', 'Cantidad'],
+      filas: rows.map(r => [
+        r.fecha,
+        r.codigo_producto,
+        r.nombre,
+        (r.unidad_nombre || r.unidad_abreviatura)
+          ? `${r.unidad_nombre ?? ''} (${r.unidad_abreviatura ?? ''})`
+          : '—',
+        String(r.cantidad),
+      ]),
       totalRegistros: rows.length,
     });
 
-
-    const mesNombre = this.capitalize(this.mesNombreEs(anio, mes));
-    const filename = this.sanitizeFilename(`Reporte_Salidas_${mesNombre}_${anio}.pdf`);
+    const mesTexto = new Date(anio, mes - 1).toLocaleString('es-CR', { month: 'long' });
+    const filename = `Reporte_Salidas_${this.capitalize(mesTexto)}_${anio}.pdf`;
 
     await this.pdfHtml.generarDesdeHtml(html, res, {
       filename,
@@ -119,7 +149,7 @@ export class ReportesInventarioService {
     });
   }
 
-  //Helpers
+  /* ---------------- Helpers ---------------- */
 
   private validar(q: ReporteMovimientosDto) {
     const { anio, mes, categoriaId } = q;
@@ -136,32 +166,22 @@ export class ReportesInventarioService {
       .replaceAll('"','&quot;').replaceAll("'",'&#39;');
   }
 
-  
-  private mesNombreEs(anio: number, mes: number): string {
-    return new Date(anio, mes - 1, 1).toLocaleString('es-CR', { month: 'long' });
-  }
-
- 
   private capitalize(s: string) {
-    return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+    if (!s) return s;
+    return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
-  
-  private sanitizeFilename(s: string) {
-    return s
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // sin diacríticos
-      .replace(/\s+/g, '_');
-  }
-
-  
+  /** HTML con logo y sin "Categoría (id)" */
   private buildHtmlTabla(params: {
     titulo: string;
-    anio: number; mes: number; categoriaId: number | string;
+    anio: number; mes: number;
     columnas: string[]; filas: string[][]; totalRegistros: number;
   }) {
-    const { titulo, anio, mes, categoriaId, columnas, filas, totalRegistros } = params;
+    const { titulo, anio, mes, columnas, filas, totalRegistros } = params;
 
-    const monthName = this.mesNombreEs(anio, mes);
+    const mesNombre = new Date(anio, mes - 1)
+      .toLocaleString('es-CR', { month: 'long', year: 'numeric' });
+
     const head = columnas.map(c => `<th>${this.esc(c)}</th>`).join('');
     const body = filas.length
       ? filas.map(r => `<tr>${r.map(v => `<td>${this.esc(v)}</td>`).join('')}</tr>`).join('')
@@ -173,34 +193,29 @@ export class ReportesInventarioService {
 <head>
 <meta charset="utf-8"/>
 <style>
-  :root { --accent:#A7074D; --text:#111; --muted:#555; --border:#d5d5d5; --bg:#f7f7f7; }
+  :root { --accent:#A7074D; --text:#111; --muted:#555; --border:#d5d5d5; --bg-alt:#f7f7f7; }
   body{font-family:Arial,Helvetica,sans-serif;font-size:12px;margin:24px;color:var(--text)}
   h1{margin:0 0 8px;font-size:28px}
   .heading{display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:center;margin-bottom:6px}
   .logo{width:96px;height:96px;border-radius:50%;object-fit:cover;border:none;display:block}
-  .meta{color:var(--muted);margin-top:4px}
-  table{width:100%;border-collapse:collapse;margin-top:14px}
-  th,td{border:1px solid var(--border);padding:8px}
+  .meta{margin:0 0 12px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th,td{border:1px solid var(--border);padding:8px 10px;vertical-align:top}
   th{background:var(--accent);color:#fff;text-align:left}
-  tbody tr:nth-child(even){background:var(--bg)}
-  .tot{margin:10px 0;font-weight:bold}
-  @page{margin:40px 30px}
+  tbody tr:nth-child(even){background:var(--bg-alt)}
+  @page { margin: 40px 30px; }
 </style>
 </head>
 <body>
-  <!-- Encabezado con logo -->
   <div class="heading">
     <img class="logo" src="https://i.ibb.co/HDfRP6fX/1749848069832.png" alt="logo"/>
     <div>
       <h1>${this.esc(titulo)}</h1>
-      <div class="meta">
-        Mes: <strong>${this.esc(monthName)} de ${anio}</strong> &nbsp;|&nbsp;
-        Categoría (id): <strong>${this.esc(String(categoriaId))}</strong>
-      </div>
+      <div class="meta">Mes: <strong>${this.esc(this.capitalize(mesNombre))}</strong></div>
     </div>
   </div>
 
-  <div class="tot">Total registros: ${totalRegistros}</div>
+  <div style="margin:8px 0 14px 0;"><strong>Total registros:</strong> ${totalRegistros}</div>
 
   <table>
     <thead><tr>${head}</tr></thead>
