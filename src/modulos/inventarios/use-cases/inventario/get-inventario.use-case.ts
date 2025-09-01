@@ -55,25 +55,34 @@ export class GetInventarioUseCase {
 }
 
 
-    async findAllByCategoriaSinPaginacion(categoriaId: number): Promise<Array<{ id: number; stock: number; codigo: string; nombre: string }>> {
-    const rows = await this.inventarioRepository.find({
-      where: { producto: { categoria: { id: categoriaId } } },
-      relations: { producto: true },
-      select: {
-        id: true,
-        stock: true,
-        producto: { codigo: true, nombre: true },
+    async findAllByCategoriaSinPaginacion(categoriaId: number): Promise<Array<{id: number;stock: number;codigo: string;nombre: string;unidadMedida: { nombre: string; abreviatura: string } | null;}>> {
+  const rows = await this.inventarioRepository.find({
+    where: { producto: { categoria: { id: categoriaId }, archivado: false } },
+    relations: {
+      producto: true,
+      unidad_medida: true,                        
+    },
+    select: {
+      id: true,
+      stock: true,
+      producto: { codigo: true, nombre: true },
+      unidad_medida: {
+        nombre: true,
+        abreviatura: true,
       },
-      order: { id: 'DESC' },
-    });
+    },
+    order: { id: 'DESC' },
+  });
 
-    return rows.map(i => ({
-      id: i.id,
-      stock: i.stock,
-      codigo: i.producto.codigo,
-      nombre: i.producto.nombre,
-    }));
-  }
-
+  return rows.map(i => ({
+    id: i.id,
+    stock: i.stock,
+    codigo: i.producto.codigo,
+    nombre: i.producto.nombre,
+    unidadMedida: i.unidad_medida
+      ? { nombre: i.unidad_medida.nombre, abreviatura: i.unidad_medida.abreviatura }
+      : null,                                     
+  }));
+ }
 
 }
