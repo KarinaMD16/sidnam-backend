@@ -10,7 +10,7 @@ export class GetEntradaUseCase {
     private readonly entradaRepository: Repository<Entrada>,
   ) {}
 
-  async getEntradasPorMes(mes: number, anio: number, categoriaId: number, page = 1, limit = 0): Promise<{data: Array<{entrada_id: number; fecha_entrada: string; cantidad: number; codigo_producto: string; nombre: string; unidadMedida: { nombre: string; abreviatura: string } | null;}>;total: number;}> {
+  async getEntradasPorMes(mes: number, anio: number, categoriaId: number, page = 1, limit = 0): Promise<{data: Array<{entrada_id: number; fecha: string; cantidad: number; codigo_producto: string; nombre: string; unidadMedida: { nombre: string; abreviatura: string } | null;}>;total: number;}> {
   if (mes < 1 || mes > 12) throw new BadRequestException('Mes inválido (1-12)');
   if (anio < 2000 || anio > 2100) throw new BadRequestException('Año inválido');
   if (!categoriaId || Number.isNaN(+categoriaId)) {
@@ -57,7 +57,7 @@ export class GetEntradaUseCase {
 
   const data = raws.map(r => ({
     entrada_id: r.entrada_id,
-    fecha_entrada: r.fecha_entrada,
+    fecha: r.fecha_entrada,
     cantidad: r.cantidad,
     codigo_producto: r.codigo_producto,
     nombre: r.nombre,
