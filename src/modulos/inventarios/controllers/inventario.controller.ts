@@ -111,15 +111,16 @@ export class InventarioController {
         return this.createEntradaUseCase.crearEntradas(dto);
      }
 
-     @Get('entradas/:anio/:mes')
-      getEntradasPorMes(
-         @Param('anio', ParseIntPipe) anio: number,
-         @Param('mes',  ParseIntPipe) mes: number,
-         @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page?: number,   
-         @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,  
-      ) {
-       return this.getEntradaUseCase.getEntradasPorMes(mes, anio, page, limit);
-     }
+     @Get('entradas/:anio/:mes/:categoriaId')
+     getEntradasPorMes(
+     @Param('anio', ParseIntPipe) anio: number,
+     @Param('mes',  ParseIntPipe) mes: number,
+     @Param('categoriaId', ParseIntPipe) categoriaId: number,        
+     @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page?: number,
+     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,
+    ) {
+       return this.getEntradaUseCase.getEntradasPorMes(mes, anio, categoriaId, page, limit);  
+    }
 
 
      //Salidas
