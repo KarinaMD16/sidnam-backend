@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Residente } from './entities/residente.entity';
 import { ILike, In, IsNull, Not, Repository } from 'typeorm';
@@ -1260,6 +1260,19 @@ export class ResidentesService {
     await this.administracionEspecialRepository.remove(administracion)
 
     return { message: 'Medicamento eliminado correctamente' };
+  }
+
+  async verificarCedula(cedula: string): Promise<boolean>{
+
+    const cedulaExistente = await this.residenteRepository.findOne({
+      where: {cedula}
+    })
+
+    if(cedulaExistente){
+      return true
+    }
+
+    return false
   }
 
 }
