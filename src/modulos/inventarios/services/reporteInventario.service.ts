@@ -16,7 +16,6 @@ export class ReportesInventarioService {
     private readonly pdfHtml: PdfHtmlService,
   ) {}
 
-  /* ---------------- Entradas ---------------- */
   async generarReporteEntradas(q: ReporteMovimientosDto, res: ExpressResponse) {
     this.validar(q);
 
@@ -57,7 +56,7 @@ export class ReportesInventarioService {
 
     const html = this.buildHtmlTabla({
       titulo: 'Reporte de Entradas',
-      anio, mes, // <- ya no mostramos categoría en el encabezado
+      anio, mes, 
       columnas: ['Fecha', 'Código', 'Nombre', 'Unidad', 'Cantidad'],
       filas: rows.map(r => [
         r.fecha,
@@ -71,7 +70,7 @@ export class ReportesInventarioService {
       totalRegistros: rows.length,
     });
 
-    // nombre de archivo tipo: Reporte_Entradas_Agosto_2025.pdf
+    
     const mesTexto = new Date(anio, mes - 1).toLocaleString('es-CR', { month: 'long' });
     const filename = `Reporte_Entradas_${this.capitalize(mesTexto)}_${anio}.pdf`;
 
@@ -83,7 +82,7 @@ export class ReportesInventarioService {
     });
   }
 
-  /* ---------------- Salidas ---------------- */
+
   async generarReporteSalidas(q: ReporteMovimientosDto, res: ExpressResponse) {
     this.validar(q);
 
@@ -149,7 +148,7 @@ export class ReportesInventarioService {
     });
   }
 
-  /* ---------------- Helpers ---------------- */
+  //Helpers 
 
   private validar(q: ReporteMovimientosDto) {
     const { anio, mes, categoriaId } = q;
@@ -171,7 +170,6 @@ export class ReportesInventarioService {
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
-  /** HTML con logo y sin "Categoría (id)" */
   private buildHtmlTabla(params: {
     titulo: string;
     anio: number; mes: number;
