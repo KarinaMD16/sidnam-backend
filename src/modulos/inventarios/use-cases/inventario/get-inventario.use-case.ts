@@ -15,12 +15,13 @@ export class GetInventarioUseCase {
     ) {}
 
 
-  async findAllInventarios(categoriaId: number, page?: number, limit?: number,): Promise<{data: Array<{id: number; stock: number; codigo: string; nombre: string; unidadMedida: { nombre: string; abreviatura: string } | null;}>; total: number;}> {
+  async findAllInventarios(categoriaId: number, page?: number, limit?: number): Promise<{data: Array<{id: number; stock: number; codigo: string; nombre: string; unidadMedida: { id: number; nombre: string; abreviatura: string } | null;}>;total: number;}> {
+
   const [rows, total] = await this.inventarioRepository.findAndCount({
     where: { producto: { archivado: false, categoria: { id: categoriaId } } },
     relations: {
       producto: { categoria: true },
-      unidad_medida: true,                       
+      unidad_medida: true,
     },
     select: {
       id: true,
@@ -31,7 +32,8 @@ export class GetInventarioUseCase {
         codigo: true,
         categoria: { id: true },
       },
-      unidad_medida: {                          
+      unidad_medida: {
+        id_unidad: true,          
         nombre: true,
         abreviatura: true,
       },
@@ -47,12 +49,17 @@ export class GetInventarioUseCase {
     codigo: i.producto.codigo,
     nombre: i.producto.nombre,
     unidadMedida: i.unidad_medida
-      ? { nombre: i.unidad_medida.nombre, abreviatura: i.unidad_medida.abreviatura }
-      : null,                                     
+      ? {
+          id: i.unidad_medida.id_unidad,    
+          nombre: i.unidad_medida.nombre,
+          abreviatura: i.unidad_medida.abreviatura,
+        }
+      : null,
   }));
 
   return { data, total };
 }
+
 
 
     async findAllByCategoriaSinPaginacion(categoriaId: number): Promise<Array<{id: number;stock: number;codigo: string;nombre: string;unidadMedida: { nombre: string; abreviatura: string } | null;}>> {
