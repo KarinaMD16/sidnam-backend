@@ -10,7 +10,7 @@ export class GetEntradaUseCase {
     private readonly entradaRepository: Repository<Entrada>,
   ) {}
 
-  async getEntradasPorMes(mes: number, anio: number, categoriaId: number, page = 1, limit = 0): Promise<{data: Array<{entrada_id: number; fecha_entrada: string; cantidad: number; codigo_producto: string; nombre: string;}>;total: number;}> {
+  async getEntradasPorMes(mes: number, anio: number, categoriaId: number, page = 1, limit = 0): Promise<{data: Array<{entrada_id: number; fecha_entrada: string; cantidad: number; codigo_producto: string; nombre: string; unidadMedida: { nombre: string; abreviatura: string } | null;}>;total: number;}> {
   if (mes < 1 || mes > 12) throw new BadRequestException('Mes inválido (1-12)');
   if (anio < 2000 || anio > 2100) throw new BadRequestException('Año inválido');
   if (!categoriaId || Number.isNaN(+categoriaId)) {
@@ -24,14 +24,17 @@ export class GetEntradaUseCase {
     .createQueryBuilder('e')
     .innerJoin('e.inventario', 'inv')
     .innerJoin('inv.producto', 'p')
-    .innerJoin('p.categoria', 'c')                               
+    .innerJoin('p.categoria', 'c')
+    .leftJoin('inv.unidad_medida', 'um') 
     .where('e.fechaEntrada >= :inicio AND e.fechaEntrada < :fin', { inicio, fin })
-    .andWhere('c.id = :categoriaId', { categoriaId })            
+    .andWhere('c.id = :categoriaId', { categoriaId })
     .select('e.id', 'entrada_id')
     .addSelect("DATE_FORMAT(e.fechaEntrada, '%Y-%m-%d')", 'fecha_entrada') 
     .addSelect('e.cantidad', 'cantidad')
     .addSelect('p.codigo', 'codigo_producto')
     .addSelect('p.nombre', 'nombre')
+    .addSelect('um.nombre', 'unidad_nombre')            
+    .addSelect('um.abreviatura', 'unidad_abreviatura') 
     .orderBy('e.fechaEntrada', 'DESC')
     .addOrderBy('e.id', 'DESC');
 
@@ -42,15 +45,29 @@ export class GetEntradaUseCase {
     qb.offset((currentPage - 1) * limit).limit(limit);
   }
 
-  const rows = await qb.getRawMany<{
+  const raws = await qb.getRawMany<{
     entrada_id: number;
     fecha_entrada: string;
     cantidad: number;
     codigo_producto: string;
     nombre: string;
+    unidad_nombre: string | null;
+    unidad_abreviatura: string | null;
   }>();
 
-  return { data: rows, total };
+  const data = raws.map(r => ({
+    entrada_id: r.entrada_id,
+    fecha_entrada: r.fecha_entrada,
+    cantidad: r.cantidad,
+    codigo_producto: r.codigo_producto,
+    nombre: r.nombre,
+    unidadMedida: (r.unidad_nombre || r.unidad_abreviatura)
+      ? { nombre: r.unidad_nombre ?? '', abreviatura: r.unidad_abreviatura ?? '' }
+      : null,
+  }));
+
+  return { data, total };
 }
+
 
 }
