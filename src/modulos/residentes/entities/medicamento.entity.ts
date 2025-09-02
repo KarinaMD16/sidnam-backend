@@ -1,6 +1,4 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, OneToMany } from 'typeorm';
-import { Administraciones } from './administraciones.entity';
-import { Tipo_medicamento } from './tipo_medicamento.entity';
 import { AdministracionesEspeciales } from './administracionEspecial.entity';
 import { AdministracionMedicamento } from './administracioneMedicamento';
 
@@ -13,11 +11,11 @@ export class Medicamentos {
   @Column()
   nombre: string;
 
-  @OneToMany(() => AdministracionMedicamento, am => am.medicamento)
-  administracionMedicamentos: AdministracionMedicamento[];
+  @Column()
+  tipo: string;
 
-  @ManyToOne(() => Tipo_medicamento, tipo => tipo.medicamentos)
-  tipo: Tipo_medicamento;
+  @OneToMany(() => AdministracionMedicamento, am => am.medicamento, { cascade: true })
+  administracionMedicamentos: AdministracionMedicamento[];
 
   @OneToMany(() => AdministracionesEspeciales, administracionEspecial => administracionEspecial.medicamento)
   administracionesEspeciales: AdministracionesEspeciales[];

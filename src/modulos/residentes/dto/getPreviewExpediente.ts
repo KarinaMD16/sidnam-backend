@@ -23,6 +23,14 @@ export class ExpedienteResidentePreviewDto {
   })
   fecha_ingreso: string; 
 
+  @Expose()
+  @Transform(({ value }) => {
+    if (!value) return null;
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? null : date.toLocaleDateString('es-CR');
+  })
+  fecha_cierre: string; 
+
  @Expose()
   @Transform(({ obj }) => {
     const estado = obj.estado; 

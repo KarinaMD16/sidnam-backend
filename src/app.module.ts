@@ -41,7 +41,6 @@ import { Salida } from './modulos/inventarios/entities/salida.entity';
 import { Patologias } from './modulos/residentes/entities/patologias.entity';
 import { Administraciones } from './modulos/residentes/entities/administraciones.entity';
 import { Medicamentos } from './modulos/residentes/entities/medicamento.entity';
-import { Tipo_medicamento } from './modulos/residentes/entities/tipo_medicamento.entity';
 import { AdministracionesEspeciales } from './modulos/residentes/entities/administracionEspecial.entity';
 import { NotaEnfermeria } from './modulos/residentes/entities/NotaEnfermeria.entity';
 import { Curaciones } from './modulos/residentes/entities/curaciones.entity';
@@ -52,6 +51,9 @@ import { Unidad_Medida } from './modulos/unidades-medida/entities/unidadMedida.e
 import { UnidadesMedidaModule } from './modulos/unidades-medida/unidades-medida.module';
 import { AdministracionMedicamento } from './modulos/residentes/entities/administracioneMedicamento';
 import { Subcategoria_Producto } from './modulos/inventarios/entities/subCategoriaProducto.entity';
+import { Libro_Campo } from './modulos/residentes/entities/libroCampo.entity';
+import { HistorialPatologias } from './modulos/residentes/entities/historiaoPatologias.entity';
+import { HistorialCuraciones } from './modulos/residentes/entities/historialCuraciones.entity';
 
 
 
@@ -100,7 +102,6 @@ dotenv.config();
         Patologias,
         Administraciones,
         Medicamentos,
-        Tipo_medicamento,
         AdministracionesEspeciales,
         NotaEnfermeria,
         Curaciones,
@@ -109,7 +110,10 @@ dotenv.config();
         Tipo_Consulta,
         Unidad_Medida,
         AdministracionMedicamento,
-        Subcategoria_Producto
+        Subcategoria_Producto,
+        Libro_Campo,
+        HistorialPatologias,
+        HistorialCuraciones,
       ],
       synchronize: true,
       dropSchema: false,

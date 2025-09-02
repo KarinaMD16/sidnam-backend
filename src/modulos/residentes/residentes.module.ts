@@ -8,7 +8,6 @@ import { Encargado } from './entities/encargado.entity';
 import { Patologias } from './entities/patologias.entity';
 import { Administraciones } from './entities/administraciones.entity';
 import { Medicamentos } from './entities/medicamento.entity';
-import { Tipo_medicamento } from './entities/tipo_medicamento.entity';
 import { AdministracionesEspeciales } from './entities/administracionEspecial.entity';
 import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
 import { Curaciones } from './entities/curaciones.entity';
@@ -17,29 +16,40 @@ import { Consulta_Especialista } from './entities/consultaEspecialista.entity';
 import { Tipo_Consulta } from './entities/tipoConsulta.entity';
 import { Unidad_Medida } from '../unidades-medida/entities/unidadMedida.entity';
 import { AdministracionMedicamento } from './entities/administracioneMedicamento';
+import { Libro_Campo } from './entities/libroCampo.entity';
+import { GestionUsuarioModule } from '../gestion-usuario/gestion-usuario.module';
+import { HistorialPatologias } from './entities/historiaoPatologias.entity';
+import { HistorialCuraciones } from './entities/historialCuraciones.entity';
+import { PdfHtmlService } from 'src/common/services/pdf-html.service';
+import { ReporteExpedienteService } from './ReporteExpediente.service';
+
 
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([
-    Residente, 
-    Expediente_Residente, 
-    Encargado, 
-    Patologias, 
-    Administraciones, 
-    Medicamentos, 
-    Tipo_medicamento, 
-    AdministracionesEspeciales, 
-    NotaEnfermeria,
-    Curaciones,
-    Consulta_Ebais,
-    Consulta_Especialista,
-    Tipo_Consulta,
-    Unidad_Medida,
-    AdministracionMedicamento
-
-  ])],
-  providers: [ResidentesService],
-  controllers: [ResidentesController]
+  imports: [
+    TypeOrmModule.forFeature([
+      Residente, 
+      Expediente_Residente, 
+      Encargado, 
+      Patologias, 
+      Administraciones, 
+      Medicamentos, 
+      AdministracionesEspeciales, 
+      NotaEnfermeria,
+      Curaciones,
+      Consulta_Ebais,
+      Consulta_Especialista,
+      Tipo_Consulta,
+      Unidad_Medida,
+      AdministracionMedicamento,
+      Libro_Campo,
+      HistorialPatologias,
+      HistorialCuraciones,  
+    ]),
+    GestionUsuarioModule, 
+  ],
+  providers: [ResidentesService, ReporteExpedienteService, PdfHtmlService],
+  controllers: [ResidentesController],
 })
 export class ResidentesModule {}

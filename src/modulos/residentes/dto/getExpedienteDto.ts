@@ -36,6 +36,9 @@ export class GetExpedienteResidenteDto{
     fecha_cierre: string; 
 
     @Expose()
+    usuario_cierre
+
+    @Expose()
     @Type(() => ResidenteDto)
     residente: ResidenteDto;
 

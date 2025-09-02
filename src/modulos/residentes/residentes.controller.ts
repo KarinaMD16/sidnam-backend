@@ -1,10 +1,9 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Put, Query, Res } from '@nestjs/common';
 import { ResidentesService } from './residentes.service';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
 import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
 import { ActualizarExpediente } from './dto/actualizarExpediente';
 import { CreatePatologiaDto } from './dto/createPatologia.Dto';
-import { Tipo_MedicamentoDto } from './dto/createTipoMedicamento.Dto';
 import { NotaEnfermeria } from './entities/NotaEnfermeria.entity';
 import { CreateCuracionDto } from './dto/createCuracionDto';
 import { createConsultaEbaisDto } from './dto/createConsultaEabisDto';
@@ -15,11 +14,20 @@ import { CreateUnidadMedidaDto } from './dto/createUnidadMedidaDto';
 import { CreateAdministracionDto } from './dto/registrarMedicamentoDto';
 import { CreateMedicamentoDto } from './dto/createMedicamentoDto';
 import { CreateAdministracionEspecialDto } from './dto/createAdministracionEspecialDto';
+import { Libro_Campo } from './entities/libroCampo.entity';
+import { CrearLibroCampoDto } from './dto/createLibroCampoDto';
+import { AtualizarLibroCampoDto } from './dto/actualizarLibroCampoDto';
+import { ReporteExpedienteService } from './ReporteExpediente.service';
+import { Response } from 'express';
+
+
 
 @Controller('residentes')
 export class ResidentesController {
 
-    constructor( private readonly residentesService: ResidentesService){}
+    constructor( 
+        private readonly residentesService: ResidentesService,
+        private readonly reporteExpedienteService: ReporteExpedienteService,){}
 
 
    @Post('expediente')
@@ -83,19 +91,14 @@ export class ResidentesController {
        return this.residentesService.getPatologias();
    }
 
-   @Post('tipos-medicamento')
-   async createTipoMedicamento(@Body() createTipoMedicamentoDto: Tipo_MedicamentoDto) {
-       return this.residentesService.crearTipoMedicamento(createTipoMedicamentoDto);
-   }
-
-   @Get('tipos-medicamento')
-   async getTiposMedicamento() {
-       return this.residentesService.getTiposMedicamento();
-   }
-
    @Post('medicamentos/:idTipoMedicamento')
    async createMedicamento(@Param('idTipoMedicamento', ParseIntPipe) idTipoMedicamento: number, @Body() createMedicamento: CreateMedicamentoDto) {
        return this.residentesService.asociarMedicamentoATipoMedicamento(idTipoMedicamento, createMedicamento);
+   }
+
+   @Get('tipos-medicamentos')
+   async getTiposMedicamentos() {
+       return this.residentesService.getTipos_Medicamentos();
    }
 
    @Get('medicamentos')
@@ -103,17 +106,34 @@ export class ResidentesController {
        return this.residentesService.getMedicamentos();
    }
 
+   @Get('medicamentos/tipo/:id_tipoMedicamento')
+   async getMedicamentosPorTipo(@Param('id_tipoMedicamento', ParseIntPipe) idTipoMedicamento: number) {
+       return this.residentesService.getMedicamentosPorTipo(idTipoMedicamento);
+   }
+
    @Get('turnos')
    async getTurnos() {
        return this.residentesService.getTurnos();
    }
 
-   @Post('expedientes/notas-enfermeria/:idExpediente')
+    @Post('expedientes/notas-enfermeria/:idExpediente')
     async crearNota(@Param('idExpediente', ParseIntPipe) idExpediente: number, @Body() crearNotaDto: CrearNotaDto): Promise<NotaEnfermeria> {
        const { titulo, textoCompleto } = crearNotaDto;
        return this.residentesService.crearNotaEnfermeria(idExpediente, textoCompleto, titulo);
     }
 
+    @Post('expedientes/libro-campo/:idExpediente')
+    async crearNotaLibroCampo(@Param('idExpediente', ParseIntPipe) idExpediente: number,@Body() crearLibroCampoDto: CrearLibroCampoDto,): Promise<Libro_Campo> {
+        const { descripcionCompleta, problematica, fecha_actividad, acuerdo_alcanzado } = crearLibroCampoDto;
+
+        return this.residentesService.crearNotaLibroCampo(
+            idExpediente,
+            descripcionCompleta,
+            problematica,
+            fecha_actividad,
+            acuerdo_alcanzado,
+        );
+    }
 
    @Get('expedientes/notas-enfermeria/:id')
    async obtenerNotasPorExpediente(@Param('id') expedienteId: number): Promise<{ id: number; nota: string }[]> {
@@ -125,6 +145,17 @@ export class ResidentesController {
         const nota = await this.residentesService.obtenerNotaCompleta(idNotaPadre);
         if (!nota) throw new NotFoundException('Nota no encontrada');
         return nota;
+    }
+
+    @Get('expedientes/libro-campo/:idExpediente')
+        async obtenerNotasLibroPorExpediente(@Param('idExpediente', ParseIntPipe) idExpediente: number): Promise<{id: number;descripcion: string;problematica?: string;acuerdoAlcanzado?: string;fechaActividad?: string;fecha: string;}[]> {
+        const notas = await this.residentesService.obtenerNotasLibroPorExpediente(idExpediente);
+
+        if (!notas || notas.length === 0) {
+            throw new NotFoundException('No se encontraron notas del libro de campo para este expediente');
+        }
+
+        return notas;
     }
 
     @Delete('expedientes/:id/adjuntar-patologia/:id_patologia')
@@ -201,6 +232,64 @@ export class ResidentesController {
     async agregarMedicamentoEspecialesAExpediente(@Param('id_expediente', ParseIntPipe) idExpediente: number, @Body() createRegistroEspecial: CreateAdministracionEspecialDto) {
         return this.residentesService.agregarTratamientosEspeciales(idExpediente, createRegistroEspecial);
     }
+
+    @Get('estados-expedientes')
+    async getEstadosExpedientes() {
+        return this.residentesService.getEstados();
+    }
+
+    @Patch('expedientes/trabajo-social/estado/:id_expediente/:id_estado/:id_usuario')
+    async cambiarEstadoExpediente(@Param('id_expediente', ParseIntPipe) idExpediente: number, @Param('id_estado', ParseIntPipe) idEstado: number, @Param('id_usuario', ParseIntPipe) id_usuario: number) {
+        return this.residentesService.cambiarEstado(idEstado, idExpediente, id_usuario);
+    }
+
+    @Patch('expedientes/trabajo-social/nota-libro/:idNotaPadre')
+    async actualizarNota(@Param('idNotaPadre', ParseIntPipe) idNotaPadre: number, @Body() actualizarNota: AtualizarLibroCampoDto){
+        return this.residentesService.updateNotasLibro(idNotaPadre, actualizarNota)
+    }
+
+    @Get('filtrar-nombre')
+    async getResidentesPorNombre(@Query('filtro') filtro: string){
+        return this.residentesService.buscarResidentesPorNombre(filtro);
+    }
+
+    @Get('expedientes/estado/:idEstado')
+    async getExpedientesPorEstado(
+    @Param('idEstado', ParseIntPipe) idEstado: number,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    ) {
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    return this.residentesService.getExpedientePorEstado(idEstado, pageNumber, limitNumber);
+    }
+
+    @Delete('expedientes/administraciones/:idAdministracion/:idMedicamento')
+    async eliminarMedicamentoAdministracion(@Param('idAdministracion', ParseIntPipe) idAdministracion: number, @Param('idMedicamento', ParseIntPipe) idMedicamento: number){
+        return this.residentesService.eliminarMedicamentoDeAdministracion(idAdministracion, idMedicamento)
+    }
+
+    @Delete('expedientes/administracionesEspecial/:idAdministracionEspecial')
+    async eliminarTratamientoEspecial(@Param('idAdministracionEspecial', ParseIntPipe) idAdministracionEspecial: number){
+        return this,this.residentesService.eliminarAntibioticoDeAdministracion(idAdministracionEspecial)
+    }
+
+    @Get('expedientes/:id/pdf')
+    async generarPdf(@Param('id', ParseIntPipe) idExpediente: number, @Res() res: Response) {
+        return this.reporteExpedienteService.generarPdfExpediente(idExpediente, res);
+    }
+
+    @Get('expedientes/cedula/:cedula')
+    async consultarCedulaExistente(@Param('cedula') cedula: string){
+        return this.residentesService.verificarCedula(cedula)
+    }
+
+    @Get('linea-pobreza')
+    async getLineaPobreza(){
+        return this.residentesService.getLineaProbeza()
+    }
+
 
 }
     

@@ -2,6 +2,7 @@ import { Expose, Transform, Type } from 'class-transformer';
 import { DependenciaOpts } from 'src/common/enums/dependencia.enum';
 import { EstadoCivilOptios } from 'src/common/enums/estadoCivil.enum';
 import { EncargadorDto } from './EncaregadosDto';
+import { LineaPobrezaOPs } from 'src/common/enums/lineaProbeza.enum';
 
 export class ResidenteDto {
   @Expose()
@@ -30,6 +31,14 @@ export class ResidenteDto {
 
    @Expose()
    estado_civil: 'Casado' | 'Soltero'
+
+   @Expose()
+   @Transform(({ obj }) => {
+     const tipo = obj.linea_pobreza; 
+     const match = LineaPobrezaOPs.find(opt => opt.value === tipo);
+     return match ? { id: match.id, nombre: match.nombre } : null;
+   })
+   linea_pobreza: { id: number; nombre: string };
 
    @Expose()
    @Transform(({ obj }) => {

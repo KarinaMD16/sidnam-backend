@@ -55,6 +55,9 @@ export class CreateResidenteDto {
   @IsNotEmpty()
   dependencia: number;
 
+  @IsNotEmpty()
+  lineaPobreza: number;
+
   @ValidateNested({ each: true })
   @Type(() => CreateEncargadoDto)
   @ArrayMinSize(1)
