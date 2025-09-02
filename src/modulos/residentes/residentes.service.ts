@@ -366,6 +366,14 @@ export class ResidentesService {
       expediente.residente.sexo = actualizarExpediente.sexo;
     }
 
+    if (actualizarExpediente.apellido1) {
+      expediente.residente.apellido1 = actualizarExpediente.apellido1;
+    }
+
+    if (actualizarExpediente.apellido2) {
+      expediente.residente.apellido2 = actualizarExpediente.apellido2;
+    }
+
     if (actualizarExpediente.cedula) {
       const cedulaExistenteResidente = await this.residenteRepository.findOne({
         where: {
@@ -453,6 +461,16 @@ export class ResidentesService {
   }
 
   async createPatologia(createPatologiaDto: CreatePatologiaDto) {
+
+
+    const patologiaRepetida = await this.patologiasRepository.findOne({
+      where: {nombre: createPatologiaDto.nombre.toLocaleLowerCase()}
+    })
+
+    if(patologiaRepetida){
+      throw new BadRequestException('Patologia repetida')
+    }
+
     const patologia = this.patologiasRepository.create({
       ...createPatologiaDto,
       nombre: createPatologiaDto.nombre.toLowerCase(),
