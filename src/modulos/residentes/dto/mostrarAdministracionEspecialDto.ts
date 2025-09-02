@@ -3,6 +3,10 @@ import { UnidadMedidaDto } from "./unidadMedidaDto";
 import { MedicamentoDto } from "./medicamentosDto";
 
 export class MostrarMedicamentoEspecial{
+
+    @Expose()
+    id_administracion_especial: number;
+    
     @Expose()
     hora: string;
 

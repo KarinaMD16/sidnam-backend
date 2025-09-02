@@ -51,6 +51,8 @@ import { Unidad_Medida } from './modulos/unidades-medida/entities/unidadMedida.e
 import { UnidadesMedidaModule } from './modulos/unidades-medida/unidades-medida.module';
 import { AdministracionMedicamento } from './modulos/residentes/entities/administracioneMedicamento';
 import { Libro_Campo } from './modulos/residentes/entities/libroCampo.entity';
+import { HistorialPatologias } from './modulos/residentes/entities/historiaoPatologias.entity';
+import { HistorialCuraciones } from './modulos/residentes/entities/historialCuraciones.entity';
 
 
 
@@ -107,7 +109,9 @@ dotenv.config();
         Tipo_Consulta,
         Unidad_Medida,
         AdministracionMedicamento,
-        Libro_Campo
+        Libro_Campo,
+        HistorialPatologias,
+        HistorialCuraciones,
       ],
       synchronize: true,
       dropSchema: false,
