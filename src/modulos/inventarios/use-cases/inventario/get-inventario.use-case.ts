@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { MoreThan, Repository } from "typeorm";
 import { Inventario } from "../../entities/inventario.entity";
 
 
@@ -114,6 +114,7 @@ export class GetInventarioUseCase {
           archivado: false,
           subcategoria: { id: subcategoriaId },
         },
+        stock: MoreThan(0),
       },
       relations: {
         producto: { subcategoria: true },
