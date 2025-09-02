@@ -285,6 +285,11 @@ export class ResidentesController {
         return this.residentesService.verificarCedula(cedula)
     }
 
+    @Get('linea-pobreza')
+    async getLineaPobreza(){
+        return this.residentesService.getLineaProbeza()
+    }
+
 
 }
     
