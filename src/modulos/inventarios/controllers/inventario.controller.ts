@@ -18,6 +18,8 @@ import { ReportesInventarioService } from "../services/reporteInventario.service
 import { ReporteMovimientosDto } from "../dto/reporteMovimientosDto";
 import { ApiOkResponse, ApiOperation, ApiProduces, ApiQuery } from "@nestjs/swagger";
 import { CreateCategoriaDto } from "../dto/createCategoriaDto";
+import { SubcategoriaUseCase } from "../use-cases/subCategoria/subCategoria.use-case";
+import { CrearSubcategoriaDto } from "../dto/crearSubCategoriaDto";
 
 
 @Controller('inventario')
@@ -35,6 +37,7 @@ export class InventarioController {
         private readonly createSalidaUseCase: CreateSalidaUseCase,
         private readonly getSalidasUsecase: GetSalidaUseCase,
         private readonly reporteInventarioService: ReportesInventarioService,
+        private readonly subCategoriasUseCase: SubcategoriaUseCase,
     
     ){}
 
@@ -45,9 +48,20 @@ export class InventarioController {
   }
 
   @Post('tipo-categoria/categoria/:idCategoriaProducto')
-      async createCategoriaProducto(@Param('idCategoria', ParseIntPipe) idCategoria: number,@Body() createCategoriaDto: CreateCategoriaDto,) {
+      async createCategoriaProducto(@Param('idCategoriaProducto', ParseIntPipe) idCategoria: number,@Body() createCategoriaDto: CreateCategoriaDto,) {
       return this.inventarioService.crearCategoria(idCategoria, createCategoriaDto);
     }
+
+    @Post('subCategoria')
+    crearSubCategoria(@Body() subCategoria: CrearSubcategoriaDto) {
+      return this.subCategoriasUseCase.crearSubCategoria(subCategoria);
+   }
+
+    @Get('subcategorias')
+    GetAllSubCategorias() {
+      return this.subCategoriasUseCase.getAllSubCategorias();
+   }
+
 
     @Post('productos')
     crearProducto(@Body() Producto: ProductoDto){
@@ -176,4 +190,15 @@ export class InventarioController {
        ) {
          await this.reporteInventarioService.generarReporteSalidas(q, res);
        }
+
+     @Get('subcategoria/:subcategoriaId')
+     getPorSubcategoria(
+       @Param('subcategoriaId', ParseIntPipe) subcategoriaId: number,
+       @Query('page') page?: number,
+       @Query('limit') limit?: number,
+     ) {
+       const p = page ? Number(page) : undefined;
+       const l = limit ? Number(limit) : undefined;
+       return this.getInventarioUseCase.findAllBySubcategoria(subcategoriaId, p, l);
+     }
 }

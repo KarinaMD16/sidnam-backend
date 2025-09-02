@@ -92,4 +92,65 @@ export class GetInventarioUseCase {
   }));
  }
 
+ async findAllBySubcategoria(
+    subcategoriaId: number,
+    page?: number,
+    limit?: number,
+  ): Promise<{
+    data: Array<{
+      inventarioId: number;
+      stock: number;
+      nombreProducto: string;
+      codigoProducto: string;
+      nombreUnidadMedida: string | null;
+      abreviaturaUnidadMedida: string | null;
+      imagen: string | null;
+    }>;
+    total: number;
+  }> {
+    const [rows, total] = await this.inventarioRepository.findAndCount({
+      where: {
+        producto: {
+          archivado: false,
+          subcategoria: { id: subcategoriaId },
+        },
+      },
+      relations: {
+        producto: { subcategoria: true },
+        unidad_medida: true,
+      },
+      select: {
+        id: true,
+        stock: true,
+        producto: {
+          id: true,
+          nombre: true,
+          codigo: true,
+          imagen_url: true,
+          subcategoria: { id: true },
+        },
+        unidad_medida: {
+          id_unidad: true,
+          nombre: true,
+          abreviatura: true,
+        },
+      },
+      order: { id: 'DESC' },
+      skip: page && limit ? (page - 1) * limit : 0,
+      take: limit,
+    });
+
+    const data = rows.map((i) => ({
+      inventarioId: i.id,
+      stock: i.stock,
+      nombreProducto: i.producto.nombre,
+      codigoProducto: i.producto.codigo,
+      nombreUnidadMedida: i.unidad_medida ? i.unidad_medida.nombre : null,
+      abreviaturaUnidadMedida: i.unidad_medida ? i.unidad_medida.abreviatura : null,
+      imagen: i.producto.imagen_url ?? null,
+    }));
+
+    return { data, total };
+  }
+
 }

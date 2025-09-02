@@ -1,5 +1,4 @@
-// use-cases/create-entrada.usecase.ts
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, HttpException } from '@nestjs/common';
 import { DataSource, In } from 'typeorm';
 import { Inventario } from '../../entities/inventario.entity';
 import { Entrada } from '../../entities/entrada.entity';
@@ -7,21 +6,25 @@ import { CrearEntradaDto } from '../../dto/crearEntradaDto';
 
 @Injectable()
 export class CreateEntradaUseCase {
-
   constructor(private readonly dataSource: DataSource) {}
 
   async crearEntradas(entrada: CrearEntradaDto) {
     if (!entrada.productos?.length) {
       throw new BadRequestException('Se requiere al menos un producto');
     }
-
     for (const p of entrada.productos) {
-    if (p.cantidad <= 0) {
-      throw new BadRequestException(
-        `Cantidad inválida para inventarioId ${p.inventarioId}. Debe ser mayor a 0`,
-      );
+      if (p.cantidad <= 0) {
+        throw new BadRequestException(`Cantidad inválida para inventarioId ${p.inventarioId}. Debe ser mayor a 0`);
+      }
     }
-  }
+
+    
+    const consolidados = entrada.productos.reduce((acc, p) => {
+      acc[p.inventarioId] = (acc[p.inventarioId] ?? 0) + p.cantidad;
+      return acc;
+    }, {} as Record<number, number>);
+
+    const uniqueIds = Object.keys(consolidados).map(Number);
     const ahora = new Date();
 
     try {
@@ -29,42 +32,42 @@ export class CreateEntradaUseCase {
         const invRepo = manager.getRepository(Inventario);
         const entRepo = manager.getRepository(Entrada);
 
-        // 1) Traer inventarios involucrados
-        const ids = entrada.productos.map(p => p.inventarioId);
-        const inventarios = await invRepo.find({ where: { id: In(ids) } });
+        
+        const inventarios = await invRepo.findBy({ id: In(uniqueIds) });
 
-        if (inventarios.length !== ids.length) {
-          const existentes = new Set(inventarios.map(i => i.id));
-          const faltantes = ids.filter(id => !existentes.has(id));
+        
+        const encontrados = new Set(inventarios.map(i => i.id));
+        const faltantes = uniqueIds.filter(id => !encontrados.has(id));
+        if (faltantes.length > 0) {
           throw new NotFoundException(`Inventarios no encontrados: ${faltantes.join(', ')}`);
         }
 
-        // 2) Crear entradas
-        const entradas = entrada.productos.map(p => {
-          const inv = inventarios.find(x => x.id === p.inventarioId)!;
+        
+        const entradas = uniqueIds.map((id) => {
+          const inv = inventarios.find(x => x.id === id)!;
           return entRepo.create({
-            cantidad: p.cantidad,
+            cantidad: consolidados[id],
             fechaEntrada: ahora,
             inventario: inv,
           });
         });
         const guardadas = await entRepo.save(entradas);
 
-        // 3) Sumar stock
-        for (const p of entrada.productos) {
-          await invRepo.increment({ id: p.inventarioId }, 'stock', p.cantidad);
+        
+        for (const id of uniqueIds) {
+          await invRepo.increment({ id }, 'stock', consolidados[id]);
         }
 
-        // 4) Resumen
+        
         const stocksActuales = await invRepo.find({
-          where: { id: In(ids) },
+          where: { id: In(uniqueIds) },
           select: { id: true, stock: true },
         });
 
         return {
           message: 'Entradas registradas correctamente',
           fecha: ahora,
-          totalProductos: entrada.productos.length,
+          totalLineas: uniqueIds.length,
           entradas: guardadas.map(e => ({
             entradaId: e.id,
             inventarioId: e.inventario.id,
@@ -73,9 +76,11 @@ export class CreateEntradaUseCase {
           inventarios: stocksActuales,
         };
       });
-    } catch (err: any) {
+    } catch (err) {
+      
+      if (err instanceof HttpException) throw err;
       console.error('ERROR crearEntradas', err);
-      throw new InternalServerErrorException(err?.message ?? 'Error creando entradas');
+      throw new InternalServerErrorException('Error creando entradas');
     }
   }
 }

@@ -15,11 +15,11 @@ export class Categoria_Producto {
     @Column({type: 'enum', enum: CategoriasPrincipalesProductos})
     tipo: CategoriasPrincipalesProductos;
 
-    @Column()
-    icono: string;
+    //@Column()
+    //icono: string;
 
-    @Column()
-    descripcion: string;
+    //@Column()
+    //descripcion: string;
 
     @OneToMany(() => Producto, producto => producto.categoria)
     productos: Producto[];
