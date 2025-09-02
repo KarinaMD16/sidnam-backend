@@ -9,17 +9,17 @@ export class Categoria_Producto {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({
-    type: 'enum',
-    enum: CategoriasPrincipalesProductos,
-    })
-    nombre: CategoriasPrincipalesProductos;
-
     @Column()
-    icono: string;
+    nombre: string;
 
-    @Column()
-    descripcion: string;
+    @Column({type: 'enum', enum: CategoriasPrincipalesProductos})
+    tipo: CategoriasPrincipalesProductos;
+
+    //@Column()
+    //icono: string;
+
+    //@Column()
+    //descripcion: string;
 
     @OneToMany(() => Producto, producto => producto.categoria)
     productos: Producto[];

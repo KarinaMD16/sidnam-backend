@@ -15,4 +15,5 @@ export class CategoriaProductoDto{
     @IsString()
     @IsNotEmpty()
     descripcion: string;
+    
 }

@@ -1,4 +1,5 @@
-import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from "@nestjs/common";
+import { Response as ExpressResponse } from 'express';
 import { InventarioService } from "../services/inventario.service";
 import { CategoriaProductoDto } from "../dto/crearCategoriaProductoDto";
 import { CreateProductoUseCase } from "../use-cases/producto/create-producto.use-case";
@@ -7,8 +8,18 @@ import { GetProductosUseCase } from "../use-cases/producto/get-producto.use-case
 import { UpdateProductoUseCase } from "../use-cases/producto/update-producto.use-case";
 import { GetInventarioUseCase } from "../use-cases/inventario/get-inventario.use-case";
 import { PatchEditarInventarioDto } from "../dto/actualizarInventarioDto";
-import { CrearEntradaLoteDto } from "../dto/crearEntradaDto";
+import { CrearEntradaDto } from "../dto/crearEntradaDto";
 import { CreateEntradaUseCase } from "../use-cases/entrada/create-entrada.use-case";
+import { GetEntradaUseCase } from "../use-cases/entrada/get-entrada.use-case";
+import { CrearSalidaDto } from "../dto/crearSalidaDto";
+import { CreateSalidaUseCase } from "../use-cases/salida/create-salida.use-case";
+import { GetSalidaUseCase } from "../use-cases/salida/get-salida.use-case";
+import { ReportesInventarioService } from "../services/reporteInventario.service";
+import { ReporteMovimientosDto } from "../dto/reporteMovimientosDto";
+import { ApiOkResponse, ApiOperation, ApiProduces, ApiQuery } from "@nestjs/swagger";
+import { CreateCategoriaDto } from "../dto/createCategoriaDto";
+import { SubcategoriaUseCase } from "../use-cases/subCategoria/subCategoria.use-case";
+import { CrearSubcategoriaDto } from "../dto/crearSubCategoriaDto";
 
 
 @Controller('inventario')
@@ -21,33 +32,54 @@ export class InventarioController {
         private readonly getProductoUseCase: GetProductosUseCase,
         private readonly updateProductosUseCase: UpdateProductoUseCase,
         private readonly getInventarioUseCase: GetInventarioUseCase,
-        private readonly createEntradaUseCase: CreateEntradaUseCase
+        private readonly createEntradaUseCase: CreateEntradaUseCase,
+        private readonly getEntradaUseCase: GetEntradaUseCase,
+        private readonly createSalidaUseCase: CreateSalidaUseCase,
+        private readonly getSalidasUsecase: GetSalidaUseCase,
+        private readonly reporteInventarioService: ReportesInventarioService,
+        private readonly subCategoriasUseCase: SubcategoriaUseCase,
     
     ){}
 
-    
-    @Post('categorias')
-    crearCategoriaProducto(@Body() crearCategoriaProducto: CategoriaProductoDto){
-        return this.inventarioService.crearCategoriaProducto(crearCategoriaProducto);
+    //Ver las categorias de los productos.
+    @Get()
+  async getCategorias() {
+    return this.inventarioService.getCategorias();
+  }
+
+  //Crear una categoria nueva.
+  @Post('tipo-categoria/categoria/:idCategoriaProducto')
+      async createCategoriaProducto(@Param('idCategoriaProducto', ParseIntPipe) idCategoria: number,@Body() createCategoriaDto: CreateCategoriaDto,) {
+      return this.inventarioService.crearCategoria(idCategoria, createCategoriaDto);
     }
 
-    @Get('categorias')
-    getAllCategoriaProducto(){
-        return this.inventarioService.getAllCategoriasProductos()
-    }
+    //Crear una subcategoria.
+    @Post('subCategoria')
+    crearSubCategoria(@Body() subCategoria: CrearSubcategoriaDto) {
+      return this.subCategoriasUseCase.crearSubCategoria(subCategoria);
+   }
 
+   //Ver las subcategorias existentes.
+    @Get('subcategorias')
+    GetAllSubCategorias() {
+      return this.subCategoriasUseCase.getAllSubCategorias();
+   }
+
+
+   //Crear un producto, crea un inventario asociado automáticamente.
     @Post('productos')
     crearProducto(@Body() Producto: ProductoDto){
         return this.createProductoUseCase.crearProducto(Producto)
     }
 
-    
+    //Ver los productos existentes.
     @Get('productos')
     findAllProductos() {
         return this.getProductoUseCase.findAllProductos();
     }
   
 
+    //Updatear un inventario y toda la información del producto asociado.
     @Patch('update/:inventarioId')
     updateInventario(
       @Param('inventarioId', ParseIntPipe) inventarioId: number,
@@ -56,7 +88,7 @@ export class InventarioController {
       return this.updateProductosUseCase.updateInventario(inventarioId, dto);
    } 
 
-    
+    //Busca los inventarios de acuerdo a su categoria (alimentos, limpieza, medicamentos).
    @Get('categoria/:categoriaId')
    getInventarioPorCategoria(
      @Param('categoriaId', ParseIntPipe) categoriaId: number,
@@ -69,6 +101,7 @@ export class InventarioController {
   }
 
 
+     //Archiva/Desarchiva un producto del inventario.
     @Patch('handleArchivado/:inventarioId')
       toggleArchivadoPorInventario(
       @Param('inventarioId', ParseIntPipe) inventarioId: number
@@ -76,6 +109,7 @@ export class InventarioController {
       return this.updateProductosUseCase.updateArchivadoProducto(inventarioId);
     }
 
+    //Busca los archivados de x categoría.
     @Get('archivados/:categoriaId')
     findProductosArchivadosPorCategoria(
       @Param('categoriaId', ParseIntPipe) categoriaId: number,
@@ -85,9 +119,98 @@ export class InventarioController {
      return this.getProductoUseCase.findByArchivadoYCategoria(true, categoriaId, page, limit);
    }
 
-   @Post('entradas/lote')
-   crearEntradaLote(@Body() dto: CrearEntradaLoteDto) {
-      return this.createEntradaUseCase.crearEntradasLote(dto);
+    //Busca los inventarios de acuerdo a su categoria (no paginado).
+    @Get('categoria/:categoriaId/all')
+    getInventariosPorCategoriaSinPaginacion(
+       @Param('categoriaId', ParseIntPipe) categoriaId: number,
+     ) {
+        return this.getInventarioUseCase.findAllByCategoriaSinPaginacion(categoriaId);
+     }
+
+     //Entradas
+     @Post('entrada')
+     crearEntradas(@Body() dto: CrearEntradaDto) {
+        return this.createEntradaUseCase.crearEntradas(dto);
+     }
+
+     @Get('entradas/:anio/:mes/:categoriaId')
+     getEntradasPorMes(
+     @Param('anio', ParseIntPipe) anio: number,
+     @Param('mes',  ParseIntPipe) mes: number,
+     @Param('categoriaId', ParseIntPipe) categoriaId: number,        
+     @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page?: number,
+     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,
+    ) {
+       return this.getEntradaUseCase.getEntradasPorMes(mes, anio, categoriaId, page, limit);  
+    }
+
+
+     //Salidas
+     @Post('salidas') 
+     crearSalidas(@Body() dto: CrearSalidaDto) {
+        return this.createSalidaUseCase.crearSalidas(dto);
+     }
+
+     @Get('salidas/:anio/:mes/:categoriaId')
+     getSalidasPorMes(
+     @Param('anio', ParseIntPipe) anio: number,
+     @Param('mes',  ParseIntPipe) mes: number,
+     @Param('categoriaId', ParseIntPipe) categoriaId: number,       
+     @Query('page',  new DefaultValuePipe(1), ParseIntPipe) page?: number,
+     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,
+    ) {
+      return this.getSalidasUsecase.getSalidasPorMes(mes, anio, categoriaId, page, limit); 
    }
 
+
+     //reporte de entradas/salidas
+
+     @Get('reportes/entradas/pdf')
+     @ApiOperation({ summary: 'Descargar PDF de entradas por categoría/mes/año' })
+     @ApiProduces('application/pdf')
+     @ApiOkResponse({
+     description: 'Archivo PDF',
+     content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
+    })
+    @ApiQuery({ name: 'categoriaId', required: true, type: Number })
+    @ApiQuery({ name: 'mes', required: true, type: Number, description: '1-12' })
+    @ApiQuery({ name: 'anio', required: true, type: Number })
+      async reporteEntradasPdf(
+      @Query() q: ReporteMovimientosDto,
+      @Res() res: ExpressResponse
+      ) {
+         await this.reporteInventarioService.generarReporteEntradas(q, res);
+      }
+
+     @Get('reportes/salidas/pdf')
+     @ApiOperation({ summary: 'Descargar PDF de salidas por categoría/mes/año' })
+     @ApiProduces('application/pdf')
+     @ApiOkResponse({
+     description: 'Archivo PDF',
+     content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
+     })
+     @ApiQuery({ name: 'categoriaId', required: true, type: Number })
+     @ApiQuery({ name: 'mes', required: true, type: Number, description: '1-12' })
+     @ApiQuery({ name: 'anio', required: true, type: Number })
+       async reporteSalidasPdf(
+       @Query() q: ReporteMovimientosDto,
+       @Res() res: ExpressResponse
+       ) {
+         await this.reporteInventarioService.generarReporteSalidas(q, res);
+       }
+
+       //Pagina de salidas de la cocina.
+       //Trae los productos por subcategorias de acuerdo a su id.
+     @Get('subcategoria/:subcategoriaId')
+     getPorSubcategoria(
+     @Param('subcategoriaId', ParseIntPipe) subcategoriaId: number,
+     ) {
+       return this.getInventarioUseCase.findAllBySubcategoria(subcategoriaId);
+    } 
+
+    //Trae los productos sin importar su subcategoría.
+    @Get('AllProductos/subCategorias')
+    getTodos() {
+      return this.getInventarioUseCase.findAllActivosConStock();
+    }
 }

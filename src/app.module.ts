@@ -50,6 +50,7 @@ import { Tipo_Consulta } from './modulos/residentes/entities/tipoConsulta.entity
 import { Unidad_Medida } from './modulos/unidades-medida/entities/unidadMedida.entity';
 import { UnidadesMedidaModule } from './modulos/unidades-medida/unidades-medida.module';
 import { AdministracionMedicamento } from './modulos/residentes/entities/administracioneMedicamento';
+import { Subcategoria_Producto } from './modulos/inventarios/entities/subCategoriaProducto.entity';
 import { Libro_Campo } from './modulos/residentes/entities/libroCampo.entity';
 import { HistorialPatologias } from './modulos/residentes/entities/historiaoPatologias.entity';
 import { HistorialCuraciones } from './modulos/residentes/entities/historialCuraciones.entity';
@@ -109,6 +110,7 @@ dotenv.config();
         Tipo_Consulta,
         Unidad_Medida,
         AdministracionMedicamento,
+        Subcategoria_Producto,
         Libro_Campo,
         HistorialPatologias,
         HistorialCuraciones,

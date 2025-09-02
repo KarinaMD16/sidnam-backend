@@ -8,7 +8,7 @@ export class Salida {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({type: 'timestamp'})
     fechaSalida: Date;
 
     @Column()

@@ -5,6 +5,8 @@ import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { Categoria_Producto } from "../../entities/categoriaProducto.entity";
 import { Inventario } from "../../entities/inventario.entity";
 import { PatchEditarInventarioDto } from "../../dto/actualizarInventarioDto";
+import { Unidad_Medida } from "src/modulos/unidades-medida/entities/unidadMedida.entity";
+import { Subcategoria_Producto } from "../../entities/subCategoriaProducto.entity";
 
 
 export class UpdateProductoUseCase {
@@ -18,6 +20,12 @@ export class UpdateProductoUseCase {
 
         @InjectRepository(Inventario)
         private readonly inventarioRepository: Repository<Inventario>,
+
+        @InjectRepository(Unidad_Medida)
+        private readonly unidadMedidaRepository: Repository<Unidad_Medida>,
+
+        @InjectRepository(Subcategoria_Producto)
+        private readonly subCategoriaRepository: Repository<Subcategoria_Producto>
 
     ){}
 
@@ -70,7 +78,9 @@ export class UpdateProductoUseCase {
          dto.stock === undefined &&
          dto.nombre === undefined &&
          dto.codigo === undefined &&
-         dto.unidadMedida === undefined
+         dto.unidadMedida === undefined &&
+         dto.subcategoriaId === undefined &&
+         dto.imagen_url === undefined
         ) {
          throw new BadRequestException('No hay campos para actualizar');
        }
@@ -84,6 +94,15 @@ export class UpdateProductoUseCase {
           touchedInv = true;
        }
 
+       if (dto.unidadMedida !== undefined) {
+        const um = await this.unidadMedidaRepository.findOne({
+         where: { id_unidad: dto.unidadMedida },
+        });
+        if (!um) throw new NotFoundException('Unidad de medida no encontrada');
+        inventario.unidad_medida = um;
+       touchedInv = true;
+       }
+
        if (dto.nombre !== undefined) {
           inventario.producto.nombre = dto.nombre;
           touchedProd = true;
@@ -94,11 +113,19 @@ export class UpdateProductoUseCase {
           touchedProd = true;
        }
 
-       if (dto.unidadMedida !== undefined) {
-          inventario.producto.unidadMedida = dto.unidadMedida;
+       if (dto.imagen_url !== undefined) {
+          inventario.producto.imagen_url = dto.imagen_url;
           touchedProd = true;
-       }
+        }
 
+        if (dto.subcategoriaId !== undefined) {
+           const sub = await this.subCategoriaRepository.findOne({
+            where: { id: dto.subcategoriaId },
+         });
+         if (!sub) throw new NotFoundException('Subcategoría no encontrada');
+         inventario.producto.subcategoria = sub;
+         touchedProd = true;
+        }
     
        if (touchedProd){ 
         await this.productoRepository.save(inventario.producto);
