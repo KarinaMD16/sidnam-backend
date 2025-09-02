@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 
 export class ProductoDto {
@@ -16,4 +16,10 @@ export class ProductoDto {
 
     @IsNotEmpty()
     categoriaProducto: number;
+
+    @IsOptional()
+    subcategoriaId?: number; 
+
+    @IsOptional()
+    imagen_url?: string; 
 }

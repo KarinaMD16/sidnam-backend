@@ -18,14 +18,16 @@ import { CreateSalidaUseCase } from './use-cases/salida/create-salida.use-case';
 import { GetSalidaUseCase } from './use-cases/salida/get-salida.use-case';
 import { ReportesInventarioService } from './services/reporteInventario.service';
 import { PdfHtmlService } from 'src/common/services/pdf-html.service';
+import { Subcategoria_Producto } from './entities/subCategoriaProducto.entity';
+import { SubcategoriaUseCase } from './use-cases/subCategoria/subCategoria.use-case';
 
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Categoria_Producto, Producto, Inventario, Entrada, Salida, Unidad_Medida]),
+    TypeOrmModule.forFeature([Categoria_Producto, Producto, Inventario, Entrada, Salida, Unidad_Medida, Subcategoria_Producto]),
     ],
-  providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase, GetEntradaUseCase, CreateSalidaUseCase, GetSalidaUseCase, ReportesInventarioService, PdfHtmlService],
+  providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase, GetEntradaUseCase, CreateSalidaUseCase, GetSalidaUseCase, ReportesInventarioService, PdfHtmlService, SubcategoriaUseCase],
   controllers: [InventarioController]
 })
 export class InventarioModule {}

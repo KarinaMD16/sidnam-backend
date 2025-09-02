@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsInt } from 'class-validator';
+import { IsOptional, IsString, IsInt, IsUrl } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class PatchEditarInventarioDto {
@@ -11,11 +11,20 @@ export class PatchEditarInventarioDto {
   codigo?: string;
 
   @IsOptional()
-  @IsString()
-  unidadMedida?: string;
+  @IsInt()
+  unidadMedida?: number;
 
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   stock?: number;
+
+  @IsOptional()
+  @IsInt()
+  subcategoriaId?: number;
+
+  @IsOptional()
+  @IsString()
+  imagen_url?: string; 
+
 }

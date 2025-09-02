@@ -51,6 +51,7 @@ import { Tipo_Consulta } from './modulos/residentes/entities/tipoConsulta.entity
 import { Unidad_Medida } from './modulos/unidades-medida/entities/unidadMedida.entity';
 import { UnidadesMedidaModule } from './modulos/unidades-medida/unidades-medida.module';
 import { AdministracionMedicamento } from './modulos/residentes/entities/administracioneMedicamento';
+import { Subcategoria_Producto } from './modulos/inventarios/entities/subCategoriaProducto.entity';
 
 
 
@@ -107,7 +108,8 @@ dotenv.config();
         Consulta_Especialista,
         Tipo_Consulta,
         Unidad_Medida,
-        AdministracionMedicamento
+        AdministracionMedicamento,
+        Subcategoria_Producto
       ],
       synchronize: true,
       dropSchema: false,

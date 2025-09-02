@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Producto } from "../../entities/producto.entity";
-import { Repository } from "typeorm";
+import { DeepPartial, Repository } from "typeorm";
 import { Categoria_Producto } from "../../entities/categoriaProducto.entity";
 import { ProductoDto } from "../../dto/crearProductoDto";
 import { Inventario } from "../../entities/inventario.entity";
 import { Unidad_Medida } from "src/modulos/unidades-medida/entities/unidadMedida.entity";
+import { Subcategoria_Producto } from "../../entities/subCategoriaProducto.entity";
 
 
 @Injectable()
@@ -22,7 +23,10 @@ export class CreateProductoUseCase {
         private readonly inventarioRepository: Repository<Inventario>,
 
         @InjectRepository(Unidad_Medida)
-        private readonly unidadMedidaRepository: Repository<Unidad_Medida>
+        private readonly unidadMedidaRepository: Repository<Unidad_Medida>,
+
+        @InjectRepository(Subcategoria_Producto)
+        private readonly subCategoriaProductoRepository: Repository<Subcategoria_Producto>
 
   ){}
 
@@ -36,6 +40,13 @@ export class CreateProductoUseCase {
         if(!categoria){
              throw new NotFoundException(`Categoria con el id ${producto.categoriaProducto} no encontrada`);
        }
+
+       let subcategoria: Subcategoria_Producto | null = null;
+       if (producto.subcategoriaId !== undefined) {
+       subcategoria = await this.subCategoriaProductoRepository.findOne({ where: { id: producto.subcategoriaId }});
+
+       if (!subcategoria) throw new NotFoundException(`Subcategoría ${producto.subcategoriaId} no encontrada`);
+      }
 
        const unidadMedida = await this.unidadMedidaRepository.findOne({
             where: { id_unidad: producto.unidadMedida },
@@ -52,7 +63,10 @@ export class CreateProductoUseCase {
            nombre: producto.nombre,
            codigo: producto.codigo,
            categoria,
-       })
+           subcategoria: subcategoria ?? null,
+          imagen_url: producto.imagen_url ?? null,
+
+       }as DeepPartial<Producto>);
 
         const productoCreado = await this.productoRepository.save(crearProducto);
 
@@ -60,7 +74,9 @@ export class CreateProductoUseCase {
           stock: 0,
           producto: productoCreado,
           unidad_medida: unidadMedida,
-        });
+          
+        } as DeepPartial<Inventario>);
+
         await this.inventarioRepository.save(inventario);
 
         return productoCreado;
