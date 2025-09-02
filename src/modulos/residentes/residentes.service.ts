@@ -461,6 +461,16 @@ export class ResidentesService {
   }
 
   async createPatologia(createPatologiaDto: CreatePatologiaDto) {
+
+
+    const patologiaRepetida = await this.patologiasRepository.findOne({
+      where: {nombre: createPatologiaDto.nombre.toLocaleLowerCase()}
+    })
+
+    if(patologiaRepetida){
+      throw new BadRequestException('Patologia repetida')
+    }
+
     const patologia = this.patologiasRepository.create({
       ...createPatologiaDto,
       nombre: createPatologiaDto.nombre.toLowerCase(),
