@@ -41,40 +41,45 @@ export class InventarioController {
     
     ){}
 
-    
+    //Ver las categorias de los productos.
     @Get()
   async getCategorias() {
     return this.inventarioService.getCategorias();
   }
 
+  //Crear una categoria nueva.
   @Post('tipo-categoria/categoria/:idCategoriaProducto')
       async createCategoriaProducto(@Param('idCategoriaProducto', ParseIntPipe) idCategoria: number,@Body() createCategoriaDto: CreateCategoriaDto,) {
       return this.inventarioService.crearCategoria(idCategoria, createCategoriaDto);
     }
 
+    //Crear una subcategoria.
     @Post('subCategoria')
     crearSubCategoria(@Body() subCategoria: CrearSubcategoriaDto) {
       return this.subCategoriasUseCase.crearSubCategoria(subCategoria);
    }
 
+   //Ver las subcategorias existentes.
     @Get('subcategorias')
     GetAllSubCategorias() {
       return this.subCategoriasUseCase.getAllSubCategorias();
    }
 
 
+   //Crear un producto, crea un inventario asociado automáticamente.
     @Post('productos')
     crearProducto(@Body() Producto: ProductoDto){
         return this.createProductoUseCase.crearProducto(Producto)
     }
 
-    
+    //Ver los productos existentes.
     @Get('productos')
     findAllProductos() {
         return this.getProductoUseCase.findAllProductos();
     }
   
 
+    //Updatear un inventario y toda la información del producto asociado.
     @Patch('update/:inventarioId')
     updateInventario(
       @Param('inventarioId', ParseIntPipe) inventarioId: number,
@@ -83,7 +88,7 @@ export class InventarioController {
       return this.updateProductosUseCase.updateInventario(inventarioId, dto);
    } 
 
-    
+    //Busca los inventarios de acuerdo a su categoria (alimentos, limpieza, medicamentos).
    @Get('categoria/:categoriaId')
    getInventarioPorCategoria(
      @Param('categoriaId', ParseIntPipe) categoriaId: number,
@@ -96,6 +101,7 @@ export class InventarioController {
   }
 
 
+     //Archiva/Desarchiva un producto del inventario.
     @Patch('handleArchivado/:inventarioId')
       toggleArchivadoPorInventario(
       @Param('inventarioId', ParseIntPipe) inventarioId: number
@@ -103,6 +109,7 @@ export class InventarioController {
       return this.updateProductosUseCase.updateArchivadoProducto(inventarioId);
     }
 
+    //Busca los archivados de x categoría.
     @Get('archivados/:categoriaId')
     findProductosArchivadosPorCategoria(
       @Param('categoriaId', ParseIntPipe) categoriaId: number,
@@ -112,6 +119,7 @@ export class InventarioController {
      return this.getProductoUseCase.findByArchivadoYCategoria(true, categoriaId, page, limit);
    }
 
+    //Busca los inventarios de acuerdo a su categoria (no paginado).
     @Get('categoria/:categoriaId/all')
     getInventariosPorCategoriaSinPaginacion(
        @Param('categoriaId', ParseIntPipe) categoriaId: number,
@@ -191,14 +199,18 @@ export class InventarioController {
          await this.reporteInventarioService.generarReporteSalidas(q, res);
        }
 
+       //Pagina de salidas de la cocina.
+       //Trae los productos por subcategorias de acuerdo a su id.
      @Get('subcategoria/:subcategoriaId')
      getPorSubcategoria(
-       @Param('subcategoriaId', ParseIntPipe) subcategoriaId: number,
-       @Query('page') page?: number,
-       @Query('limit') limit?: number,
+     @Param('subcategoriaId', ParseIntPipe) subcategoriaId: number,
      ) {
-       const p = page ? Number(page) : undefined;
-       const l = limit ? Number(limit) : undefined;
-       return this.getInventarioUseCase.findAllBySubcategoria(subcategoriaId, p, l);
-     }
+       return this.getInventarioUseCase.findAllBySubcategoria(subcategoriaId);
+    } 
+
+    //Trae los productos sin importar su subcategoría.
+    @Get('AllProductos/subCategorias')
+    getTodos() {
+      return this.getInventarioUseCase.findAllActivosConStock();
+    }
 }
