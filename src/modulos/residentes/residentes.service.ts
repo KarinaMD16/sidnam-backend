@@ -47,6 +47,7 @@ import { AtualizarLibroCampoDto } from './dto/actualizarLibroCampoDto';
 import { GestionUsuarioService } from '../gestion-usuario/gestion-usuario.service';
 import { HistorialPatologias } from './entities/historiaoPatologias.entity';
 import { HistorialCuraciones } from './entities/historialCuraciones.entity';
+import { LineaPobrezaOPs } from 'src/common/enums/lineaProbeza.enum';
 
 
 
@@ -168,6 +169,11 @@ export class ResidentesService {
       throw new BadRequestException('Dependencia inválida');
     }
 
+    const lineaPobreza = LineaPobrezaOPs.find(opt => opt.id === createExpedienteDto.residente.lineaPobreza);
+    if (!lineaPobreza) {
+      throw new BadRequestException('Linea de pobreza inválida');
+    }
+
     const encargados: Encargado[] = [];
     for (const enc of createExpedienteDto.residente.encargados) {
       let encargado = await this.encargadoRepository.findOne({ where: { cedula: enc.cedula } });
@@ -185,6 +191,7 @@ export class ResidentesService {
       ...createExpedienteDto.residente,
       estado_civil: EstadoCivilOptios.find(opt => opt.id === createExpedienteDto.residente.estado_civil)?.value,
       dependencia: DependenciaOpts.find(opt => opt.id === createExpedienteDto.residente.dependencia)?.value,
+      linea_pobreza: LineaPobrezaOPs.find(opt => opt.id === createExpedienteDto.residente.lineaPobreza)?.value,
       encargados,
     });
     await this.residenteRepository.save(residente);
@@ -1273,6 +1280,13 @@ export class ResidentesService {
     }
 
     return false
+  }
+
+   getLineaProbeza() {
+    return LineaPobrezaOPs.map(opt => ({
+      id: opt.id,
+      nombre: opt.nombre, 
+    }));
   }
 
 }
