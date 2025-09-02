@@ -7,6 +7,7 @@ import { ProductoDto } from "../../dto/crearProductoDto";
 import { Inventario } from "../../entities/inventario.entity";
 import { Unidad_Medida } from "src/modulos/unidades-medida/entities/unidadMedida.entity";
 import { Subcategoria_Producto } from "../../entities/subCategoriaProducto.entity";
+import { CategoriasOptions, getCategoriasId } from "src/common/enums/categoriasPrincipalesProductos.enum";
 
 
 @Injectable()
@@ -33,13 +34,11 @@ export class CreateProductoUseCase {
 
     async crearProducto(producto: ProductoDto): Promise<Producto>{
 
-        const categoria = await this.categoriaProducto.findOne({
-             where: {id: producto.categoriaProducto},
-        });
-           
+        const categoria = await getCategoriasId(producto.categoriaProducto);
+
         if(!categoria){
-             throw new NotFoundException(`Categoria con el id ${producto.categoriaProducto} no encontrada`);
-       }
+            throw new NotFoundException(`Categoria con el id ${producto.categoriaProducto} no encontrada`);
+        }
 
        let subcategoria: Subcategoria_Producto | null = null;
        if (producto.subcategoriaId !== undefined) {
@@ -62,7 +61,7 @@ export class CreateProductoUseCase {
        const crearProducto = this.productoRepository.create({
            nombre: producto.nombre,
            codigo: producto.codigo,
-           categoria,
+           categoria: CategoriasOptions.find(opt => opt.id === producto.categoriaProducto)?.value,
            subcategoria: subcategoria ?? null,
           imagen_url: producto.imagen_url ?? null,
 
