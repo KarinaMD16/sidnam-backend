@@ -112,7 +112,7 @@ dotenv.config();
         AdministracionMedicamento,
         Libro_Campo,
         HistorialPatologias,
-        HistorialCuraciones,,
+        HistorialCuraciones,
         Subcategoria_Producto
       ],
       synchronize: true,
