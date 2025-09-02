@@ -1268,7 +1268,7 @@ export class ResidentesService {
       where: {cedula}
     })
 
-    if(cedulaExistente){
+    if(cedulaExistente){ 
       return true
     }
 
