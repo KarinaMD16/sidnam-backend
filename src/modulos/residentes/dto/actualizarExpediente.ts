@@ -45,6 +45,9 @@ export class ActualizarExpediente{
     dependencia?: number;
 
     @IsOptional()
+    lineaPobreza: number;
+
+    @IsOptional()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => ActualizarEncargadorDto)

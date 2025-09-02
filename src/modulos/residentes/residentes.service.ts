@@ -47,7 +47,7 @@ import { AtualizarLibroCampoDto } from './dto/actualizarLibroCampoDto';
 import { GestionUsuarioService } from '../gestion-usuario/gestion-usuario.service';
 import { HistorialPatologias } from './entities/historiaoPatologias.entity';
 import { HistorialCuraciones } from './entities/historialCuraciones.entity';
-import { LineaPobrezaOPs } from 'src/common/enums/lineaProbeza.enum';
+import { getLineaPobreza, LineaPobrezaOPs } from 'src/common/enums/lineaProbeza.enum';
 
 
 
@@ -303,6 +303,18 @@ export class ResidentesService {
       }
 
       expediente.residente.estado_civil = estadoCivilEnum;
+    }
+
+    if (actualizarExpediente.lineaPobreza !== undefined) {
+      const lineaPobrezaEnum = getLineaPobreza(actualizarExpediente.lineaPobreza);
+
+      if (!lineaPobrezaEnum) {
+        throw new BadRequestException(
+          'Linea pobreza con id ${ actualizarExpediente.lineaPobreza } no es válido'
+        );
+      }
+
+      expediente.residente.linea_pobreza = lineaPobrezaEnum;
     }
 
     if(actualizarExpediente.fecha_nacimiento){
