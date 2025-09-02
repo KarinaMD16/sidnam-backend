@@ -33,10 +33,18 @@ export class UnidadesMedidaService {
         );
         }
 
+        const unidadTipoRepetida = await this.unidadMedidaRepository.findOne({
+            where: {tipo}
+        })
+
+        if(unidadTipoRepetida?.nombre.toLowerCase().replace(/\s+/g, '') == createUnidadMedida.nombre.toLowerCase().replace(/\s+/g, '')){
+            throw new BadRequestException('Unidad de medida repetida')
+        }
+
         const unidadMedida = this.unidadMedidaRepository.create({
         ...createUnidadMedida,
-        tipo
         });
+        tipo
         
         return this.unidadMedidaRepository.save(unidadMedida);
     }
