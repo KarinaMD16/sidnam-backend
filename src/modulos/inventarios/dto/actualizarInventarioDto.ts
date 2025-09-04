@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsInt, IsUrl } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class PatchEditarInventarioDto {
@@ -26,5 +26,10 @@ export class PatchEditarInventarioDto {
   @IsOptional()
   @IsString()
   imagen_url?: string; 
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  categoriaId?: number;
 
 }

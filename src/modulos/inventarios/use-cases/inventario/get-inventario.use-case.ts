@@ -1,7 +1,8 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { IsNull, MoreThan, Not, Repository } from "typeorm";
 import { Inventario } from "../../entities/inventario.entity";
+import { getCategoriasId } from "src/common/enums/categoriasPrincipalesProductos.enum";
 
 
 @Injectable()
@@ -17,10 +18,15 @@ export class GetInventarioUseCase {
 
   async findAllInventarios(categoriaId: number, page?: number, limit?: number): Promise<{data: Array<{id: number; stock: number; codigo: string; nombre: string; unidadMedida: { id: number; nombre: string; abreviatura: string } | null;}>;total: number;}> {
 
+    const categoriaTipo = getCategoriasId(categoriaId);
+    if (!categoriaTipo) {
+      throw new BadRequestException(`Categoría inválida: ${categoriaId}`);
+    }
+
   const [rows, total] = await this.inventarioRepository.findAndCount({
-    where: { producto: { archivado: false, categoria: { id: categoriaId } } },
+    where: { producto: { archivado: false, categoriaTipo, } },
     relations: {
-      producto: { categoria: true },
+      producto: true,
       unidad_medida: true,
     },
     select: {
@@ -30,7 +36,7 @@ export class GetInventarioUseCase {
         id: true,
         nombre: true,
         codigo: true,
-        categoria: { id: true },
+        categoriaTipo: true ,
       },
       unidad_medida: {
         id_unidad: true,          
@@ -63,8 +69,14 @@ export class GetInventarioUseCase {
 
 
     async findAllByCategoriaSinPaginacion(categoriaId: number): Promise<Array<{id: number;stock: number;codigo: string;nombre: string;unidadMedida: { nombre: string; abreviatura: string } | null;}>> {
+
+      const categoriaTipo = getCategoriasId(categoriaId);
+      if (!categoriaTipo) {
+         throw new BadRequestException(`Categoría inválida: ${categoriaId}`);
+      }
+
   const rows = await this.inventarioRepository.find({
-    where: { producto: { categoria: { id: categoriaId }, archivado: false } },
+    where: { producto: { categoriaTipo, archivado: false } },
     relations: {
       producto: true,
       unidad_medida: true,                        

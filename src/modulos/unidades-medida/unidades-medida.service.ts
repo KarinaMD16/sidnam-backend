@@ -43,8 +43,9 @@ export class UnidadesMedidaService {
 
         const unidadMedida = this.unidadMedidaRepository.create({
         ...createUnidadMedida,
+            tipo
         });
-        tipo
+    
         
         return this.unidadMedidaRepository.save(unidadMedida);
     }
