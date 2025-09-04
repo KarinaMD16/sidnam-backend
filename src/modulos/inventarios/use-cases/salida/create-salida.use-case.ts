@@ -10,9 +10,12 @@ export class CreateSalidaUseCase {
 
   constructor(
     private readonly dataSource: DataSource,
-    @InjectRepository(Inventario) private readonly inventarioRepo: Repository<Inventario>,
+    @InjectRepository(Inventario) 
+    private readonly inventarioRepo: Repository<Inventario>,
 
-    @InjectRepository(Salida)     private readonly salidaRepo: Repository<Salida>,
+    @InjectRepository(Salida)     
+    private readonly salidaRepo: Repository<Salida>,
+    
   ) {}
 
   async crearSalidas(dto: CrearSalidaDto) {

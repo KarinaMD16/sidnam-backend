@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Categoria_Producto } from "./categoriaProducto.entity";
 import { Inventario } from "./inventario.entity";
 import { Subcategoria_Producto } from "./subCategoriaProducto.entity";
+import { CategoriasPrincipalesProductos } from "src/common/enums/categoriasPrincipalesProductos.enum";
 
 
 @Entity()
@@ -22,9 +22,8 @@ export class Producto {
     @Column({ nullable: true })
     imagen_url?: string;
 
-    @ManyToOne(() => Categoria_Producto, categoria => categoria.productos)
-    @JoinColumn({ name: 'categoria_producto_id' })
-    categoria: Categoria_Producto;
+    @Column({ type: 'enum', enum: CategoriasPrincipalesProductos })
+    categoriaTipo: CategoriasPrincipalesProductos;
 
     @ManyToOne(() => Subcategoria_Producto, s => s.productos, {
     nullable: true, onDelete: 'SET NULL'

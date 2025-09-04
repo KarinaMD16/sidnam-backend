@@ -1,9 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Producto } from "../../entities/producto.entity";
 import { Repository } from "typeorm";
-import { Categoria_Producto } from "../../entities/categoriaProducto.entity";
 import { Inventario } from "../../entities/inventario.entity";
+import { getCategoriasId } from "src/common/enums/categoriasPrincipalesProductos.enum";
 
 
 @Injectable()
@@ -12,9 +12,6 @@ export class GetProductosUseCase {
 
         @InjectRepository(Producto)
         private readonly productoRepository: Repository<Producto>,
-
-        @InjectRepository(Categoria_Producto)
-        private readonly categoriaRepository: Repository<Categoria_Producto>,
 
         @InjectRepository(Inventario)
     private readonly inventarioRepository: Repository<Inventario>,
@@ -29,10 +26,16 @@ export class GetProductosUseCase {
       });
     }
 
-  async findByArchivadoYCategoria(archivado: boolean,categoriaId: number,page?: number,limit?: number,): Promise<{data: {inventarioId: number; nombre: string; codigo: string; unidadMedida: { nombre: string; abreviatura: string } | null;}[];total: number;}> {
+  async findByArchivadoYCategoria(archivado: boolean, categoriaId: number, page?: number, limit?: number): Promise<{data: {inventarioId: number; nombre: string; codigo: string; unidadMedida: { nombre: string; abreviatura: string } | null;}[];total: number;}> {
+
+    const categoriaTipo = getCategoriasId(categoriaId);
+    if (!categoriaTipo) {
+        throw new BadRequestException(`Categoría inválida: ${categoriaId}`);
+    }
+
   const [rows, total] = await this.inventarioRepository.findAndCount({
-    where: { producto: { archivado, categoria: { id: categoriaId } } },
-    relations: { producto: { categoria: true }, unidad_medida: true },   
+    where: { producto: { archivado, categoriaTipo } },
+    relations: { producto: true, unidad_medida: true },   
     select: {
       id: true,
       producto: { nombre: true, codigo: true },

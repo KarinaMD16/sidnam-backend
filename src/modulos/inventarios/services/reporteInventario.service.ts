@@ -7,6 +7,7 @@ import { PdfHtmlService } from 'src/common/services/pdf-html.service';
 import { Entrada } from '../entities/entrada.entity';
 import { Salida } from '../entities/salida.entity';
 import { ReporteMovimientosDto } from '../dto/reporteMovimientosDto';
+import { getCategoriasId } from 'src/common/enums/categoriasPrincipalesProductos.enum';
 
 @Injectable()
 export class ReportesInventarioService {
@@ -23,16 +24,18 @@ export class ReportesInventarioService {
     const inicio = new Date(anio, mes - 1, 1);
     const fin    = new Date(anio, mes, 1);
 
+    const categoriaTipo = getCategoriasId(Number(categoriaId));
+    if (!categoriaTipo) throw new BadRequestException(`Categoría inválida: ${categoriaId}`);
+
     const rows = await this.entradaRepo
       .createQueryBuilder('e')
       .innerJoin('e.inventario', 'inv')
       .innerJoin('inv.producto', 'p')
-      .innerJoin('p.categoria', 'c')
       .leftJoin('inv.unidad_medida', 'um')
       .where('e.fechaEntrada >= :inicio AND e.fechaEntrada < :fin', { inicio, fin })
-      .andWhere('c.id = :categoriaId', { categoriaId })
+      .andWhere('p.categoriaTipo = :categoriaTipo', { categoriaTipo })
       .select('e.id', 'entrada_id')
-      .addSelect("DATE_FORMAT(e.fechaEntrada, '%Y-%m-%d')", 'fecha')
+      .addSelect("DATE_FORMAT(e.fechaEntrada, '%Y-%m-%d %H:%i')", 'fecha')
       .addSelect('e.cantidad', 'cantidad')
       .addSelect('p.codigo', 'codigo_producto')
       .addSelect('p.nombre', 'nombre')
@@ -90,16 +93,18 @@ export class ReportesInventarioService {
     const inicio = new Date(anio, mes - 1, 1);
     const fin    = new Date(anio, mes, 1);
 
+    const categoriaTipo = getCategoriasId(Number(categoriaId));
+    if (!categoriaTipo) throw new BadRequestException(`Categoría inválida: ${categoriaId}`);
+
     const rows = await this.salidaRepo
       .createQueryBuilder('s')
       .innerJoin('s.inventario', 'inv')
       .innerJoin('inv.producto', 'p')
-      .innerJoin('p.categoria', 'c')
       .leftJoin('inv.unidad_medida', 'um')
       .where('s.fechaSalida >= :inicio AND s.fechaSalida < :fin', { inicio, fin })
-      .andWhere('c.id = :categoriaId', { categoriaId })
+      .andWhere('p.categoriaTipo = :categoriaTipo', { categoriaTipo })
       .select('s.id', 'salida_id')
-      .addSelect("DATE_FORMAT(s.fechaSalida, '%Y-%m-%d')", 'fecha')
+      .addSelect("DATE_FORMAT(s.fechaSalida, '%Y-%m-%d %H:%i')", 'fecha')
       .addSelect('s.cantidad', 'cantidad')
       .addSelect('p.codigo', 'codigo_producto')
       .addSelect('p.nombre', 'nombre')
