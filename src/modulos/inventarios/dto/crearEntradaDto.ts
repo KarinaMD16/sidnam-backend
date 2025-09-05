@@ -15,4 +15,5 @@ export class CrearEntradaDto {
   @ValidateNested({ each: true })
   @Type(() => CrearEntradaProductoDto)
   productos: CrearEntradaProductoDto[];
+  
 }
