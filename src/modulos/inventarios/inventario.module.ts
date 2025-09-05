@@ -19,14 +19,17 @@ import { ReportesInventarioService } from './services/reporteInventario.service'
 import { PdfHtmlService } from 'src/common/services/pdf-html.service';
 import { Subcategoria_Producto } from './entities/subCategoriaProducto.entity';
 import { SubcategoriaUseCase } from './use-cases/subCategoria/subCategoria.use-case';
+import { EntradaMedicamento } from './entities/entradaMedicamento.entity';
+import { CreateEntradaMedicamentoUseCase } from './use-cases/entradaMedicamentos/create-entradaMedicamento.use-case';
+import { GetEntradaMedicamentoUseCase } from './use-cases/entradaMedicamentos/get-entradaMedicamento.use-case';
 
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Producto, Inventario, Entrada, Salida, Unidad_Medida, Subcategoria_Producto]),
+    TypeOrmModule.forFeature([Producto, Inventario, Entrada, Salida, Unidad_Medida, Subcategoria_Producto, EntradaMedicamento]),
     ],
-  providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase, GetEntradaUseCase, CreateSalidaUseCase, GetSalidaUseCase, ReportesInventarioService, PdfHtmlService, SubcategoriaUseCase],
+  providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase, GetEntradaUseCase, CreateSalidaUseCase, GetSalidaUseCase, ReportesInventarioService, PdfHtmlService, SubcategoriaUseCase, CreateEntradaMedicamentoUseCase, GetEntradaMedicamentoUseCase],
   controllers: [InventarioController]
 })
 export class InventarioModule {}

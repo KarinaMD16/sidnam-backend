@@ -18,6 +18,9 @@ import { ReporteMovimientosDto } from "../dto/reporteMovimientosDto";
 import { ApiOkResponse, ApiOperation, ApiProduces, ApiQuery } from "@nestjs/swagger";
 import { SubcategoriaUseCase } from "../use-cases/subCategoria/subCategoria.use-case";
 import { CrearSubcategoriaDto } from "../dto/crearSubCategoriaDto";
+import { CrearEntradaMedicamentoDto } from "../dto/crearEntradaMedicamentosDto";
+import { CreateEntradaMedicamentoUseCase } from "../use-cases/entradaMedicamentos/create-entradaMedicamento.use-case";
+import { GetEntradaMedicamentoUseCase } from "../use-cases/entradaMedicamentos/get-entradaMedicamento.use-case";
 
 
 @Controller('inventario')
@@ -36,6 +39,8 @@ export class InventarioController {
         private readonly getSalidasUsecase: GetSalidaUseCase,
         private readonly reporteInventarioService: ReportesInventarioService,
         private readonly subCategoriasUseCase: SubcategoriaUseCase,
+        private readonly createEntradaMedicamentosUseCase: CreateEntradaMedicamentoUseCase,
+        private readonly getEntradaMedicamentoUseCase: GetEntradaMedicamentoUseCase,
     
     ){}
 
@@ -205,4 +210,26 @@ export class InventarioController {
     getTodos() {
       return this.getInventarioUseCase.findAllActivosConStock();
     }
+
+    @Post('EntradaMedicamentos')
+    crear(@Body() dto: CrearEntradaMedicamentoDto) {
+      return this.createEntradaMedicamentosUseCase.crearEntradaMedicamento(dto);
+    }
+
+    @Get('EntradaMedicamentos')
+    getEntradasMedicamentos(
+    @Query('anio') anio?: number,
+    @Query('mes') mes?: number,
+    @Query('medicamentoId') medicamentoId?: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,
+    ) {
+    return this.getEntradaMedicamentoUseCase.findMany({
+      anio: anio ? Number(anio) : undefined,
+      mes: mes ? Number(mes) : undefined,
+      medicamentoId: medicamentoId ? Number(medicamentoId) : undefined,
+      page,
+      limit,
+    });
+  }
 }

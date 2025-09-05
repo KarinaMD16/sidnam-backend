@@ -53,6 +53,7 @@ import { Subcategoria_Producto } from './modulos/inventarios/entities/subCategor
 import { Libro_Campo } from './modulos/residentes/entities/libroCampo.entity';
 import { HistorialPatologias } from './modulos/residentes/entities/historiaoPatologias.entity';
 import { HistorialCuraciones } from './modulos/residentes/entities/historialCuraciones.entity';
+import { EntradaMedicamento } from './modulos/inventarios/entities/entradaMedicamento.entity';
 
 
 
@@ -112,6 +113,7 @@ dotenv.config();
         Libro_Campo,
         HistorialPatologias,
         HistorialCuraciones,
+        EntradaMedicamento
       ],
       synchronize: true,
       dropSchema: false,
