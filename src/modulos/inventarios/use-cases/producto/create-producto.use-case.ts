@@ -35,6 +35,13 @@ export class CreateProductoUseCase {
            throw new BadRequestException(`Categoría inválida: ${producto.categoriaId}` );
           }
 
+          const codigoExistente = await this.productoRepository.findOne({
+            where: { codigo: producto.codigo },
+          });
+          if (codigoExistente) {
+             throw new BadRequestException(`Ya existe un producto con el código ${producto.codigo}`);
+          }
+
        let subcategoria: Subcategoria_Producto | null = null;
        if (producto.subcategoriaId !== undefined) {
        subcategoria = await this.subCategoriaProductoRepository.findOne({ where: { id: producto.subcategoriaId }});

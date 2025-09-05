@@ -21,7 +21,7 @@ export class GetProductosUseCase {
     async findAllProductos() {
       return this.productoRepository.find({
         where: { archivado: false },
-        select: { nombre: true, codigo: true, },
+        select: { nombre: true, codigo: true },
         order: { id: 'DESC' },
       });
     }
