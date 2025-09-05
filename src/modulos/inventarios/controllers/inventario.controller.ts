@@ -63,6 +63,7 @@ export class InventarioController {
         return this.createProductoUseCase.crearProducto(Producto)
     }
 
+    //Este no se ocupa ya.
     //Ver los productos existentes.
     @Get('productos')
     findAllProductos() {
@@ -70,7 +71,6 @@ export class InventarioController {
     }
   
   
-
     //Updatear un inventario y toda la información del producto asociado.
     @Patch('update/:inventarioId')
     updateInventario(

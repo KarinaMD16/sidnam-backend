@@ -70,15 +70,17 @@ export class UpdateProductoUseCase {
        });
         if (!inventario) throw new NotFoundException('Inventario no encontrado');
 
-    
+
+        if (inventario.producto.archivado) {
+           throw new BadRequestException('No se puede editar un producto archivado.');
+        }
+
         if (
-         dto.stock === undefined &&
          dto.nombre === undefined &&
          dto.codigo === undefined &&
          dto.unidadMedida === undefined &&
          dto.subcategoriaId === undefined &&
-         dto.imagen_url === undefined &&
-         dto.categoriaId === undefined
+         dto.imagen_url === undefined 
         ) {
          throw new BadRequestException('No hay campos para actualizar');
        }
@@ -86,11 +88,6 @@ export class UpdateProductoUseCase {
    
        let touchedInv = false;
        let touchedProd = false;
-
-       if (dto.stock !== undefined) {
-          inventario.stock = dto.stock; 
-          touchedInv = true;
-       }
 
        if (dto.unidadMedida !== undefined) {
         const um = await this.unidadMedidaRepository.findOne({
@@ -125,16 +122,6 @@ export class UpdateProductoUseCase {
          touchedProd = true;
         }
 
-       if (dto.categoriaId !== undefined) {
-           const categoriaTipo = getCategoriasId(dto.categoriaId);
-           if (!categoriaTipo) {
-              throw new BadRequestException(`Categoría inválida: ${dto.categoriaId}`);
-           }
-           inventario.producto.categoriaTipo = categoriaTipo;
-           touchedProd = true;
-
-          }
-    
        if (touchedProd){ 
         await this.productoRepository.save(inventario.producto);
        }
