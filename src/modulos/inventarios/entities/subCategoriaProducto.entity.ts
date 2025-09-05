@@ -3,7 +3,6 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Unique } from 'typeo
 import { Producto } from './producto.entity';
 
 @Entity()
-@Unique('uq_subcategoria_nombre', ['nombre']) // opcional, evita duplicados globales
 export class Subcategoria_Producto {
 
   @PrimaryGeneratedColumn()

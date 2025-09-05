@@ -2,11 +2,11 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Producto } from "../../entities/producto.entity";
 import { Repository } from "typeorm";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
-import { Categoria_Producto } from "../../entities/categoriaProducto.entity";
 import { Inventario } from "../../entities/inventario.entity";
 import { PatchEditarInventarioDto } from "../../dto/actualizarInventarioDto";
 import { Unidad_Medida } from "src/modulos/unidades-medida/entities/unidadMedida.entity";
 import { Subcategoria_Producto } from "../../entities/subCategoriaProducto.entity";
+import { getCategoriasId } from "src/common/enums/categoriasPrincipalesProductos.enum";
 
 
 export class UpdateProductoUseCase {
@@ -14,9 +14,6 @@ export class UpdateProductoUseCase {
 
         @InjectRepository(Producto)
         private readonly productoRepository: Repository<Producto>,
-
-        @InjectRepository(Categoria_Producto)
-        private readonly categoriaProducto: Repository<Categoria_Producto>,
 
         @InjectRepository(Inventario)
         private readonly inventarioRepository: Repository<Inventario>,
@@ -73,14 +70,17 @@ export class UpdateProductoUseCase {
        });
         if (!inventario) throw new NotFoundException('Inventario no encontrado');
 
-    
+
+        if (inventario.producto.archivado) {
+           throw new BadRequestException('No se puede editar un producto archivado.');
+        }
+
         if (
-         dto.stock === undefined &&
          dto.nombre === undefined &&
          dto.codigo === undefined &&
          dto.unidadMedida === undefined &&
          dto.subcategoriaId === undefined &&
-         dto.imagen_url === undefined
+         dto.imagen_url === undefined 
         ) {
          throw new BadRequestException('No hay campos para actualizar');
        }
@@ -88,11 +88,6 @@ export class UpdateProductoUseCase {
    
        let touchedInv = false;
        let touchedProd = false;
-
-       if (dto.stock !== undefined) {
-          inventario.stock = dto.stock; 
-          touchedInv = true;
-       }
 
        if (dto.unidadMedida !== undefined) {
         const um = await this.unidadMedidaRepository.findOne({
@@ -116,9 +111,9 @@ export class UpdateProductoUseCase {
        if (dto.imagen_url !== undefined) {
           inventario.producto.imagen_url = dto.imagen_url;
           touchedProd = true;
-        }
+       }
 
-        if (dto.subcategoriaId !== undefined) {
+       if (dto.subcategoriaId !== undefined) {
            const sub = await this.subCategoriaRepository.findOne({
             where: { id: dto.subcategoriaId },
          });
@@ -126,7 +121,7 @@ export class UpdateProductoUseCase {
          inventario.producto.subcategoria = sub;
          touchedProd = true;
         }
-    
+
        if (touchedProd){ 
         await this.productoRepository.save(inventario.producto);
        }
@@ -137,5 +132,5 @@ export class UpdateProductoUseCase {
        
           return { message: 'Inventario y/o producto actualizados exitosamente' };
       }
-
+    
 }

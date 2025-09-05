@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
 
 
 export class ProductoDto {
@@ -14,8 +14,10 @@ export class ProductoDto {
     @IsNotEmpty()
     unidadMedida: number;
 
+    @IsInt() 
+    @Min(1) 
     @IsNotEmpty()
-    categoriaProducto: number;
+    categoriaId: number;
 
     @IsOptional()
     subcategoriaId?: number; 

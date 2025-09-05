@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InventarioService } from './services/inventario.service';
 import { InventarioController } from './controllers/inventario.controller';
-import { Categoria_Producto } from './entities/categoriaProducto.entity';
 import { Producto } from './entities/producto.entity';
 import { CreateProductoUseCase } from './use-cases/producto/create-producto.use-case';
 import { GetProductosUseCase } from './use-cases/producto/get-producto.use-case';
@@ -25,7 +24,7 @@ import { SubcategoriaUseCase } from './use-cases/subCategoria/subCategoria.use-c
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Categoria_Producto, Producto, Inventario, Entrada, Salida, Unidad_Medida, Subcategoria_Producto]),
+    TypeOrmModule.forFeature([Producto, Inventario, Entrada, Salida, Unidad_Medida, Subcategoria_Producto]),
     ],
   providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase, GetEntradaUseCase, CreateSalidaUseCase, GetSalidaUseCase, ReportesInventarioService, PdfHtmlService, SubcategoriaUseCase],
   controllers: [InventarioController]

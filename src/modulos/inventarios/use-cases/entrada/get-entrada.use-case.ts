@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Entrada } from '../../entities/entrada.entity';
+import { getCategoriasId } from 'src/common/enums/categoriasPrincipalesProductos.enum';
 
 @Injectable()
 export class GetEntradaUseCase {
@@ -17,6 +18,11 @@ export class GetEntradaUseCase {
     throw new BadRequestException('categoriaId es requerido');
   }
 
+  const categoriaTipo = getCategoriasId(categoriaId);
+  if (!categoriaTipo) {
+    throw new BadRequestException(`Categoría inválida: ${categoriaId}`);
+  }
+
   const inicio = new Date(anio, mes - 1, 1);
   const fin    = new Date(anio, mes, 1);
 
@@ -24,12 +30,11 @@ export class GetEntradaUseCase {
     .createQueryBuilder('e')
     .innerJoin('e.inventario', 'inv')
     .innerJoin('inv.producto', 'p')
-    .innerJoin('p.categoria', 'c')
     .leftJoin('inv.unidad_medida', 'um') 
     .where('e.fechaEntrada >= :inicio AND e.fechaEntrada < :fin', { inicio, fin })
-    .andWhere('c.id = :categoriaId', { categoriaId })
+    .andWhere('p.categoriaTipo = :categoriaTipo', { categoriaTipo })
     .select('e.id', 'entrada_id')
-    .addSelect("DATE_FORMAT(e.fechaEntrada, '%Y-%m-%d')", 'fecha_entrada') 
+    .addSelect("DATE_FORMAT(e.fechaEntrada, '%Y-%m-%d %H:%i')", 'fecha_entrada') 
     .addSelect('e.cantidad', 'cantidad')
     .addSelect('p.codigo', 'codigo_producto')
     .addSelect('p.nombre', 'nombre')

@@ -1,12 +1,12 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Producto } from "../../entities/producto.entity";
 import { DeepPartial, Repository } from "typeorm";
-import { Categoria_Producto } from "../../entities/categoriaProducto.entity";
 import { ProductoDto } from "../../dto/crearProductoDto";
 import { Inventario } from "../../entities/inventario.entity";
 import { Unidad_Medida } from "src/modulos/unidades-medida/entities/unidadMedida.entity";
 import { Subcategoria_Producto } from "../../entities/subCategoriaProducto.entity";
+import { getCategoriasId } from "src/common/enums/categoriasPrincipalesProductos.enum";
 
 
 @Injectable()
@@ -15,9 +15,6 @@ export class CreateProductoUseCase {
 
         @InjectRepository(Producto)
         private readonly productoRepository: Repository<Producto>,
-
-        @InjectRepository(Categoria_Producto)
-        private readonly categoriaProducto: Repository<Categoria_Producto>,
 
         @InjectRepository(Inventario)
         private readonly inventarioRepository: Repository<Inventario>,
@@ -33,13 +30,17 @@ export class CreateProductoUseCase {
 
     async crearProducto(producto: ProductoDto): Promise<Producto>{
 
-        const categoria = await this.categoriaProducto.findOne({
-             where: {id: producto.categoriaProducto},
-        });
-           
-        if(!categoria){
-             throw new NotFoundException(`Categoria con el id ${producto.categoriaProducto} no encontrada`);
-       }
+        const categoriaTipo = getCategoriasId(producto.categoriaId);
+        if (!categoriaTipo) {
+           throw new BadRequestException(`Categoría inválida: ${producto.categoriaId}` );
+          }
+
+          const codigoExistente = await this.productoRepository.findOne({
+            where: { codigo: producto.codigo },
+          });
+          if (codigoExistente) {
+             throw new BadRequestException(`Ya existe un producto con el código ${producto.codigo}`);
+          }
 
        let subcategoria: Subcategoria_Producto | null = null;
        if (producto.subcategoriaId !== undefined) {
@@ -62,7 +63,7 @@ export class CreateProductoUseCase {
        const crearProducto = this.productoRepository.create({
            nombre: producto.nombre,
            codigo: producto.codigo,
-           categoria,
+           categoriaTipo,
            subcategoria: subcategoria ?? null,
           imagen_url: producto.imagen_url ?? null,
 

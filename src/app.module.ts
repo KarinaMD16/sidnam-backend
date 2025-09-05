@@ -33,7 +33,6 @@ import { Expediente_Residente } from './modulos/residentes/entities/expedientes.
 import { Residente } from './modulos/residentes/entities/residente.entity';
 import { Encargado } from './modulos/residentes/entities/encargado.entity';
 import { InventarioModule } from './modulos/inventarios/inventario.module';
-import { Categoria_Producto } from './modulos/inventarios/entities/categoriaProducto.entity';
 import { Producto } from './modulos/inventarios/entities/producto.entity';
 import { Inventario } from './modulos/inventarios/entities/inventario.entity';
 import { Entrada } from './modulos/inventarios/entities/entrada.entity';
@@ -94,7 +93,6 @@ dotenv.config();
         Residente, 
         Expediente_Residente, 
         Encargado,
-        Categoria_Producto,
         Producto,
         Inventario,
         Entrada,

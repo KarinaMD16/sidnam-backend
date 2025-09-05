@@ -1,7 +1,6 @@
 import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from "@nestjs/common";
 import { Response as ExpressResponse } from 'express';
 import { InventarioService } from "../services/inventario.service";
-import { CategoriaProductoDto } from "../dto/crearCategoriaProductoDto";
 import { CreateProductoUseCase } from "../use-cases/producto/create-producto.use-case";
 import { ProductoDto } from "../dto/crearProductoDto";
 import { GetProductosUseCase } from "../use-cases/producto/get-producto.use-case";
@@ -17,7 +16,6 @@ import { GetSalidaUseCase } from "../use-cases/salida/get-salida.use-case";
 import { ReportesInventarioService } from "../services/reporteInventario.service";
 import { ReporteMovimientosDto } from "../dto/reporteMovimientosDto";
 import { ApiOkResponse, ApiOperation, ApiProduces, ApiQuery } from "@nestjs/swagger";
-import { CreateCategoriaDto } from "../dto/createCategoriaDto";
 import { SubcategoriaUseCase } from "../use-cases/subCategoria/subCategoria.use-case";
 import { CrearSubcategoriaDto } from "../dto/crearSubCategoriaDto";
 
@@ -46,13 +44,7 @@ export class InventarioController {
   async getCategorias() {
     return this.inventarioService.getCategorias();
   }
-
-  //Crear una categoria nueva.
-  @Post('tipo-categoria/categoria/:idCategoriaProducto')
-      async createCategoriaProducto(@Param('idCategoriaProducto', ParseIntPipe) idCategoria: number,@Body() createCategoriaDto: CreateCategoriaDto,) {
-      return this.inventarioService.crearCategoria(idCategoria, createCategoriaDto);
-    }
-
+  
     //Crear una subcategoria.
     @Post('subCategoria')
     crearSubCategoria(@Body() subCategoria: CrearSubcategoriaDto) {
@@ -65,20 +57,20 @@ export class InventarioController {
       return this.subCategoriasUseCase.getAllSubCategorias();
    }
 
-
    //Crear un producto, crea un inventario asociado automáticamente.
     @Post('productos')
     crearProducto(@Body() Producto: ProductoDto){
         return this.createProductoUseCase.crearProducto(Producto)
     }
 
+    //Este no se ocupa ya.
     //Ver los productos existentes.
     @Get('productos')
     findAllProductos() {
         return this.getProductoUseCase.findAllProductos();
     }
   
-
+  
     //Updatear un inventario y toda la información del producto asociado.
     @Patch('update/:inventarioId')
     updateInventario(
@@ -119,7 +111,7 @@ export class InventarioController {
      return this.getProductoUseCase.findByArchivadoYCategoria(true, categoriaId, page, limit);
    }
 
-    //Busca los inventarios de acuerdo a su categoria (no paginado).
+    //Busca los inventarios de acuerdo a su categoria (no paginado).(no archivados).
     @Get('categoria/:categoriaId/all')
     getInventariosPorCategoriaSinPaginacion(
        @Param('categoriaId', ParseIntPipe) categoriaId: number,
@@ -199,7 +191,7 @@ export class InventarioController {
          await this.reporteInventarioService.generarReporteSalidas(q, res);
        }
 
-       //Pagina de salidas de la cocina.
+       //Página de salidas de la cocina.
        //Trae los productos por subcategorias de acuerdo a su id.
      @Get('subcategoria/:subcategoriaId')
      getPorSubcategoria(
