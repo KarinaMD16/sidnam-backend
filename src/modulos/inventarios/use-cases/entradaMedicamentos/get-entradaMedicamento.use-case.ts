@@ -11,19 +11,13 @@ export class GetEntradaMedicamentoUseCase {
     private readonly entradaMedRepo: Repository<EntradaMedicamento>,
   ) {}
 
-  /**
-   * Lista entradas de medicamentos.
-   * Filtros opcionales:
-   *  - anio, mes  => recorta por rango [primer día, primer día del mes siguiente)
-   *  - medicamentoId => solo ese medicamento
-   * Paginación opcional: si limit > 0 aplica skip/take, si no, trae todo.
-   */
+ 
   async findMany(opts: {
     anio?: number;
-    mes?: number; // 1-12
+    mes?: number; 
     medicamentoId?: number;
-    page?: number; // default 1
-    limit?: number; // default 0 => sin paginar
+    page?: number;
+    limit?: number; 
   }): Promise<{
     data: Array<{
       id: number;
@@ -52,20 +46,20 @@ export class GetEntradaMedicamentoUseCase {
       .orderBy('em.fechaEntrada', 'DESC')
       .addOrderBy('em.id', 'DESC');
 
-    // Filtro por mes/año
+   
     if (anio && mes) {
-      // rango [inicio, fin)
+      
       const inicio = new Date(anio, mes - 1, 1, 0, 0, 0, 0);
       const fin    = new Date(anio, mes, 1, 0, 0, 0, 0);
       qb.andWhere('em.fechaEntrada >= :inicio AND em.fechaEntrada < :fin', { inicio, fin });
     }
 
-    // Filtro por medicamentoId
+    
     if (medicamentoId) {
       qb.andWhere('m.id_medicamento = :medicamentoId', { medicamentoId });
     }
 
-    // Paginación
+   
     if (limit > 0) {
       const safePage = page > 0 ? page : 1;
       qb.skip((safePage - 1) * limit).take(limit);

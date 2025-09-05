@@ -11,7 +11,7 @@ export class CreateEntradaMedicamentoUseCase {
   constructor(private readonly ds: DataSource) {}
 
   async crearEntradaMedicamento(dto: CrearEntradaMedicamentoDto) {
-    // 1) Validaciones básicas del DTO
+    
     if (!dto.items?.length) {
       throw new BadRequestException('Debe incluir al menos un item');
     }
@@ -26,9 +26,8 @@ export class CreateEntradaMedicamentoUseCase {
       }
     }
 
-    // 2) Transacción
     return this.ds.transaction(async (manager) => {
-      // Cargar referencias requeridas
+     
       const medIds = [...new Set(dto.items.map(i => i.medicamentoId))];
       const umIds  = [...new Set(dto.items.map(i => i.unidadMedidaId))];
 
@@ -44,7 +43,7 @@ export class CreateEntradaMedicamentoUseCase {
       if (faltanMeds.length) throw new NotFoundException(`Medicamentos no encontrados: ${faltanMeds.join(', ')}`);
       if (faltanUms.length)  throw new NotFoundException(`Unidades de medida no encontradas: ${faltanUms.join(', ')}`);
 
-      // 3) Crear entradas
+      
       const ahora = new Date();
       const aGuardar = dto.items.map(it => {
         const medicamento = meds.find(m => m.id_medicamento === it.medicamentoId)!;
@@ -54,13 +53,13 @@ export class CreateEntradaMedicamentoUseCase {
           medicamento,
           unidad_medida: unidad,
           cantidad: Number(it.cantidad),
-          fechaEntrada: ahora,            // <-- nombre correcto en tu entidad
+          fechaEntrada: ahora,            
         });
       });
 
       const guardadas = await manager.save(EntradaMedicamento, aGuardar);
 
-      // 4) Releer con relaciones para construir la respuesta sin undefined
+      
       const ids = guardadas.map(g => g.id);
       const completas = await manager.find(EntradaMedicamento, {
         where: { id: In(ids) },
@@ -68,7 +67,7 @@ export class CreateEntradaMedicamentoUseCase {
         order: { id: 'ASC' },
       });
 
-      // 5) Respuesta
+      
       const data = completas.map(e => ({
         id: e.id,
         fecha: e.fechaEntrada,
