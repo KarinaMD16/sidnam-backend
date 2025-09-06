@@ -53,6 +53,10 @@ import { Subcategoria_Producto } from './modulos/inventarios/entities/subCategor
 import { Libro_Campo } from './modulos/residentes/entities/libroCampo.entity';
 import { HistorialPatologias } from './modulos/residentes/entities/historiaoPatologias.entity';
 import { HistorialCuraciones } from './modulos/residentes/entities/historialCuraciones.entity';
+import { FacturasProveedoresModule } from './modulos/facturas-proveedores/facturas-proveedores.module';
+import { Area } from './modulos/facturas-proveedores/entities/area.entity';
+import { Proveedor } from './modulos/facturas-proveedores/entities/proveedor.entity';
+import { Factura } from './modulos/facturas-proveedores/entities/factura.entity';
 
 
 
@@ -112,6 +116,9 @@ dotenv.config();
         Libro_Campo,
         HistorialPatologias,
         HistorialCuraciones,
+        Factura,
+        Proveedor,
+        Area
       ],
       synchronize: true,
       dropSchema: false,
@@ -124,6 +131,7 @@ dotenv.config();
     ResidentesModule,
     InventarioModule,
     UnidadesMedidaModule,
+    FacturasProveedoresModule,
   ],
   controllers: [AppController],
   providers: [AppService],
