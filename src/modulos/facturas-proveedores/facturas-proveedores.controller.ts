@@ -24,8 +24,8 @@ export class FacturasProveedoresController {
     }
 
     @Get('areas/activas')
-    getAreasActivas(){
-        return this.facturasproveedoresService.getAreasActivas()
+    getAreasActivas(@Query('page') page?: number, @Query('limit') limit?: number){
+        return this.facturasproveedoresService.getAreasActivas(page, limit)
     }
 
     @Post('proveedores')
@@ -53,9 +53,9 @@ export class FacturasProveedoresController {
         return this.facturasproveedoresService.createFactura(createFactura)
     }
 
-    @Get('facturas')
-    getFacturas(@Query('page') page?: number, @Query('limit') limit?: number,) {
-        return this.facturasproveedoresService.getFacturas(page, limit);
+    @Get('facturas/:idProveedor')
+    getFacturasPorProveedor(@Param('idProveedor', ParseIntPipe) idProveedor: number, @Query('page') page?: number, @Query('limit') limit?: number,) {
+        return this.facturasproveedoresService.getFacturasPorProveedor(idProveedor, page, limit);
     }
 
     @Get('facturas/estados')
