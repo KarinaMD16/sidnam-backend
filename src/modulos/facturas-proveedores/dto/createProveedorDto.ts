@@ -21,5 +21,4 @@ export class CreateProveedor{
     @IsNumber()
     id_area: number
 
-    
 }
