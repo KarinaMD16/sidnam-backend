@@ -12,8 +12,8 @@ export class Proveedor {
    @Column()
    nombre: string;
 
-   @Column({ type: 'bigint' })
-   numero: number;
+   @Column()
+   numero: string;
 
    @Column()
    correo: string;
