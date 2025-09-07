@@ -7,7 +7,7 @@ export class CreateProveedor{
     nombre: string;
 
     @IsNotEmpty()
-    @IsNumber()
+    @IsString()
     numero_proveedor?: string;
 
     @IsNotEmpty()
