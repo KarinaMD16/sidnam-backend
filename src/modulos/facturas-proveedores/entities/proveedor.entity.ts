@@ -12,7 +12,7 @@ export class Proveedor {
    @Column()
    nombre: string;
 
-   @Column()
+   @Column({ type: 'bigint' })
    numero: number;
 
    @Column()
