@@ -53,7 +53,7 @@ export class FacturasProveedoresController {
         return this.facturasproveedoresService.createFactura(createFactura)
     }
 
-    @Get('facturas/:idProveedor')
+    @Get('facturas/proveedor/:idProveedor')
     getFacturasPorProveedor(@Param('idProveedor', ParseIntPipe) idProveedor: number, @Query('page') page?: number, @Query('limit') limit?: number,) {
         return this.facturasproveedoresService.getFacturasPorProveedor(idProveedor, page, limit);
     }
