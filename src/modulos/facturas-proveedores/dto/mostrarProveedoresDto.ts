@@ -7,4 +7,14 @@ export class MostrarProveedores{
 
     @Expose()
     nombre: string;
+
+    @Expose()
+    numero: number;
+
+    @Expose()
+    correo: string;
+
+    @Expose()
+    direccion: string;
+
 }
