@@ -33,8 +33,4 @@ export class MostrarFacturaDto{
     @Expose()
     estado: 'pagada' | 'pendiente'
 
-    @Expose()
-    @Type(() => MostrarProveedoresFacturas)
-    proveedor: MostrarProveedoresFacturas;
-    
 }
