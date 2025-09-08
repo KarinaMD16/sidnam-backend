@@ -23,6 +23,11 @@ export class FacturasProveedoresController {
         return this.facturasproveedoresService.getAreas()
     }
 
+    @Get('areas/id/:id_area')
+    getAreasById(@Param('id_area', ParseIntPipe) id_area: number){
+        return this.facturasproveedoresService.getAreaByID(id_area)
+    }
+
     @Get('areas/activas')
     getAreasActivas(@Query('page') page?: number, @Query('limit') limit?: number){
         return this.facturasproveedoresService.getAreasActivas(page, limit)

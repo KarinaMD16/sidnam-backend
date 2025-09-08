@@ -122,6 +122,22 @@ export class FacturasProveedoresService {
         return dto
     }
 
+    async getAreaByID(id_area: number): Promise<MostrarAreasActivas>{
+
+        const area = await this.areaRepository.findOne({
+            where: {id_area}
+        })
+
+        if(!area){
+            throw new NotFoundException('Area no encontrada')
+        }
+
+        const dto = plainToInstance(MostrarAreasActivas, area, {excludeExtraneousValues: true})
+
+        return dto
+
+    }
+
 
     async createFactura(createFactura: CreateFacturaDto): Promise<{message: string}> {
         
