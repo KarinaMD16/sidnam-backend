@@ -57,7 +57,7 @@ import { FacturasProveedoresModule } from './modulos/facturas-proveedores/factur
 import { Area } from './modulos/facturas-proveedores/entities/area.entity';
 import { Proveedor } from './modulos/facturas-proveedores/entities/proveedor.entity';
 import { Factura } from './modulos/facturas-proveedores/entities/factura.entity';
-
+import { EntradaMedicamento } from './modulos/inventarios/entities/entradaMedicamento.entity';
 
 
 
@@ -118,7 +118,8 @@ dotenv.config();
         HistorialCuraciones,
         Factura,
         Proveedor,
-        Area
+        Area,
+        EntradaMedicamento,
       ],
       synchronize: true,
       dropSchema: false,
