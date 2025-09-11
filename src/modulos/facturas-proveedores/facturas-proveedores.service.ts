@@ -186,7 +186,8 @@ export class FacturasProveedoresService {
     async getFacturasPorNumero(numeroFactura: number): Promise<MostrarFacturaDto>{
 
         const facturaNumero = await this.facturaRepository.findOne({
-            where: {numero_factura: numeroFactura}
+            where: {numero_factura: numeroFactura},
+            relations: ['proveedor', 'proveedor.area']
         })
 
         if(!facturaNumero){
