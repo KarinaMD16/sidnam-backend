@@ -1,4 +1,5 @@
-import { Expose } from "class-transformer";
+import { Expose, Type } from "class-transformer";
+import { MostrarAreaFactura } from "./mostrarAreaFacturaDto";
 
 export class MostrarProveedores{
 
@@ -7,4 +8,19 @@ export class MostrarProveedores{
 
     @Expose()
     nombre: string;
+
+    @Expose()
+    numero: number;
+
+    @Expose()
+    correo: string;
+
+    @Expose()
+    direccion: string;
+
+    @Expose()
+    @Type(() => MostrarAreaFactura)
+    area: MostrarAreaFactura;
+
+
 }

@@ -47,12 +47,17 @@ export class FacturasProveedoresService {
         return this.areaRepository.find()
     }
 
-    async getAreasActivas(): Promise<MostrarAreasActivas[]>{
-        const areasExistentens = await this.areaRepository.find({
-            where: {estado: Estado_Area.activo}
+    async getAreasActivas(page?: number, limit?: number): Promise<{ data: MostrarAreasActivas[]; total: number }>{
+        const [data, total] = await this.areaRepository.findAndCount({
+            where: {estado: Estado_Area.activo},
+            skip: page && limit ? (page - 1) * limit : 0,
+            take: limit,
+            order: { id_area: 'DESC' }, 
         })
-        const dto = plainToInstance(MostrarAreasActivas, areasExistentens, {excludeExtraneousValues: true,});
-        return dto
+
+        const dtos = plainToInstance(MostrarAreasActivas, data, { excludeExtraneousValues: true });
+
+        return { data: dtos, total };
     }
 
     async createProveedor(createProveedor: CreateProveedor): Promise<{message: string}>{
@@ -85,6 +90,7 @@ export class FacturasProveedoresService {
 
         const proveedores = await this.proveedorRepository
             .createQueryBuilder('proveedor')
+            .leftJoinAndSelect('proveedor.area', 'area')
             .where(`
             REPLACE(LOWER(COALESCE(proveedor.nombre, '')), ' ', '') LIKE :filtro
             `, { filtro: `%${filtroNormalizado}%` })
@@ -117,6 +123,22 @@ export class FacturasProveedoresService {
         return dto
     }
 
+    async getAreaByID(id_area: number): Promise<MostrarAreasActivas>{
+
+        const area = await this.areaRepository.findOne({
+            where: {id_area}
+        })
+
+        if(!area){
+            throw new NotFoundException('Area no encontrada')
+        }
+
+        const dto = plainToInstance(MostrarAreasActivas, area, {excludeExtraneousValues: true})
+
+        return dto
+
+    }
+
 
     async createFactura(createFactura: CreateFacturaDto): Promise<{message: string}> {
         
@@ -138,8 +160,18 @@ export class FacturasProveedoresService {
         return {message: 'Factura creada con exito'}
     }
 
-    async getFacturas(page?: number, limit?: number): Promise<{ data: MostrarFacturaDto[]; total: number }> {
+    async getFacturasPorProveedor(id_proveedor: number, page?: number, limit?: number): Promise<{ data: MostrarFacturaDto[]; total: number }> {
+
+        const proveedorExistente = await this.proveedorRepository.findOne({
+            where: {id_proveedor: id_proveedor}
+        })
+
+        if(!proveedorExistente){
+            throw new NotFoundException('Proveedor inexistente')
+        }
+
         const [data, total] = await this.facturaRepository.findAndCount({
+            where: {proveedor: {id_proveedor: id_proveedor}},
             skip: page && limit ? (page - 1) * limit : 0,
             take: limit,
             order: { id_factura: 'DESC' }, 
@@ -154,7 +186,8 @@ export class FacturasProveedoresService {
     async getFacturasPorNumero(numeroFactura: number): Promise<MostrarFacturaDto>{
 
         const facturaNumero = await this.facturaRepository.findOne({
-            where: {numero_factura: numeroFactura}
+            where: {numero_factura: numeroFactura},
+            relations: ['proveedor', 'proveedor.area']
         })
 
         if(!facturaNumero){

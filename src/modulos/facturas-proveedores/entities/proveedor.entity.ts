@@ -13,7 +13,7 @@ export class Proveedor {
    nombre: string;
 
    @Column()
-   numero: number;
+   numero: string;
 
    @Column()
    correo: string;

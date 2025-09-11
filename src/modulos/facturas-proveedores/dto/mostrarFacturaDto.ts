@@ -36,5 +36,5 @@ export class MostrarFacturaDto{
     @Expose()
     @Type(() => MostrarProveedoresFacturas)
     proveedor: MostrarProveedoresFacturas;
-    
+
 }

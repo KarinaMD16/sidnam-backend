@@ -23,9 +23,14 @@ export class FacturasProveedoresController {
         return this.facturasproveedoresService.getAreas()
     }
 
+    @Get('areas/id/:id_area')
+    getAreasById(@Param('id_area', ParseIntPipe) id_area: number){
+        return this.facturasproveedoresService.getAreaByID(id_area)
+    }
+
     @Get('areas/activas')
-    getAreasActivas(){
-        return this.facturasproveedoresService.getAreasActivas()
+    getAreasActivas(@Query('page') page?: number, @Query('limit') limit?: number){
+        return this.facturasproveedoresService.getAreasActivas(page, limit)
     }
 
     @Post('proveedores')
@@ -53,9 +58,14 @@ export class FacturasProveedoresController {
         return this.facturasproveedoresService.createFactura(createFactura)
     }
 
-    @Get('facturas')
-    getFacturas(@Query('page') page?: number, @Query('limit') limit?: number,) {
-        return this.facturasproveedoresService.getFacturas(page, limit);
+    @Get('facturas/proveedor/:idProveedor')
+    getFacturasPorProveedor(@Param('idProveedor', ParseIntPipe) idProveedor: number, @Query('page') page?: number, @Query('limit') limit?: number,) {
+        return this.facturasproveedoresService.getFacturasPorProveedor(idProveedor, page, limit);
+    }
+
+    @Get('facturas/numero/:numeroFactura')
+    getFacturaPorNumero(@Param('numeroFactura', ParseIntPipe) numeroFactura: number){
+        return this.facturasproveedoresService.getFacturasPorNumero(numeroFactura)
     }
 
     @Get('facturas/estados')
@@ -63,14 +73,9 @@ export class FacturasProveedoresController {
         return this.facturasproveedoresService.getEstadosFacturas()
     }
 
-    @Get('facturas/:idEstadoFactura')
+    @Get('facturas/estados/:idEstadoFactura')
     getFacturasPorEstado(@Param('idEstadoFactura', ParseIntPipe) idEstadoFactura: number, @Query('page') page?: number, @Query('limit') limit?: number,){
         return this.facturasproveedoresService.getFacturasPorEstado(idEstadoFactura, page, limit)
-    }
-
-    @Get('facturas/:numeroFactura')
-    getFacturaPorNumero(@Param('numeroFactura', ParseIntPipe) numeroFactura: number){
-        return this.facturasproveedoresService.getFacturasPorNumero(numeroFactura)
     }
 
     @Patch('facturas/:idFactura')

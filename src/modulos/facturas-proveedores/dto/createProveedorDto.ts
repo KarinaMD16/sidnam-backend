@@ -7,8 +7,8 @@ export class CreateProveedor{
     nombre: string;
 
     @IsNotEmpty()
-    @IsNumber()
-    numero_proveedor?: number;
+    @IsString()
+    numero_proveedor?: string;
 
     @IsNotEmpty()
     @IsEmail()
@@ -21,5 +21,4 @@ export class CreateProveedor{
     @IsNumber()
     id_area: number
 
-    
 }
