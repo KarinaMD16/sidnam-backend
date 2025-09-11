@@ -90,6 +90,7 @@ export class FacturasProveedoresService {
 
         const proveedores = await this.proveedorRepository
             .createQueryBuilder('proveedor')
+            .leftJoinAndSelect('proveedor.area', 'area')
             .where(`
             REPLACE(LOWER(COALESCE(proveedor.nombre, '')), ' ', '') LIKE :filtro
             `, { filtro: `%${filtroNormalizado}%` })
