@@ -21,6 +21,7 @@ import { CrearSubcategoriaDto } from "../dto/crearSubCategoriaDto";
 import { CrearEntradaMedicamentoDto } from "../dto/crearEntradaMedicamentosDto";
 import { CreateEntradaMedicamentoUseCase } from "../use-cases/entradaMedicamentos/create-entradaMedicamento.use-case";
 import { GetEntradaMedicamentoUseCase } from "../use-cases/entradaMedicamentos/get-entradaMedicamento.use-case";
+import { ReporteEntradaMedicamentoService } from "../services/reporteEntradaMedicamentos.service";
 
 
 @Controller('inventario')
@@ -41,6 +42,7 @@ export class InventarioController {
         private readonly subCategoriasUseCase: SubcategoriaUseCase,
         private readonly createEntradaMedicamentosUseCase: CreateEntradaMedicamentoUseCase,
         private readonly getEntradaMedicamentoUseCase: GetEntradaMedicamentoUseCase,
+        private readonly reporteEntradaMedicamentoService: ReporteEntradaMedicamentoService,
     
     ){}
 
@@ -211,25 +213,43 @@ export class InventarioController {
       return this.getInventarioUseCase.findAllActivosConStock();
     }
 
+    //Para crear una entrada de medicamentos.
     @Post('EntradaMedicamentos')
     crear(@Body() dto: CrearEntradaMedicamentoDto) {
       return this.createEntradaMedicamentosUseCase.crearEntradaMedicamento(dto);
     }
 
+    //Para ver las entradas de medicamentos, paginado por mes y año.
     @Get('EntradaMedicamentos')
     getEntradasMedicamentos(
     @Query('anio') anio?: number,
     @Query('mes') mes?: number,
-    @Query('medicamentoId') medicamentoId?: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit?: number,
     ) {
-    return this.getEntradaMedicamentoUseCase.findMany({
+      return this.getEntradaMedicamentoUseCase.findAllEntradasMedicamentos({
       anio: anio ? Number(anio) : undefined,
       mes: mes ? Number(mes) : undefined,
-      medicamentoId: medicamentoId ? Number(medicamentoId) : undefined,
       page,
       limit,
-    });
-  }
+     });
+    }
+
+    //Descarga el reporte pdf de las entradas de medicamentos en el mes/año seleccionado.
+    @Get('reportes/entrada-medicamentos/pdf')
+    @ApiOperation({ summary: 'Descargar PDF de entradas de medicamentos por mes/año' })
+    @ApiProduces('application/pdf')
+    @ApiOkResponse({
+    description: 'Archivo PDF',
+    content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
+    })
+    @ApiQuery({ name: 'mes', required: true, type: Number, description: '1-12' })
+    @ApiQuery({ name: 'anio', required: true, type: Number })
+      async reporteEntradasMedicamentosPdf(
+      @Query('anio') anio: number,
+      @Query('mes') mes: number,
+      @Res() res: ExpressResponse,
+      ) {
+       await this.reporteEntradaMedicamentoService.generarReporteEntradasMedicamentos(Number(anio), Number(mes), res);
+      }
 }
