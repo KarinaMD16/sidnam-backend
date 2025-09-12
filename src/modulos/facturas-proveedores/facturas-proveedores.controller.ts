@@ -5,6 +5,7 @@ import { CreateProveedor } from './dto/createProveedorDto';
 import { CreateFacturaDto } from './dto/createFacturaDto';
 import { ActualizarFacturaDto } from './dto/actualizarFacturaDto';
 
+
 @Controller('facturas-proveedores')
 export class FacturasProveedoresController {
 
@@ -83,13 +84,17 @@ export class FacturasProveedoresController {
         return this.facturasproveedoresService.actualizarFactura(idFactura, actualizarFactura)
     }
 
-   
+    @Patch('facturas/estado/:id')
+    async actualizarEstado(@Param('id', ParseIntPipe) id: number) {
+       return this.facturasproveedoresService.actualizarEstadoFactura(id);
+    }
+
+    @Patch('proveedor/handleArchivado/:id')
+    async handleArchivado(@Param('id', ParseIntPipe) id: number) {
+       return this.facturasproveedoresService.toggleArchivadoProveedor(id);
+    }
 
 
-
-
-
-    
 
 
 }
