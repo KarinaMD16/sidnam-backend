@@ -301,7 +301,6 @@ export class FacturasProveedoresService {
           throw new NotFoundException(`Proveedor con id ${id} no encontrado`);
         }
 
-  
         if (proveedor.estado === Estado_Proveedor.activo) {
            const tienePendientes = proveedor.facturas.some(
            (f) => f.estado === Estado_Factura.pendiente,
@@ -318,6 +317,12 @@ export class FacturasProveedoresService {
        }
 
        return await this.proveedorRepository.save(proveedor);
+    }
+
+    async getProveedoresArchivados() {
+       return await this.proveedorRepository.find({
+       where: { estado: Estado_Proveedor.inactivo },
+       });
     }
 
 

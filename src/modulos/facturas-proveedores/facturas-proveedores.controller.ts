@@ -94,6 +94,11 @@ export class FacturasProveedoresController {
        return this.facturasproveedoresService.toggleArchivadoProveedor(id);
     }
 
+    @Get('proveedores/archivados')
+    async getProveedoresArchivados() {
+        return this.facturasproveedoresService.getProveedoresArchivados();
+    }
+
 
 
 
