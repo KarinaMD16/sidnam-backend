@@ -22,6 +22,7 @@ import { SubcategoriaUseCase } from './use-cases/subCategoria/subCategoria.use-c
 import { EntradaMedicamento } from './entities/entradaMedicamento.entity';
 import { CreateEntradaMedicamentoUseCase } from './use-cases/entradaMedicamentos/create-entradaMedicamento.use-case';
 import { GetEntradaMedicamentoUseCase } from './use-cases/entradaMedicamentos/get-entradaMedicamento.use-case';
+import { ReporteEntradaMedicamentoService } from './services/reporteEntradaMedicamentos.service';
 
 
 
@@ -29,7 +30,7 @@ import { GetEntradaMedicamentoUseCase } from './use-cases/entradaMedicamentos/ge
   imports: [
     TypeOrmModule.forFeature([Producto, Inventario, Entrada, Salida, Unidad_Medida, Subcategoria_Producto, EntradaMedicamento]),
     ],
-  providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase, GetEntradaUseCase, CreateSalidaUseCase, GetSalidaUseCase, ReportesInventarioService, PdfHtmlService, SubcategoriaUseCase, CreateEntradaMedicamentoUseCase, GetEntradaMedicamentoUseCase],
+  providers: [InventarioService, CreateProductoUseCase, GetProductosUseCase, UpdateProductoUseCase, GetInventarioUseCase, CreateEntradaUseCase, GetEntradaUseCase, CreateSalidaUseCase, GetSalidaUseCase, ReportesInventarioService, PdfHtmlService, SubcategoriaUseCase, CreateEntradaMedicamentoUseCase, GetEntradaMedicamentoUseCase, ReporteEntradaMedicamentoService],
   controllers: [InventarioController]
 })
 export class InventarioModule {}

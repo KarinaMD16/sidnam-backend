@@ -61,7 +61,6 @@ import { Factura } from './modulos/facturas-proveedores/entities/factura.entity'
 
 
 
-
 dotenv.config();
 @Module({
   imports: [
@@ -117,7 +116,7 @@ dotenv.config();
         HistorialPatologias,
         HistorialCuraciones,
         Subcategoria_Producto,
-        EntradaMedicamento
+        EntradaMedicamento,
         Factura,
         Proveedor,
         Area
