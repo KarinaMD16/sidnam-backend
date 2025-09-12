@@ -111,7 +111,8 @@ export class FacturasProveedoresService {
         }
 
         const proveedorPorArea = await this.proveedorRepository.find({
-            where: {area: {id_area: idArea}},
+            where: {area: {id_area: idArea},
+            estado: Estado_Proveedor.activo},
             relations: ['area']
         })
 
