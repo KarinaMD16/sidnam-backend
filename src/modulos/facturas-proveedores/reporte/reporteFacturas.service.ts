@@ -1,0 +1,138 @@
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Response as ExpressResponse } from 'express';
+import { PdfHtmlService } from 'src/common/services/pdf-html.service';
+import { Factura } from '../entities/factura.entity';
+
+@Injectable()
+export class ReporteFacturaService {
+  constructor(
+    @InjectRepository(Factura)
+
+    private readonly facturaRepo: Repository<Factura>,
+    private readonly pdfHtml: PdfHtmlService,
+    
+  ) {}
+
+  async generarReporteFacturas(anio: number, mes: number, res: ExpressResponse) {
+    if (!anio || !mes) {
+      throw new BadRequestException('Debe especificar año y mes.');
+    }
+    if (mes < 1 || mes > 12) {
+      throw new BadRequestException('Mes inválido (1-12).');
+    }
+
+    const inicio = new Date(anio, mes - 1, 1, 0, 0, 0);
+    const fin    = new Date(anio, mes, 1, 0, 0, 0);
+
+    const rows = await this.facturaRepo
+      .createQueryBuilder('f')
+      .innerJoin('f.proveedor', 'p')
+      .where('f.fecha_emitida >= :inicio AND f.fecha_emitida < :fin', { inicio, fin })
+      .select('f.id_factura', 'factura_id')
+      .addSelect('f.numero_factura', 'numero_factura')
+      .addSelect("DATE_FORMAT(f.fecha_emitida, '%Y-%m-%d')", 'fecha_emision')
+      .addSelect("DATE_FORMAT(f.fecha_pago, '%Y-%m-%d')", 'fecha_pago')
+      .addSelect('f.monto', 'monto')
+      .addSelect('f.estado', 'estado')
+      .addSelect('p.nombre', 'proveedor_nombre')
+      .orderBy('f.fecha_emitida', 'DESC')
+      .addOrderBy('f.id_factura', 'DESC')
+      .getRawMany<{
+        factura_id: number;
+        numero_factura: number;
+        fecha_emision: string;
+        fecha_pago: string;
+        monto: number;
+        estado: string;
+        proveedor_nombre: string;
+      }>();
+
+    if (!rows.length) {
+      throw new NotFoundException('No hay facturas en ese período.');
+    }
+
+    const html = this.buildHtmlTabla({
+      titulo: 'Reporte de Facturas',
+      anio,
+      mes,
+      columnas: ['Número Factura', 'Proveedor', 'Fecha Emisión', 'Fecha Pago', 'Monto', 'Estado'],
+      filas: rows.map(r => [
+        String(r.numero_factura),
+        r.proveedor_nombre,
+        r.fecha_emision,
+        r.fecha_pago,
+        `₡ ${r.monto.toLocaleString()}`,
+        r.estado,
+      ]),
+      totalRegistros: rows.length,
+    });
+
+    const mesTexto = new Date(anio, mes - 1).toLocaleString('es-CR', { month: 'long' });
+    const filename = `Reporte_Facturas_${this.capitalize(mesTexto)}_${anio}.pdf`;
+
+    await this.pdfHtml.generarDesdeHtml(html, res, {
+      filename,
+      waitUntil: 'networkidle0',
+      ensureAssets: true,
+      disposition: 'attachment',
+    });
+  }
+
+  // helpers
+  private esc(s: string) {
+    return String(s)
+      .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+      .replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  }
+  private capitalize(s: string) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  private buildHtmlTabla(params: {
+    titulo: string; anio: number; mes: number;
+    columnas: string[]; filas: string[][]; totalRegistros: number;
+  }) {
+    const { titulo, anio, mes, columnas, filas, totalRegistros } = params;
+    const mesNombre = new Date(anio, mes - 1).toLocaleString('es-CR', { month: 'long', year: 'numeric' });
+
+    const head = columnas.map(c => `<th>${this.esc(c)}</th>`).join('');
+    const body = filas.map(r => `<tr>${r.map(v => `<td>${this.esc(v)}</td>`).join('')}</tr>`).join('');
+
+    return `
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<style>
+  :root { --accent:#A7074D; --text:#111; --muted:#555; --border:#d5d5d5; --bg-alt:#f7f7f7; }
+  body{font-family:Arial,Helvetica,sans-serif;font-size:12px;margin:24px;color:var(--text)}
+  h1{margin:0 0 8px;font-size:28px}
+  .heading{display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:center;margin-bottom:6px}
+  .logo{width:96px;height:96px;border-radius:50%;object-fit:cover;border:none;display:block}
+  .meta{margin:0 0 12px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th,td{border:1px solid var(--border);padding:8px 10px;vertical-align:top}
+  th{background:var(--accent);color:#fff;text-align:left}
+  tbody tr:nth-child(even){background:var(--bg-alt)}
+  @page { margin: 40px 30px; }
+</style>
+</head>
+<body>
+  <div class="heading">
+    <img class="logo" src="https://i.ibb.co/HDfRP6fX/1749848069832.png" alt="logo"/>
+    <div>
+      <h1>${this.esc(titulo)}</h1>
+      <div class="meta">Mes: <strong>${this.esc(this.capitalize(mesNombre))}</strong></div>
+      <div class="meta">Total registros: ${totalRegistros}</div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr>${head}</tr></thead>
+    <tbody>${body}</tbody>
+  </table>
+</body>
+</html>`.trim();
+  }
+}

@@ -14,7 +14,6 @@ export class Entrada{
     @Column()
     cantidad: number;
    
-
     @ManyToOne(() => Inventario, inventario => inventario.entradas)
     @JoinColumn({ name: 'inventario_id' })
     inventario: Inventario;

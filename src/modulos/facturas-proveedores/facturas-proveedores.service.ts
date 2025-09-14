@@ -12,8 +12,9 @@ import { plainToInstance } from 'class-transformer';
 import { Estado_Area } from 'src/common/enums/estadoArea.enum';
 import { MostrarProveedores } from './dto/mostrarProveedoresDto';
 import { MostrarFacturaDto } from './dto/mostrarFacturaDto';
-import { FacturaOpts, getEstadoFactura } from 'src/common/enums/estadoFactura.enum';
+import { Estado_Factura, FacturaOpts, getEstadoFactura } from 'src/common/enums/estadoFactura.enum';
 import { ActualizarFacturaDto } from './dto/actualizarFacturaDto';
+import { Estado_Proveedor } from 'src/common/enums/estadoProveedor.enum';
 
 
 
@@ -272,5 +273,58 @@ export class FacturasProveedoresService {
 
 
     }
+
+
+    async actualizarEstadoFactura(id: number) {
+
+        const factura = await this.facturaRepository.findOne({
+           where: { id_factura: id },
+        });
+
+        if (!factura) {
+           throw new NotFoundException(`Factura con id ${id} no encontrada`);
+        }
+
+        factura.estado = Estado_Factura.pagada;
+
+        return await this.facturaRepository.save(factura);
+    }
+
+    async toggleArchivadoProveedor(id: number) {
+
+        const proveedor = await this.proveedorRepository.findOne({
+            where: { id_proveedor: id },
+            relations: ['facturas'],
+        });
+
+        if (!proveedor) {
+          throw new NotFoundException(`Proveedor con id ${id} no encontrado`);
+        }
+
+        if (proveedor.estado === Estado_Proveedor.activo) {
+           const tienePendientes = proveedor.facturas.some(
+           (f) => f.estado === Estado_Factura.pendiente,
+        );
+
+        if (tienePendientes) {
+           throw new BadRequestException(`No se puede archivar al proveedor con id ${id} porque tiene facturas pendientes.`);
+        }
+
+        proveedor.estado = Estado_Proveedor.inactivo;
+        } else {
+    
+        proveedor.estado = Estado_Proveedor.activo;
+       }
+
+       return await this.proveedorRepository.save(proveedor);
+    }
+
+    async getProveedoresArchivados() {
+       return await this.proveedorRepository.find({
+       where: { estado: Estado_Proveedor.inactivo },
+       });
+    }
+
+
 
 }
