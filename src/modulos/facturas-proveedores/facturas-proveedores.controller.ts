@@ -1,9 +1,12 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from '@nestjs/common';
 import { FacturasProveedoresService } from './facturas-proveedores.service';
 import { CreateAreaDto } from './dto/createAreaDto';
 import { CreateProveedor } from './dto/createProveedorDto';
 import { CreateFacturaDto } from './dto/createFacturaDto';
 import { ActualizarFacturaDto } from './dto/actualizarFacturaDto';
+import { ReporteFacturaService } from './reporte/reporteFacturas.service';
+import { Response as ExpressResponse } from 'express';
+import { ApiOkResponse, ApiOperation, ApiProduces, ApiQuery } from '@nestjs/swagger';
 
 
 @Controller('facturas-proveedores')
@@ -11,7 +14,8 @@ export class FacturasProveedoresController {
 
 
     constructor(
-        private readonly facturasproveedoresService: FacturasProveedoresService
+        private readonly facturasproveedoresService: FacturasProveedoresService,
+        private readonly reporteFacturaService: ReporteFacturaService,
     ){}
 
     @Post('areas')
@@ -94,7 +98,27 @@ export class FacturasProveedoresController {
        return this.facturasproveedoresService.toggleArchivadoProveedor(id);
     }
 
+    @Get('proveedores/archivados')
+    async getProveedoresArchivados() {
+        return this.facturasproveedoresService.getProveedoresArchivados();
+    }
 
+     @Get('reportes/pdf')
+  @ApiOperation({ summary: 'Descargar PDF de facturas por mes/año' })
+  @ApiProduces('application/pdf')
+  @ApiOkResponse({
+    description: 'Archivo PDF',
+    content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
+  })
+  @ApiQuery({ name: 'mes', required: true, type: Number, description: '1-12' })
+  @ApiQuery({ name: 'anio', required: true, type: Number })
+  async reporteFacturasPdf(
+    @Query('anio') anio: number,
+    @Query('mes') mes: number,
+    @Res() res: ExpressResponse,
+  ) {
+    await this.reporteFacturaService.generarReporteFacturas(Number(anio), Number(mes), res);
+  }
 
 
 }
