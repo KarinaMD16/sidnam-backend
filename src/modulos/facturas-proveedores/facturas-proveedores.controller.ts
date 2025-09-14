@@ -120,5 +120,8 @@ export class FacturasProveedoresController {
     await this.reporteFacturaService.generarReporteFacturas(Number(anio), Number(mes), res);
   }
 
-
+    @Get('facturas')
+    getFacturas(@Query('page') page?: number, @Query('limit') limit?: number, @Query('estado', ParseIntPipe) estado?: number) {
+        return this.facturasproveedoresService.getFacturas(page, limit, estado);
+    }
 }

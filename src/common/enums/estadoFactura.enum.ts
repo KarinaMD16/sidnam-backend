@@ -8,7 +8,7 @@ export const FacturaOpts = [
   { id: 2, value: Estado_Factura.pendiente, nombre: 'Pendiente' },
 ];
 
-export const getEstadoFactura = (id: number): Estado_Factura | null => {
+export const getEstadoFactura = (id: number): Estado_Factura | undefined => {
   const option = FacturaOpts.find(opt => opt.id === id);
-  return option ? option.value : null;
+  return option ? option.value : undefined;
 };
