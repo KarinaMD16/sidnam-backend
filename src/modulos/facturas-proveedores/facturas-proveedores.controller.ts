@@ -121,7 +121,7 @@ export class FacturasProveedoresController {
   }
 
     @Get('facturas')
-    getFacturas(@Query('page') page?: number, @Query('limit') limit?: number, @Query('estado', ParseIntPipe) estado?: number) {
+    getFacturas(@Query('page') page?: number, @Query('limit') limit?: number, @Query('estado') estado?: number) {
         return this.facturasproveedoresService.getFacturas(page, limit, estado);
     }
 }
