@@ -15,6 +15,7 @@ import { MostrarFacturaDto } from './dto/mostrarFacturaDto';
 import { Estado_Factura, FacturaOpts, getEstadoFactura } from 'src/common/enums/estadoFactura.enum';
 import { ActualizarFacturaDto } from './dto/actualizarFacturaDto';
 import { Estado_Proveedor } from 'src/common/enums/estadoProveedor.enum';
+import { MostrarProveedoresSelect } from './dto/mostrarProveedorSelectDto';
 
 
 
@@ -184,6 +185,15 @@ export class FacturasProveedoresService {
         const dtos = plainToInstance(MostrarFacturaDto, data, { excludeExtraneousValues: true });
 
         return { data: dtos, total };
+    }
+
+    async getProveedoresActivos(){
+        
+        const proveedores = await this.proveedorRepository.find({
+            where: {estado: Estado_Proveedor.activo}
+        })
+
+        return plainToInstance(MostrarProveedoresSelect, proveedores, { excludeExtraneousValues: true });
     }
 
     async getFacturasPorNumero(numeroFactura: number): Promise<MostrarFacturaDto>{
