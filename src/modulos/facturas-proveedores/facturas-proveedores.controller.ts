@@ -58,6 +58,11 @@ export class FacturasProveedoresController {
         return this.facturasproveedoresService.getProveedoresPorArea(idArea)
     }
 
+    @Get('proveedores/activos')
+    getProveedoresActivos(){
+        return this.facturasproveedoresService.getProveedoresActivos()
+    }
+
     @Post('facturas')
     createFactura(@Body() createFactura: CreateFacturaDto){
         return this.facturasproveedoresService.createFactura(createFactura)
