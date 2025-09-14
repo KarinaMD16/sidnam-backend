@@ -95,6 +95,7 @@ export class FacturasProveedoresService {
             .where(`
             REPLACE(LOWER(COALESCE(proveedor.nombre, '')), ' ', '') LIKE :filtro
             `, { filtro: `%${filtroNormalizado}%` })
+            .andWhere('proveedor.estado = :estado', { estado: Estado_Proveedor.activo })
             .getMany();
 
         return plainToInstance(MostrarProveedores, proveedores, { excludeExtraneousValues: true });
