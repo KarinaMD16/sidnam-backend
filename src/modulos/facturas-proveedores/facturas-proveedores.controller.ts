@@ -63,6 +63,11 @@ export class FacturasProveedoresController {
         return this.facturasproveedoresService.getFacturasPorProveedor(idProveedor, page, limit);
     }
 
+    @Get('facturas')
+    getFacturas(@Query('page') page?: number, @Query('limit') limit?: number, @Query('estado', ParseIntPipe) estado?: number) {
+        return this.facturasproveedoresService.getFacturas(page, limit, estado);
+    }
+
     @Get('facturas/numero/:numeroFactura')
     getFacturaPorNumero(@Param('numeroFactura', ParseIntPipe) numeroFactura: number){
         return this.facturasproveedoresService.getFacturasPorNumero(numeroFactura)

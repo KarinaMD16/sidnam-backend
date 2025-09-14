@@ -273,4 +273,26 @@ export class FacturasProveedoresService {
 
     }
 
+    async getFacturas(page?: number, limit?: number, estado?: number): Promise<{ data: MostrarFacturaDto[]; total: number }>{
+
+        const estadoExistente = estado ? getEstadoFactura(estado) : undefined;
+
+        if (estado && !estadoExistente) {
+            throw new NotFoundException('Estado no encontrado');
+        }
+
+        const [data, total] = await this.facturaRepository.findAndCount({
+            where: estadoExistente !== undefined ? { estado: estadoExistente } : undefined,
+            skip: page && limit ? (page - 1) * limit : 0,
+            take: limit,
+            order: { id_factura: 'DESC' },
+        });
+
+
+        const dto = plainToInstance(MostrarFacturaDto, data, {excludeExtraneousValues: true})
+
+        return {data: dto, total}
+
+    }
+
 }
