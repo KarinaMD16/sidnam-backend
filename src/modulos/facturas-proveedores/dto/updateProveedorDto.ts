@@ -14,8 +14,4 @@ export class UpdateProveedorDto {
   @IsOptional()
   direccion?: string;
 
-  @IsOptional()
-  id_area?: number;
-
 }
-    
