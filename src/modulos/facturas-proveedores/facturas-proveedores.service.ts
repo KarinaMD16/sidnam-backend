@@ -342,8 +342,7 @@ export class FacturasProveedoresService {
         dto.nombre === undefined &&
         dto.numero === undefined &&
         dto.correo === undefined &&
-        dto.direccion === undefined &&
-        dto.id_area === undefined
+        dto.direccion === undefined 
        ) {
           throw new BadRequestException('No hay campos para actualizar');
         }
@@ -368,18 +367,6 @@ export class FacturasProveedoresService {
         if (dto.direccion !== undefined) {
            proveedor.direccion = dto.direccion;
            touched = true;
-        }
-
-        if (dto.id_area !== undefined) {
-           const area = await this.areaRepository.findOne({
-           where: { id_area: dto.id_area },
-        });
-
-        if (!area) {
-           throw new NotFoundException('Área no encontrada');
-        }
-        proveedor.area = area;
-        touched = true;
         }
 
         if (touched) {
