@@ -15,6 +15,7 @@ import { MostrarFacturaDto } from './dto/mostrarFacturaDto';
 import { Estado_Factura, FacturaOpts, getEstadoFactura } from 'src/common/enums/estadoFactura.enum';
 import { ActualizarFacturaDto } from './dto/actualizarFacturaDto';
 import { Estado_Proveedor } from 'src/common/enums/estadoProveedor.enum';
+import { UpdateProveedorDto } from './dto/updateProveedorDto';
 
 
 
@@ -324,6 +325,70 @@ export class FacturasProveedoresService {
        where: { estado: Estado_Proveedor.inactivo },
        });
     }
+
+    
+    async updateProveedor(idProveedor: number, dto: UpdateProveedorDto): Promise<{ message: string }> {
+
+        const proveedor = await this.proveedorRepository.findOne({
+        where: { id_proveedor: idProveedor },
+        relations: { area: true },
+        });
+
+        if (!proveedor) {
+           throw new NotFoundException('Proveedor no encontrado');
+        }
+
+        if (
+        dto.nombre === undefined &&
+        dto.numero === undefined &&
+        dto.correo === undefined &&
+        dto.direccion === undefined &&
+        dto.id_area === undefined
+       ) {
+          throw new BadRequestException('No hay campos para actualizar');
+        }
+
+        let touched = false;
+
+        if (dto.nombre !== undefined) {
+           proveedor.nombre = dto.nombre;
+           touched = true;
+        }
+
+        if (dto.numero !== undefined) {
+           proveedor.numero = dto.numero;
+           touched = true;
+        }
+
+        if (dto.correo !== undefined) {
+           proveedor.correo = dto.correo;
+           touched = true;
+        }
+
+        if (dto.direccion !== undefined) {
+           proveedor.direccion = dto.direccion;
+           touched = true;
+        }
+
+        if (dto.id_area !== undefined) {
+           const area = await this.areaRepository.findOne({
+           where: { id_area: dto.id_area },
+        });
+
+        if (!area) {
+           throw new NotFoundException('Área no encontrada');
+        }
+        proveedor.area = area;
+        touched = true;
+        }
+
+        if (touched) {
+          await this.proveedorRepository.save(proveedor);
+        }
+
+      return { message: 'Proveedor actualizado exitosamente' };
+    }
+
 
 
 
