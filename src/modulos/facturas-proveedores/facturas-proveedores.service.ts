@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Factura } from './entities/factura.entity';
 import { Area } from './entities/area.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { Proveedor } from './entities/proveedor.entity';
 import { CreateFacturaDto } from './dto/createFacturaDto';
 import { CreateAreaDto } from './dto/createAreaDto';
@@ -320,13 +320,31 @@ export class FacturasProveedoresService {
        return await this.proveedorRepository.save(proveedor);
     }
 
-    async getProveedoresArchivados() {
-       return await this.proveedorRepository.find({
-       where: { estado: Estado_Proveedor.inactivo },
-       });
+    async getProveedoresArchivados(id: number) {
+
+      const where: FindOptionsWhere<Proveedor> = {
+      estado: Estado_Proveedor.inactivo,
+      area: { id_area: id } as FindOptionsWhere<Area>,
+    };
+
+    return await this.proveedorRepository.find({
+       where,
+       relations: ['area'],
+       select: {
+         id_proveedor: true,
+         nombre: true,
+         numero: true,
+         correo: true,
+         direccion: true,
+         area: {
+          id_area: true,
+          nombre: true,
+        },
+       },
+     });
     }
 
-    
+
     async updateProveedor(idProveedor: number, dto: UpdateProveedorDto): Promise<{ message: string }> {
 
         const proveedor = await this.proveedorRepository.findOne({
@@ -375,8 +393,6 @@ export class FacturasProveedoresService {
 
       return { message: 'Proveedor actualizado exitosamente' };
     }
-
-
 
 
 }
