@@ -7,6 +7,7 @@ import { ActualizarFacturaDto } from './dto/actualizarFacturaDto';
 import { ReporteFacturaService } from './reporte/reporteFacturas.service';
 import { Response as ExpressResponse } from 'express';
 import { ApiOkResponse, ApiOperation, ApiProduces, ApiQuery } from '@nestjs/swagger';
+import { UpdateProveedorDto } from './dto/updateProveedorDto';
 
 
 @Controller('facturas-proveedores')
@@ -128,5 +129,14 @@ export class FacturasProveedoresController {
     @Get('facturas')
     getFacturas(@Query('page') page?: number, @Query('limit') limit?: number, @Query('estado', ParseIntPipe) estado?: number) {
         return this.facturasproveedoresService.getFacturas(page, limit, estado);
+    }  
+    
+    @Patch('proveedores/:idProveedor')
+    @ApiOperation({ summary: 'Actualizar datos de un proveedor' })
+    @ApiOkResponse({ description: 'Proveedor actualizado correctamente' })
+     async updateProveedor(@Param('idProveedor', ParseIntPipe) id: number,@Body() dto: UpdateProveedorDto) {
+       return this.facturasproveedoresService.updateProveedor(id, dto);
     }
+
+
 }
