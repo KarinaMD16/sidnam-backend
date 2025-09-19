@@ -104,39 +104,34 @@ export class FacturasProveedoresController {
        return this.facturasproveedoresService.toggleArchivadoProveedor(id);
     }
 
-    @Get('proveedores/archivados')
-    async getProveedoresArchivados() {
-        return this.facturasproveedoresService.getProveedoresArchivados();
+    @Get('proveedores/archivados/:id')
+    getArchivados(@Param('id', ParseIntPipe) id: number) {
+       return this.facturasproveedoresService.getProveedoresArchivados(id);
     }
 
-     @Get('reportes/pdf')
-  @ApiOperation({ summary: 'Descargar PDF de facturas por mes/año' })
-  @ApiProduces('application/pdf')
-  @ApiOkResponse({
-    description: 'Archivo PDF',
-    content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
-  })
-  @ApiQuery({ name: 'mes', required: true, type: Number, description: '1-12' })
-  @ApiQuery({ name: 'anio', required: true, type: Number })
-  async reporteFacturasPdf(
-    @Query('anio') anio: number,
-    @Query('mes') mes: number,
-    @Res() res: ExpressResponse,
-  ) {
-    await this.reporteFacturaService.generarReporteFacturas(Number(anio), Number(mes), res);
+    @Get('reportes/pdf')
+    @ApiOperation({ summary: 'Descargar PDF de facturas por mes/año y estado' })
+    @ApiProduces('application/pdf')
+    @ApiOkResponse({
+      description: 'Archivo PDF',
+      content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
+    })
+    @ApiQuery({ name: 'mes', required: true, type: Number, description: '1-12' })
+    @ApiQuery({ name: 'anio', required: true, type: Number })
+    @ApiQuery({ name: 'estado', required: true, type: Number, description: '0 = todas, 1 = pagadas, 2 = pendientes' })
+     async reporteFacturasPdf(@Query('anio') anio: number, @Query('mes') mes: number, @Query('estado') estado: number, @Res() res: ExpressResponse) {
+      await this.reporteFacturaService.generarReporteFacturas(Number(anio), Number(mes), Number(estado), res);
+    }
+
+
+  @Patch('proveedores/:idProveedor')
+  @ApiOkResponse({ description: 'Proveedor actualizado correctamente' })
+   async updateProveedor(@Param('idProveedor', ParseIntPipe) id: number,@Body() dto: UpdateProveedorDto) {
+     return this.facturasproveedoresService.updateProveedor(id, dto);
   }
 
     @Get('facturas')
     getFacturas(@Query('page') page?: number, @Query('limit') limit?: number, @Query('estado', ParseIntPipe) estado?: number) {
         return this.facturasproveedoresService.getFacturas(page, limit, estado);
-    }  
-    
-    @Patch('proveedores/:idProveedor')
-    @ApiOperation({ summary: 'Actualizar datos de un proveedor' })
-    @ApiOkResponse({ description: 'Proveedor actualizado correctamente' })
-     async updateProveedor(@Param('idProveedor', ParseIntPipe) id: number,@Body() dto: UpdateProveedorDto) {
-       return this.facturasproveedoresService.updateProveedor(id, dto);
     }
-
-
 }

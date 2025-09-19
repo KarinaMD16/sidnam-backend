@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Response as ExpressResponse } from 'express';
 import { PdfHtmlService } from 'src/common/services/pdf-html.service';
 import { Factura } from '../entities/factura.entity';
+import { Estado_Factura } from 'src/common/enums/estadoFactura.enum';
 
 @Injectable()
 export class ReporteFacturaService {
@@ -15,70 +16,87 @@ export class ReporteFacturaService {
     
   ) {}
 
-  async generarReporteFacturas(anio: number, mes: number, res: ExpressResponse) {
-    if (!anio || !mes) {
-      throw new BadRequestException('Debe especificar año y mes.');
-    }
-    if (mes < 1 || mes > 12) {
-      throw new BadRequestException('Mes inválido (1-12).');
-    }
-
-    const inicio = new Date(anio, mes - 1, 1, 0, 0, 0);
-    const fin    = new Date(anio, mes, 1, 0, 0, 0);
-
-    const rows = await this.facturaRepo
-      .createQueryBuilder('f')
-      .innerJoin('f.proveedor', 'p')
-      .where('f.fecha_emitida >= :inicio AND f.fecha_emitida < :fin', { inicio, fin })
-      .select('f.id_factura', 'factura_id')
-      .addSelect('f.numero_factura', 'numero_factura')
-      .addSelect("DATE_FORMAT(f.fecha_emitida, '%Y-%m-%d')", 'fecha_emision')
-      .addSelect("DATE_FORMAT(f.fecha_pago, '%Y-%m-%d')", 'fecha_pago')
-      .addSelect('f.monto', 'monto')
-      .addSelect('f.estado', 'estado')
-      .addSelect('p.nombre', 'proveedor_nombre')
-      .orderBy('f.fecha_emitida', 'DESC')
-      .addOrderBy('f.id_factura', 'DESC')
-      .getRawMany<{
-        factura_id: number;
-        numero_factura: number;
-        fecha_emision: string;
-        fecha_pago: string;
-        monto: number;
-        estado: string;
-        proveedor_nombre: string;
-      }>();
-
-    if (!rows.length) {
-      throw new NotFoundException('No hay facturas en ese período.');
-    }
-
-    const html = this.buildHtmlTabla({
-      titulo: 'Reporte de Facturas',
-      anio,
-      mes,
-      columnas: ['Número Factura', 'Proveedor', 'Fecha Emisión', 'Fecha Pago', 'Monto', 'Estado'],
-      filas: rows.map(r => [
-        String(r.numero_factura),
-        r.proveedor_nombre,
-        r.fecha_emision,
-        r.fecha_pago,
-        `₡ ${r.monto.toLocaleString()}`,
-        r.estado,
-      ]),
-      totalRegistros: rows.length,
-    });
-
-    const mesTexto = new Date(anio, mes - 1).toLocaleString('es-CR', { month: 'long' });
-    const filename = `Reporte_Facturas_${this.capitalize(mesTexto)}_${anio}.pdf`;
-
-    await this.pdfHtml.generarDesdeHtml(html, res, {
-      filename,
-      waitUntil: 'networkidle0',
-      ensureAssets: true,
-      disposition: 'attachment',
-    });
+  async generarReporteFacturas(anio: number, mes: number, estado: number, res: ExpressResponse) {
+  if (!anio || !mes) {
+    throw new BadRequestException('Debe especificar año y mes.');
   }
+  if (mes < 1 || mes > 12) {
+    throw new BadRequestException('Mes inválido (1-12).');
+  }
+
+  const inicio = new Date(anio, mes - 1, 1, 0, 0, 0);
+  const fin    = new Date(anio, mes, 1, 0, 0, 0);
+
+  // base query
+  let qb = this.facturaRepo
+    .createQueryBuilder('f')
+    .innerJoin('f.proveedor', 'p')
+    .where('f.fecha_emitida >= :inicio AND f.fecha_emitida < :fin', { inicio, fin });
+
+  // filtro por estado
+  if (estado === 1) {
+    qb = qb.andWhere('f.estado = :estado', { estado: Estado_Factura.pagada });
+  } else if (estado === 2) {
+    qb = qb.andWhere('f.estado = :estado', { estado: Estado_Factura.pendiente });
+  }
+  // si es 0 → no aplica filtro, quedan todas
+
+  const rows = await qb
+    .select('f.id_factura', 'factura_id')
+    .addSelect('f.numero_factura', 'numero_factura')
+    .addSelect("DATE_FORMAT(f.fecha_emitida, '%Y-%m-%d')", 'fecha_emision')
+    .addSelect("DATE_FORMAT(f.fecha_pago, '%Y-%m-%d')", 'fecha_pago')
+    .addSelect('f.monto', 'monto')
+    .addSelect('f.estado', 'estado')
+    .addSelect('p.nombre', 'proveedor_nombre')
+    .orderBy('f.fecha_emitida', 'DESC')
+    .addOrderBy('f.id_factura', 'DESC')
+    .getRawMany<{
+      factura_id: number;
+      numero_factura: number;
+      fecha_emision: string;
+      fecha_pago: string;
+      monto: number;
+      estado: string;
+      proveedor_nombre: string;
+    }>();
+
+  if (!rows.length) {
+    throw new NotFoundException('No hay facturas en ese período.');
+  }
+
+  // 🔹 Para el encabezado dinámico
+  let titulo = 'Reporte de Facturas';
+  if (estado === 1) titulo = 'Reporte de Facturas Pagadas';
+  else if (estado === 2) titulo = 'Reporte de Facturas Pendientes';
+
+  const html = this.buildHtmlTabla({
+    titulo,
+    anio,
+    mes,
+    columnas: ['Número Factura', 'Proveedor', 'Fecha Emisión', 'Fecha Pago', 'Monto', 'Estado'],
+    filas: rows.map(r => [
+      String(r.numero_factura),
+      r.proveedor_nombre,
+      r.fecha_emision,
+      r.fecha_pago,
+      `₡ ${r.monto.toLocaleString()}`,
+      r.estado,
+    ]),
+    totalRegistros: rows.length,
+  });
+
+  const mesTexto = new Date(anio, mes - 1).toLocaleString('es-CR', { month: 'long' });
+  const filename = `Reporte_Facturas_${this.capitalize(mesTexto)}_${anio}.pdf`;
+
+  await this.pdfHtml.generarDesdeHtml(html, res, {
+    filename,
+    waitUntil: 'networkidle0',
+    ensureAssets: true,
+    disposition: 'attachment',
+  });
+}
+
 
   // helpers
   private esc(s: string) {
@@ -123,7 +141,7 @@ export class ReporteFacturaService {
     <img class="logo" src="https://i.ibb.co/HDfRP6fX/1749848069832.png" alt="logo"/>
     <div>
       <h1>${this.esc(titulo)}</h1>
-      <div class="meta">Mes: <strong>${this.esc(this.capitalize(mesNombre))}</strong></div>
+      <div class="meta">Facturas pagas Mes: <strong>${this.esc(this.capitalize(mesNombre))}</strong></div>
       <div class="meta">Total registros: ${totalRegistros}</div>
     </div>
   </div>
