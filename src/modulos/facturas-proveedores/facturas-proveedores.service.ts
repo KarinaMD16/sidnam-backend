@@ -15,6 +15,7 @@ import { MostrarFacturaDto } from './dto/mostrarFacturaDto';
 import { Estado_Factura, FacturaOpts, getEstadoFactura } from 'src/common/enums/estadoFactura.enum';
 import { ActualizarFacturaDto } from './dto/actualizarFacturaDto';
 import { Estado_Proveedor } from 'src/common/enums/estadoProveedor.enum';
+import { MostrarProveedoresSelect } from './dto/mostrarProveedorSelectDto';
 import { UpdateProveedorDto } from './dto/updateProveedorDto';
 
 
@@ -96,6 +97,7 @@ export class FacturasProveedoresService {
             .where(`
             REPLACE(LOWER(COALESCE(proveedor.nombre, '')), ' ', '') LIKE :filtro
             `, { filtro: `%${filtroNormalizado}%` })
+            .andWhere('proveedor.estado = :estado', { estado: Estado_Proveedor.activo })
             .getMany();
 
         return plainToInstance(MostrarProveedores, proveedores, { excludeExtraneousValues: true });
@@ -112,7 +114,8 @@ export class FacturasProveedoresService {
         }
 
         const proveedorPorArea = await this.proveedorRepository.find({
-            where: {area: {id_area: idArea}},
+            where: {area: {id_area: idArea},
+            estado: Estado_Proveedor.activo},
             relations: ['area']
         })
 
@@ -183,6 +186,15 @@ export class FacturasProveedoresService {
         const dtos = plainToInstance(MostrarFacturaDto, data, { excludeExtraneousValues: true });
 
         return { data: dtos, total };
+    }
+
+    async getProveedoresActivos(){
+        
+        const proveedores = await this.proveedorRepository.find({
+            where: {estado: Estado_Proveedor.activo}
+        })
+
+        return plainToInstance(MostrarProveedoresSelect, proveedores, { excludeExtraneousValues: true });
     }
 
     async getFacturasPorNumero(numeroFactura: number): Promise<MostrarFacturaDto>{

@@ -59,6 +59,11 @@ export class FacturasProveedoresController {
         return this.facturasproveedoresService.getProveedoresPorArea(idArea)
     }
 
+    @Get('proveedores/activos')
+    getProveedoresActivos(){
+        return this.facturasproveedoresService.getProveedoresActivos()
+    }
+
     @Post('facturas')
     createFactura(@Body() createFactura: CreateFacturaDto){
         return this.facturasproveedoresService.createFactura(createFactura)
@@ -125,5 +130,8 @@ export class FacturasProveedoresController {
      return this.facturasproveedoresService.updateProveedor(id, dto);
   }
 
-
+    @Get('facturas')
+    getFacturas(@Query('page') page?: number, @Query('limit') limit?: number, @Query('estado', ParseIntPipe) estado?: number) {
+        return this.facturasproveedoresService.getFacturas(page, limit, estado);
+    }
 }

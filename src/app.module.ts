@@ -49,15 +49,15 @@ import { Tipo_Consulta } from './modulos/residentes/entities/tipoConsulta.entity
 import { Unidad_Medida } from './modulos/unidades-medida/entities/unidadMedida.entity';
 import { UnidadesMedidaModule } from './modulos/unidades-medida/unidades-medida.module';
 import { AdministracionMedicamento } from './modulos/residentes/entities/administracioneMedicamento';
-import { Subcategoria_Producto } from './modulos/inventarios/entities/subCategoriaProducto.entity';
 import { Libro_Campo } from './modulos/residentes/entities/libroCampo.entity';
 import { HistorialPatologias } from './modulos/residentes/entities/historiaoPatologias.entity';
 import { HistorialCuraciones } from './modulos/residentes/entities/historialCuraciones.entity';
+import { Subcategoria_Producto } from './modulos/inventarios/entities/subCategoriaProducto.entity';
+import { EntradaMedicamento } from './modulos/inventarios/entities/entradaMedicamento.entity';
 import { FacturasProveedoresModule } from './modulos/facturas-proveedores/facturas-proveedores.module';
 import { Area } from './modulos/facturas-proveedores/entities/area.entity';
 import { Proveedor } from './modulos/facturas-proveedores/entities/proveedor.entity';
 import { Factura } from './modulos/facturas-proveedores/entities/factura.entity';
-import { EntradaMedicamento } from './modulos/inventarios/entities/entradaMedicamento.entity';
 
 
 
@@ -112,14 +112,14 @@ dotenv.config();
         Tipo_Consulta,
         Unidad_Medida,
         AdministracionMedicamento,
-        Subcategoria_Producto,
         Libro_Campo,
         HistorialPatologias,
         HistorialCuraciones,
+        Subcategoria_Producto,
+        EntradaMedicamento,
         Factura,
         Proveedor,
-        Area,
-        EntradaMedicamento,
+        Area
       ],
       synchronize: true,
       dropSchema: false,
