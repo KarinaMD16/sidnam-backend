@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Factura } from './entities/factura.entity';
 import { Area } from './entities/area.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { Proveedor } from './entities/proveedor.entity';
 import { CreateFacturaDto } from './dto/createFacturaDto';
 import { CreateAreaDto } from './dto/createAreaDto';
@@ -16,6 +16,7 @@ import { Estado_Factura, FacturaOpts, getEstadoFactura } from 'src/common/enums/
 import { ActualizarFacturaDto } from './dto/actualizarFacturaDto';
 import { Estado_Proveedor } from 'src/common/enums/estadoProveedor.enum';
 import { MostrarProveedoresSelect } from './dto/mostrarProveedorSelectDto';
+import { UpdateProveedorDto } from './dto/updateProveedorDto';
 
 
 
@@ -331,12 +332,79 @@ export class FacturasProveedoresService {
        return await this.proveedorRepository.save(proveedor);
     }
 
-    async getProveedoresArchivados() {
-       return await this.proveedorRepository.find({
-       where: { estado: Estado_Proveedor.inactivo },
-       });
+    async getProveedoresArchivados(id: number) {
+
+      const where: FindOptionsWhere<Proveedor> = {
+      estado: Estado_Proveedor.inactivo,
+      area: { id_area: id } as FindOptionsWhere<Area>,
+    };
+
+    return await this.proveedorRepository.find({
+       where,
+       relations: ['area'],
+       select: {
+         id_proveedor: true,
+         nombre: true,
+         numero: true,
+         correo: true,
+         direccion: true,
+         area: {
+          id_area: true,
+          nombre: true,
+        },
+       },
+     });
     }
 
+
+    async updateProveedor(idProveedor: number, dto: UpdateProveedorDto): Promise<{ message: string }> {
+
+        const proveedor = await this.proveedorRepository.findOne({
+        where: { id_proveedor: idProveedor },
+        relations: { area: true },
+        });
+
+        if (!proveedor) {
+           throw new NotFoundException('Proveedor no encontrado');
+        }
+
+        if (
+        dto.nombre === undefined &&
+        dto.numero === undefined &&
+        dto.correo === undefined &&
+        dto.direccion === undefined 
+       ) {
+          throw new BadRequestException('No hay campos para actualizar');
+        }
+
+        let touched = false;
+
+        if (dto.nombre !== undefined) {
+           proveedor.nombre = dto.nombre;
+           touched = true;
+        }
+
+        if (dto.numero !== undefined) {
+           proveedor.numero = dto.numero;
+           touched = true;
+        }
+
+        if (dto.correo !== undefined) {
+           proveedor.correo = dto.correo;
+           touched = true;
+        }
+
+        if (dto.direccion !== undefined) {
+           proveedor.direccion = dto.direccion;
+           touched = true;
+        }
+
+        if (touched) {
+          await this.proveedorRepository.save(proveedor);
+        }
+
+      return { message: 'Proveedor actualizado exitosamente' };
+    }
 
     async getFacturas(page?: number, limit?: number, estado?: number): Promise<{ data: MostrarFacturaDto[]; total: number }> {
 
