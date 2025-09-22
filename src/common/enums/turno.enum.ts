@@ -4,8 +4,8 @@ export enum Turno {
 
 export const TurnoOpts = [
   { id: 1, value: Turno.AM, nombre: 'AM' },
-  { id: 2, value: Turno.PM, nombre: 'PM' },
-  { id: 3, value: Turno.MD, nombre: 'MD' },
+  { id: 2, value: Turno.PM, nombre: 'MD' },
+  { id: 3, value: Turno.MD, nombre: 'PM' },
   { id: 4, value: Turno.MN, nombre: 'MN' },
 ];
 
