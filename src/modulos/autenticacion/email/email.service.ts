@@ -9,7 +9,7 @@
     import { createTransport } from 'nodemailer';
     import * as nodemailer from 'nodemailer';
     import Mail from 'nodemailer/lib/mailer';
-    import { GestionUsuarioService } from 'src/modulos/gestion-usuario/gestion-usuario.service';
+    import { GestionUsuarioService } from 'src/modulos/gestion-usuario/services/gestion-usuario.service';
 
     @Injectable()
     export class EmailService {
