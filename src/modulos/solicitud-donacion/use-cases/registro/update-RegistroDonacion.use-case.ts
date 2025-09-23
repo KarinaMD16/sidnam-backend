@@ -3,7 +3,7 @@ import { RegistroDonacion } from "../../entities/registroDonacion.entity"
 import { Not, Repository } from "typeorm"
 import { Donador } from "../../entities/donador.entity"
 import { NotFoundException } from "@nestjs/common"
-import { GestionUsuarioService } from "src/modulos/gestion-usuario/gestion-usuario.service"
+import { GestionUsuarioService } from "src/modulos/gestion-usuario/services/gestion-usuario.service"
 import { ActualizarRegistroDto } from "../../dto/actualizarRegistroDto"
 
 export class UpdateRegistroDonacionUseCase{

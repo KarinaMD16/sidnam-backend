@@ -44,7 +44,7 @@ import { Libro_Campo } from './entities/libroCampo.entity';
 import { EstadoExpediente, EstadoExpedienteOptions, getEstadoExpedientesById } from 'src/common/enums/estadosExpedientes.enum';
 import e from 'express';
 import { AtualizarLibroCampoDto } from './dto/actualizarLibroCampoDto';
-import { GestionUsuarioService } from '../gestion-usuario/gestion-usuario.service';
+import { GestionUsuarioService } from '../gestion-usuario/services/gestion-usuario.service';
 import { HistorialPatologias } from './entities/historiaoPatologias.entity';
 import { HistorialCuraciones } from './entities/historialCuraciones.entity';
 import { getLineaPobreza, LineaPobrezaOPs } from 'src/common/enums/lineaProbeza.enum';

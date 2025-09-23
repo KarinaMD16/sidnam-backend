@@ -2,10 +2,6 @@ import { Body, Controller, HttpCode, HttpStatus, Param, Post, Req, Res, UseGuard
 import { AutenticacionService } from './autenticacion.service';
 import { RegisterDto } from './dto/registerDto';
 import { LoginDto } from './dto/loginDto';
-import { AuthGuard } from './guard/auth.guard';
-import { Roles } from './decorators/roles.decorator';
-import { Rol } from 'src/common/enums/rol.enum';
-import { RolesGuard } from './guard/roles.guard';
 import { Response } from 'express';
 
 
@@ -16,8 +12,8 @@ export class AutenticacionController {
 
     
     @Post("register/:rol")
-    registerAdministrador(@Body() registerDto: RegisterDto, @Param('rol') rol: string){
-        return this.authService.crearUsuario(registerDto, rol.toUpperCase());
+    registerAdministrador(@Body() registerDto: RegisterDto){
+        return this.authService.crearUsuario(registerDto);
     }   
 
     @HttpCode(HttpStatus.OK)
