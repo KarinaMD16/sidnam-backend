@@ -8,6 +8,10 @@ import { RolUsuario } from '../entities/rol.entity';
 import { CreateRolDto } from '../dto/createRolDto';
 import { plainToInstance } from 'class-transformer';
 import { GetUsuarioPermisosDto } from '../dto/GetUsuarioPermisosDto';
+import { Estado_Usuario } from 'src/common/enums/esatadoUsuario.enum';
+import { UpdateUsuarioDto } from '../dto/updateUsuarioDto';
+import { UpdateRolDto } from '../dto/updateRolDto';
+import { UsuarioPreviewDto } from '../dto/getUsuariosPreviewsDto';
 
 @Injectable()
 export class GestionUsuarioService {
@@ -169,5 +173,80 @@ export class GestionUsuarioService {
       excludeExtraneousValues: true,
     });
   }
+
+  async desactivarUsuario(id: number): Promise<{message: string}> {
+
+    const usuario = await this.usuariosRepository.findOneBy({ id });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    usuario.estado = Estado_Usuario.inactivo;
+    await this.usuariosRepository.save(usuario);
+
+    return { message: 'Usuario desactivado correctamente' };
+
+  }
+
+  async activarUsuario(id: number): Promise<{message: string}> {
+
+    const usuario = await this.usuariosRepository.findOneBy({ id });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    usuario.estado = Estado_Usuario.activo;
+    await this.usuariosRepository.save(usuario);
+
+    return { message: 'Usuario activado correctamente' };
+  }
+
+
+  async updateInformacionUsuario(updateUsuario: UpdateUsuarioDto, id: number): Promise<{mesage: string}> {
+
+    const usuario = await this.usuariosRepository.findOneBy({ id });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    Object.assign(usuario, updateUsuario);
+    await this.usuariosRepository.save(usuario);
+
+    return { mesage: 'Usuario actualizado correctamente' };
+  }
+
+  async updateRol(idRol: number, updateRol: UpdateRolDto): Promise<{message: string}> {
+
+    const rol = await this.rolRepository.findOneBy({ id_rol: idRol });
+
+    if (!rol) {
+      throw new NotFoundException('Rol no encontrado');
+    }
+
+    Object.assign(rol, updateRol);
+    await this.rolRepository.save(rol);
+
+    return { message: 'Rol actualizado correctamente' };
+  }
+
+
+  async findAllUsuarios(page?: number, limit?: number): Promise<{ data: UsuarioPreviewDto[]; total: number }> {
+    const [data, total] = await this.usuariosRepository.findAndCount({
+        skip: page && limit ? (page - 1) * limit : 0,
+        take: limit,
+        order: { id: 'DESC' },
+        relations: ['rol'], 
+    });
+
+    const dtos = plainToInstance(UsuarioPreviewDto, data, { excludeExtraneousValues: true });
+
+    return { data: dtos, total };
+}
+
+  
+
 
 }
