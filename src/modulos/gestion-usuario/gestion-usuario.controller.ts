@@ -1,9 +1,11 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { GestionUsuarioService } from './services/gestion-usuario.service';
 import { AuthGuard } from '../autenticacion/guard/auth.guard';
 import { RolesGuard } from '../autenticacion/guard/roles.guard';
 import { CreateRolDto } from './dto/createRolDto';
 import { PermisosService } from './services/permiso-roles.service';
+import { UpdateUsuarioDto } from './dto/updateUsuarioDto';
+import { UpdateRolDto } from './dto/updateRolDto';
 
 @Controller('gestion-usuario')
 export class GestionUsuarioController {
@@ -77,6 +79,37 @@ export class GestionUsuarioController {
     @Get('roles/permisos/acciones/:usuarioId')
     getPermisosAccionesPorUsuario(@Param('usuarioId', ParseIntPipe) usuarioId: number) {
         return this.userService.getUsuarioConPermisos(usuarioId);
+    }
+
+    @Patch('usuarios/desactivar/:id')
+    desactivarUsuario(@Param('id', ParseIntPipe) id: number) {
+        return this.userService.desactivarUsuario(id);
+    }
+
+    @Patch('usuarios/activar/:id')
+    activarUsuario(@Param('id', ParseIntPipe) id: number) {
+        return this.userService.activarUsuario(id);
+    }
+
+    @Patch('usuarios/:id')
+    updateUsuario(@Body() updateUsuarioDto: UpdateUsuarioDto, @Param('id', ParseIntPipe) id: number) {
+        return this.userService.updateInformacionUsuario(updateUsuarioDto, id);
+    }
+
+    @Patch('roles/:id')
+    updateRol(@Body() updateRolDto: UpdateRolDto, @Param('id', ParseIntPipe) id: number) {
+        return this.userService.updateRol(id, updateRolDto);
+    }
+
+    @Get('usuarios')
+        async getUsuariosPreviews(
+        @Query('page') page: string,
+        @Query('limit') limit: string,
+        ) {
+        const pageNumber = parseInt(page, 10);
+        const limitNumber = parseInt(limit, 10);
+
+        return this.userService.findAllUsuarios(pageNumber, limitNumber);
     }
 
 }
