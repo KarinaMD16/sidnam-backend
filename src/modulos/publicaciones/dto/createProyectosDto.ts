@@ -1,13 +1,17 @@
-import { IsDateString, IsString, IsBoolean, IsOptional } from 'class-validator';
+import { IsDateString, IsString, IsBoolean, IsOptional, IsNotEmpty } from 'class-validator';
 
 export class ProyectoDto {
+  
   @IsDateString()
+  @IsNotEmpty()
   fecha: string;
 
   @IsString()
+  @IsNotEmpty()
   Titulo: string;
 
   @IsString()
+  @IsNotEmpty()
   Descripcion: string;
 
   @IsOptional()

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, Query, Patch } from '@nestjs/common';
 import { PublicacionesService } from './publicaciones.service';
 import { ProyectoDto } from './dto/createProyectosDto';
 import { updateProyectoDto } from './dto/updateProyectoDto';
@@ -29,7 +29,7 @@ export class PublicacionesController {
     return this.publicacionesService.createProyecto(proyectoDto);
   }
 
-  @Put('updateProyecto/:id')
+  @Patch('updateProyecto/:id')
   updateProyecto(@Param() id: number, @Body() updateProyectoDto: updateProyectoDto,): Promise<Proyectos> {
     return this.publicacionesService.updateProyecto(id, updateProyectoDto);
   }
@@ -55,7 +55,7 @@ export class PublicacionesController {
     return this.publicacionesService.createDoanciones(donacionDto);
   }
 
-  @Put('updateDonacion/:id')
+  @Patch('updateDonacion/:id')
   updateDonacion(@Param() id: number, @Body() updateDonacionDto: updateDonacionDto,
   ): Promise<Donacion> {
     return this.publicacionesService.updateDonacion(id, updateDonacionDto);
@@ -81,7 +81,7 @@ export class PublicacionesController {
     return this.publicacionesService.createEventos(createEvento);
   }
 
-  @Put('updateEvento/:id')
+  @Patch('updateEvento/:id')
   updateEventos(@Param() id: number, @Body() updateEventos: updateEventosDto,): Promise<Eventos> {
     return this.publicacionesService.updateEventos(id, updateEventos);
   }
