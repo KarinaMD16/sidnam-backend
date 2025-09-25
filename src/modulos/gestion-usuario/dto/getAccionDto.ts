@@ -5,4 +5,7 @@ export class GetAccionesDto {
     id_accion: number;
     @Expose()
     accion: string;
+
+    @Expose()
+    activo: boolean;
 }
