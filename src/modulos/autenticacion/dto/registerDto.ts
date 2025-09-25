@@ -1,5 +1,6 @@
 import { Transform } from "class-transformer";
 import { IsEmail, IsNumber, IsString, MinLength } from "class-validator";
+import { Column } from "typeorm";
 
 export class RegisterDto {
   @IsString()
@@ -23,4 +24,5 @@ export class RegisterDto {
 
   @IsNumber()
   idRol: number;
+
 }

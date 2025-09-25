@@ -6,4 +6,10 @@ export class GetRolesDto{
 
     @Expose()
     nombre: string;
+
+    @Expose()
+    descripcion: string;
+
+    @Expose()
+    estado: boolean;
 }
