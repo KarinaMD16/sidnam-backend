@@ -1,4 +1,4 @@
-import { Column, DeleteDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { RolUsuario } from "./rol.entity";
 import { Estado_Usuario } from "src/common/enums/esatadoUsuario.enum";
 
@@ -36,4 +36,7 @@ export class Usuario {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @CreateDateColumn({ type: "timestamp" })
+  createdAt: Date;
 }

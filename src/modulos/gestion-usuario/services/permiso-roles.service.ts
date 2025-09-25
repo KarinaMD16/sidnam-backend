@@ -232,4 +232,7 @@ export class PermisosService implements OnModuleInit {
     return {message: rol.estado ? 'Activo' : 'Inactivo'};
   }
 
+  
+
+
 }

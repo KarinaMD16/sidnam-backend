@@ -73,4 +73,10 @@ export class GestionUsuarioController {
     activarRolPorId(@Param('rolId', ParseIntPipe) rolId: number) {
         return this.permisosService.activarRol(rolId);
     }
+
+    @Get('roles/permisos/acciones/:usuarioId')
+    getPermisosAccionesPorUsuario(@Param('usuarioId', ParseIntPipe) usuarioId: number) {
+        return this.userService.getUsuarioConPermisos(usuarioId);
+    }
+
 }

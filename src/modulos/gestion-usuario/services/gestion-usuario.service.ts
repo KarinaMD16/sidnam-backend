@@ -7,6 +7,7 @@ import { GetRolesDto } from '../dto/response-role';
 import { RolUsuario } from '../entities/rol.entity';
 import { CreateRolDto } from '../dto/createRolDto';
 import { plainToInstance } from 'class-transformer';
+import { GetUsuarioPermisosDto } from '../dto/GetUsuarioPermisosDto';
 
 @Injectable()
 export class GestionUsuarioService {
@@ -104,5 +105,69 @@ export class GestionUsuarioService {
         return dto;
 
     }
+
+
+    async getUsuarioConPermisos(usuarioId: number): Promise<GetUsuarioPermisosDto> {
+
+    const usuario = await this.usuariosRepository.findOne({
+      where: { id: usuarioId },
+      relations: [
+        "rol",
+        "rol.rolPermisoAcciones",
+        "rol.rolPermisoAcciones.permiso",
+        "rol.rolPermisoAcciones.accion",
+      ],
+    });
+
+    if (!usuario) {
+      throw new NotFoundException("Usuario no encontrado");
+    }
+
+    const permisosMap = new Map<
+      number,
+      { id_permiso: number; modulo: string; seccion: string; acciones: { id_accion: number; accion: string }[] }
+    >();
+
+    for (const rpa of usuario.rol.rolPermisoAcciones) {
+      const permisoId = rpa.permiso.id_permiso;
+
+      if (!permisosMap.has(permisoId)) {
+        permisosMap.set(permisoId, {
+          id_permiso: permisoId,
+          modulo: rpa.permiso.modulo,
+          seccion: rpa.permiso.seccion,
+          acciones: [],
+        });
+      }
+
+      const permisoObj = permisosMap.get(permisoId);
+      if (permisoObj) {
+        permisoObj.acciones.push({
+          id_accion: rpa.accion.id_accion,
+          accion: rpa.accion.accion,
+        });
+      }
+    }
+
+    const dtoObj = {
+      id_usuario: usuario.id,
+      cedula: usuario.cedula,
+      name: usuario.name,
+      apellido1: usuario.apellido1,
+      apellido2: usuario.apellido2,
+      email: usuario.email,
+      createdAt: usuario.createdAt,
+      rol: {
+        id_rol: usuario.rol.id_rol,
+        nombre: usuario.rol.nombre,
+        descripcion: usuario.rol.descripcion,
+        permisos: Array.from(permisosMap.values()),
+      },
+    };
+
+    return plainToInstance(GetUsuarioPermisosDto, dtoObj, {
+      excludeExtraneousValues: true,
+    });
+  }
 
 }
