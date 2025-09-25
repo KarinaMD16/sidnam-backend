@@ -101,15 +101,16 @@ export class GestionUsuarioController {
         return this.userService.updateRol(id, updateRolDto);
     }
 
-    @Get('usuarios')
+    @Get('usuarios/:estadoID')
         async getUsuariosPreviews(
         @Query('page') page: string,
         @Query('limit') limit: string,
+        @Param('estadoID' , ParseIntPipe) estadoID: number,
         ) {
         const pageNumber = parseInt(page, 10);
         const limitNumber = parseInt(limit, 10);
 
-        return this.userService.findAllUsuarios(pageNumber, limitNumber);
+        return this.userService.findAllUsuarios(estadoID, pageNumber, limitNumber);
     }
 
 }

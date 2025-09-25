@@ -8,7 +8,7 @@ import { RolUsuario } from '../entities/rol.entity';
 import { CreateRolDto } from '../dto/createRolDto';
 import { plainToInstance } from 'class-transformer';
 import { GetUsuarioPermisosDto } from '../dto/GetUsuarioPermisosDto';
-import { Estado_Usuario } from 'src/common/enums/esatadoUsuario.enum';
+import { Estado_Usuario, getEstadoUsuarioById } from 'src/common/enums/esatadoUsuario.enum';
 import { UpdateUsuarioDto } from '../dto/updateUsuarioDto';
 import { UpdateRolDto } from '../dto/updateRolDto';
 import { UsuarioPreviewDto } from '../dto/getUsuariosPreviewsDto';
@@ -233,12 +233,20 @@ export class GestionUsuarioService {
   }
 
 
-  async findAllUsuarios(page?: number, limit?: number): Promise<{ data: UsuarioPreviewDto[]; total: number }> {
+  async findAllUsuarios(estadoID: number, page?: number, limit?: number): Promise<{ data: UsuarioPreviewDto[]; total: number }> {
+    
+    const estadoExistente = estadoID ? getEstadoUsuarioById(estadoID) : undefined;
+    if (estadoID && !estadoExistente) {
+      throw new BadRequestException('Estado de usuario inválido');
+    }
+    
     const [data, total] = await this.usuariosRepository.findAndCount({
+      where: estadoExistente ? { estado: estadoExistente } : undefined,
         skip: page && limit ? (page - 1) * limit : 0,
         take: limit,
-        order: { id: 'DESC' },
+        order: { estado: 'ASC' },
         relations: ['rol'], 
+        
     });
 
     const dtos = plainToInstance(UsuarioPreviewDto, data, { excludeExtraneousValues: true });
