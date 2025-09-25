@@ -71,7 +71,7 @@ export class PublicacionesService {
         return await this.donacionesRepository.save(nuevaDonacion);
     }
 
-   async updateDonacion(id: number, updateDonacion: updateProyectoDto): Promise<Donacion> {
+   async updateDonacion(id: number, updateDonacion: updateDonacionDto): Promise<Donacion> {
         await this.donacionesRepository.update(id, updateDonacion);
 
         const donacionActualizada = await this.donacionesRepository.findOneBy({ id });
