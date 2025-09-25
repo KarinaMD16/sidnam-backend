@@ -14,6 +14,9 @@ export class RolUsuario {
   @Column({ length: 500 })
   descripcion: string;
 
+  @Column({ default: true })
+  estado: boolean;
+
   @OneToMany(() => Usuario, usuario => usuario.rol)
   usuarios: Usuario[];
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { GestionUsuarioService } from './services/gestion-usuario.service';
 import { AuthGuard } from '../autenticacion/guard/auth.guard';
 import { RolesGuard } from '../autenticacion/guard/roles.guard';
@@ -48,5 +48,29 @@ export class GestionUsuarioController {
     @Get('acciones-por-rol/:rolId')
     getAccionesPorRol(@Param('rolId', ParseIntPipe) rolId: number) {
         return this.permisosService.getAccionesPorRol(rolId);
+    }
+
+    @Delete('permisos/acciones/rol/:rolId/:permisoId/:accionId')
+    desasociarPermisoAccionDeRol(
+        @Param('rolId', ParseIntPipe) rolId: number,
+        @Param('permisoId', ParseIntPipe) permisoId: number,
+        @Param('accionId', ParseIntPipe) accionId: number,
+    ) {
+        return this.permisosService.desasociarPermisoAccionDeRol(rolId, permisoId, accionId);
+    }
+
+    @Get('roles/estado/:rolId')
+    getEstadoRol(@Param('rolId', ParseIntPipe) rolId: number) {
+        return this.permisosService.getEstadoRol(rolId);
+    }
+
+    @Patch('roles/estado/desactivar/:rolId')
+    desactivarRolPorId(@Param('rolId', ParseIntPipe) rolId: number) {
+        return this.permisosService.desactivarRol(rolId);
+    }
+
+    @Patch('roles/estado/activar/:rolId')
+    activarRolPorId(@Param('rolId', ParseIntPipe) rolId: number) {
+        return this.permisosService.activarRol(rolId);
     }
 }
