@@ -35,7 +35,7 @@ export class PublicacionesController {
   }
 
   @Delete('removeProyecto/:id')
-  removeProyecto(@Param() id: number): Promise<void> {
+  removeProyecto(@Param('id', ParseIntPipe) id: number): Promise<{message: string}> {
     return this.publicacionesService.removeProyecto(id);
   }
 
@@ -67,7 +67,7 @@ export class PublicacionesController {
   }
 
   @Delete('removeDonacion/:id')
-  removeDonacion(@Param() id: number): Promise<void> {
+  removeDonacion(@Param('id', ParseIntPipe) id: number): Promise<{message: string}> {
     return this.publicacionesService.removeDonacion(id);
   }
 
@@ -97,7 +97,7 @@ export class PublicacionesController {
   }
 
   @Delete('removeEvento/:id')
-  removeEventos(@Param() id: number): Promise<void> {
+  removeEventos(@Param('id', ParseIntPipe) id: number): Promise<{message: string}> {
     return this.publicacionesService.removeEventos(id);
   }
 
