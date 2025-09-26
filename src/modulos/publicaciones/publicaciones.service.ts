@@ -64,7 +64,7 @@ export class PublicacionesService {
         return { data, total };
     }
 
-    async getProyectoById(id: number): Promise<{ data: Partial<Proyectos>; total: number }> {
+    async getProyectoById(id: number): Promise<Partial<Proyectos>> {
 
       const proyecto = await this.proyectosRepository.findOne({
        where: { id },
@@ -75,10 +75,7 @@ export class PublicacionesService {
         throw new NotFoundException(`Proyecto con id ${id} no encontrado`);
       }
 
-      return {
-        data: proyecto,
-        total: 1,
-      };
+      return proyecto;
     }
 
     //Donaciones
@@ -122,7 +119,7 @@ export class PublicacionesService {
     }
     
 
-    async getDonacionById(id: number): Promise<{ data: Partial<Donacion>; total: number }> {
+    async getDonacionById(id: number): Promise<Partial<Donacion>> {
 
       const donacion = await this.donacionesRepository.findOne({
         where: { id },
@@ -133,10 +130,7 @@ export class PublicacionesService {
         throw new NotFoundException(`Donación con id ${id} no encontrada`);
     }
 
-     return {
-       data: donacion,
-       total: 1,
-     };
+     return donacion;
     }
 
 
@@ -180,7 +174,7 @@ export class PublicacionesService {
         return { data, total };
     }
 
-    async getEventoById(id: number): Promise<{ data: Partial<Eventos>; total: number }> {
+    async getEventoById(id: number): Promise<Partial<Eventos>> {
 
        const evento = await this.eventosRepository.findOne({
         where: { id },
@@ -191,9 +185,6 @@ export class PublicacionesService {
         throw new NotFoundException(`Evento con id ${id} no encontrado`);
        }
 
-       return {
-        data: evento,
-        total: 1,
-       };
+       return evento;
     }
 }
