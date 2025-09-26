@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, Query, Patch } from '@nestjs/common';
 import { PublicacionesService } from './publicaciones.service';
 import { ProyectoDto } from './dto/createProyectosDto';
 import { updateProyectoDto } from './dto/updateProyectoDto';
@@ -29,14 +29,19 @@ export class PublicacionesController {
     return this.publicacionesService.createProyecto(proyectoDto);
   }
 
-  @Put('updateProyecto/:id')
+  @Patch('updateProyecto/:id')
   updateProyecto(@Param() id: number, @Body() updateProyectoDto: updateProyectoDto,): Promise<Proyectos> {
     return this.publicacionesService.updateProyecto(id, updateProyectoDto);
   }
 
   @Delete('removeProyecto/:id')
-  removeProyecto(@Param() id: number): Promise<void> {
+  removeProyecto(@Param('id', ParseIntPipe) id: number): Promise<{message: string}> {
     return this.publicacionesService.removeProyecto(id);
+  }
+
+  @Get('getProyecto/:id')
+  getProyectoById(@Param('id') id: number) {
+    return this.publicacionesService.getProyectoById(id); 
   }
 
   // ------ Donaciones ------
@@ -55,15 +60,20 @@ export class PublicacionesController {
     return this.publicacionesService.createDoanciones(donacionDto);
   }
 
-  @Put('updateDonacion/:id')
+  @Patch('updateDonacion/:id')
   updateDonacion(@Param() id: number, @Body() updateDonacionDto: updateDonacionDto,
   ): Promise<Donacion> {
     return this.publicacionesService.updateDonacion(id, updateDonacionDto);
   }
 
   @Delete('removeDonacion/:id')
-  removeDonacion(@Param() id: number): Promise<void> {
+  removeDonacion(@Param('id', ParseIntPipe) id: number): Promise<{message: string}> {
     return this.publicacionesService.removeDonacion(id);
+  }
+
+  @Get('getDonacion/:id')
+  getDonacionById(@Param('id') id: number) {
+    return this.publicacionesService.getDonacionById(id); 
   }
 
    // ------ Eventos ------
@@ -81,14 +91,19 @@ export class PublicacionesController {
     return this.publicacionesService.createEventos(createEvento);
   }
 
-  @Put('updateEvento/:id')
+  @Patch('updateEvento/:id')
   updateEventos(@Param() id: number, @Body() updateEventos: updateEventosDto,): Promise<Eventos> {
     return this.publicacionesService.updateEventos(id, updateEventos);
   }
 
   @Delete('removeEvento/:id')
-  removeEventos(@Param() id: number): Promise<void> {
+  removeEventos(@Param('id', ParseIntPipe) id: number): Promise<{message: string}> {
     return this.publicacionesService.removeEventos(id);
+  }
+
+  @Get('getEvento/:id')
+  getEventoById(@Param('id') id: number) {
+    return this.publicacionesService.getEventoById(id);
   }
 
 }

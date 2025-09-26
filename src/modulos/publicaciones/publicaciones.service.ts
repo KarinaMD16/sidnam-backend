@@ -42,8 +42,16 @@ export class PublicacionesService {
         return proyectoActualizado;
     }
 
-    async removeProyecto(id: number): Promise<void> {
+    async removeProyecto(id: number): Promise<{message: string}> {
+
+        const proyecto = await this.proyectosRepository.findOneBy({ id });
+
+        if (!proyecto) {
+            throw new NotFoundException(`Proyecto con id ${id} no encontrado`);
+        }
         await this.proyectosRepository.delete(id);
+
+        return { message: `Proyecto con id ${id} eliminado correctamente` };
     }
 
     async findAllProyectos(page?: number, limit?: number): Promise<{ data: Proyectos[]; total: number }> {
@@ -64,6 +72,20 @@ export class PublicacionesService {
         return { data, total };
     }
 
+    async getProyectoById(id: number): Promise<Partial<Proyectos>> {
+
+      const proyecto = await this.proyectosRepository.findOne({
+       where: { id },
+       select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
+     });
+
+      if (!proyecto) {
+        throw new NotFoundException(`Proyecto con id ${id} no encontrado`);
+      }
+
+      return proyecto;
+    }
+
     //Donaciones
 
     async createDoanciones(createDonaciones: DonacionDto): Promise<Donacion> {
@@ -71,7 +93,7 @@ export class PublicacionesService {
         return await this.donacionesRepository.save(nuevaDonacion);
     }
 
-   async updateDonacion(id: number, updateDonacion: updateProyectoDto): Promise<Donacion> {
+   async updateDonacion(id: number, updateDonacion: updateDonacionDto): Promise<Donacion> {
         await this.donacionesRepository.update(id, updateDonacion);
 
         const donacionActualizada = await this.donacionesRepository.findOneBy({ id });
@@ -82,8 +104,17 @@ export class PublicacionesService {
         return donacionActualizada;
     }
 
-    async removeDonacion(id: number): Promise<void> {
+    async removeDonacion(id: number): Promise<{message: string}> {
+
+        const donacion = await this.donacionesRepository.findOneBy({ id });
+
+        if (!donacion) {
+            throw new NotFoundException(`Donación con id ${id} no encontrada`);
+        }
+
         await this.donacionesRepository.delete(id);
+
+        return { message: `Donación con id ${id} eliminada correctamente` };
     }
 
     async findAllDonacion(page?: number, limit?: number): Promise<{ data: Donacion[]; total: number }> {
@@ -103,6 +134,22 @@ export class PublicacionesService {
 
         return { data, total };
     }
+    
+
+    async getDonacionById(id: number): Promise<Partial<Donacion>> {
+
+      const donacion = await this.donacionesRepository.findOne({
+        where: { id },
+        select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'], 
+     });
+
+     if (!donacion) {
+        throw new NotFoundException(`Donación con id ${id} no encontrada`);
+    }
+
+     return donacion;
+    }
+
 
     //Eventos
 
@@ -122,8 +169,16 @@ export class PublicacionesService {
         return eventoActualizado;
     }
 
-    async removeEventos(id: number): Promise<void> {
+    async removeEventos(id: number): Promise<{message: string}> {
+
+        const evento = await this.eventosRepository.findOneBy({ id });
+
+        if (!evento) {
+            throw new NotFoundException(`Evento con id ${id} no encontrado`);
+        }
         await this.eventosRepository.delete(id);
+
+        return { message: `Evento con id ${id} eliminado correctamente` };
     }
 
     async findAllEventos(page?: number, limit?: number): Promise<{ data: Eventos[]; total: number }> {
@@ -142,5 +197,19 @@ export class PublicacionesService {
         }
 
         return { data, total };
+    }
+
+    async getEventoById(id: number): Promise<Partial<Eventos>> {
+
+       const evento = await this.eventosRepository.findOne({
+        where: { id },
+        select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
+       });
+
+       if (!evento) {
+        throw new NotFoundException(`Evento con id ${id} no encontrado`);
+       }
+
+       return evento;
     }
 }

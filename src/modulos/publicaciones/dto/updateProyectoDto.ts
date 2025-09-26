@@ -1,17 +1,21 @@
-import { IsDateString, IsString, IsBoolean, IsOptional } from 'class-validator';
+import { IsDateString, IsString, IsOptional } from 'class-validator';
 
 export class updateProyectoDto {
+
   @IsDateString()
+  @IsOptional()
   fecha: string;
 
   @IsString()
+  @IsOptional()
   Titulo: string;
 
   @IsString()
+  @IsOptional()
   Descripcion: string;
 
-  @IsOptional()
   @IsString()
+  @IsOptional()
   imagenUrl: string;
 
 }
