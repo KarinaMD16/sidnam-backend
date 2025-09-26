@@ -180,6 +180,7 @@ export class PermisosService implements OnModuleInit {
       id_rol: rol.id_rol,
       nombre: rol.nombre,
       descripcion: rol.descripcion,
+      estado: rol.estado,
       permisos: Array.from(permisosMap.values()),
     };
 
