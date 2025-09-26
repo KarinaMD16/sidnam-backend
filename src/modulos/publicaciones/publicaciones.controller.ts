@@ -39,6 +39,11 @@ export class PublicacionesController {
     return this.publicacionesService.removeProyecto(id);
   }
 
+  @Get('getProyecto/:id')
+  getProyectoById(@Param('id') id: number) {
+    return this.publicacionesService.getProyectoById(id); 
+  }
+
   // ------ Donaciones ------
 
   @Get('getDonaciones')
@@ -66,6 +71,11 @@ export class PublicacionesController {
     return this.publicacionesService.removeDonacion(id);
   }
 
+  @Get('getDonacion/:id')
+  getDonacionById(@Param('id') id: number) {
+    return this.publicacionesService.getDonacionById(id); 
+  }
+
    // ------ Eventos ------
 
    @Get('getEventos')
@@ -89,6 +99,11 @@ export class PublicacionesController {
   @Delete('removeEvento/:id')
   removeEventos(@Param() id: number): Promise<void> {
     return this.publicacionesService.removeEventos(id);
+  }
+
+  @Get('getEvento/:id')
+  getEventoById(@Param('id') id: number) {
+    return this.publicacionesService.getEventoById(id);
   }
 
 }

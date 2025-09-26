@@ -64,6 +64,23 @@ export class PublicacionesService {
         return { data, total };
     }
 
+    async getProyectoById(id: number): Promise<{ data: Partial<Proyectos>; total: number }> {
+
+      const proyecto = await this.proyectosRepository.findOne({
+       where: { id },
+       select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
+     });
+
+      if (!proyecto) {
+        throw new NotFoundException(`Proyecto con id ${id} no encontrado`);
+      }
+
+      return {
+        data: proyecto,
+        total: 1,
+      };
+    }
+
     //Donaciones
 
     async createDoanciones(createDonaciones: DonacionDto): Promise<Donacion> {
@@ -103,6 +120,25 @@ export class PublicacionesService {
 
         return { data, total };
     }
+    
+
+    async getDonacionById(id: number): Promise<{ data: Partial<Donacion>; total: number }> {
+
+      const donacion = await this.donacionesRepository.findOne({
+        where: { id },
+        select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'], 
+     });
+
+     if (!donacion) {
+        throw new NotFoundException(`Donación con id ${id} no encontrada`);
+    }
+
+     return {
+       data: donacion,
+       total: 1,
+     };
+    }
+
 
     //Eventos
 
@@ -142,5 +178,22 @@ export class PublicacionesService {
         }
 
         return { data, total };
+    }
+
+    async getEventoById(id: number): Promise<{ data: Partial<Eventos>; total: number }> {
+
+       const evento = await this.eventosRepository.findOne({
+        where: { id },
+        select: ['id', 'fecha', 'Titulo', 'Descripcion', 'imagenUrl'],
+       });
+
+       if (!evento) {
+        throw new NotFoundException(`Evento con id ${id} no encontrado`);
+       }
+
+       return {
+        data: evento,
+        total: 1,
+       };
     }
 }
