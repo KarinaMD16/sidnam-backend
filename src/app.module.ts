@@ -58,6 +58,10 @@ import { FacturasProveedoresModule } from './modulos/facturas-proveedores/factur
 import { Area } from './modulos/facturas-proveedores/entities/area.entity';
 import { Proveedor } from './modulos/facturas-proveedores/entities/proveedor.entity';
 import { Factura } from './modulos/facturas-proveedores/entities/factura.entity';
+import { Permiso } from './modulos/gestion-usuario/entities/permiso.entity';
+import { RolUsuario } from './modulos/gestion-usuario/entities/rol.entity';
+import { Accion } from './modulos/gestion-usuario/entities/accion.entity';
+import { RolPermisoAccion } from './modulos/gestion-usuario/entities/rolPermisoAccion.entity';
 
 
 
@@ -119,7 +123,11 @@ dotenv.config();
         EntradaMedicamento,
         Factura,
         Proveedor,
-        Area
+        Area,
+        RolUsuario,
+        Permiso, 
+        Accion,
+        RolPermisoAccion
       ],
       synchronize: true,
       dropSchema: false,

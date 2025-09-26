@@ -1,8 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { GestionUsuarioService } from '../gestion-usuario/gestion-usuario.service';
+import { GestionUsuarioService } from '../gestion-usuario/services/gestion-usuario.service';
 import { RegisterDto } from './dto/registerDto';
 import * as bcryptjs from 'bcryptjs';
-import { Rol } from 'src/common/enums/rol.enum';
 import { LoginDto } from './dto/loginDto';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from './email/email.service';
@@ -11,6 +10,8 @@ import { Usuario } from '../gestion-usuario/entities/usuario.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Response } from 'express';
+import { RolUsuario } from '../gestion-usuario/entities/rol.entity';
+
 
 
 
@@ -24,25 +25,26 @@ export class AutenticacionService {
         private readonly usuarios: Repository<Usuario>,
         private readonly gestionUsuarios: GestionUsuarioService,
         private readonly jwtService: JwtService,
-        private readonly emailService: EmailService
+        private readonly emailService: EmailService,
+
+        @InjectRepository(RolUsuario)
+        private readonly rolRepository: Repository<RolUsuario>
+
     ){}
 
-    async crearUsuario({cedula, email, name, password}: RegisterDto, rol: string){
-
-        const rolValido = Object.values(Rol).includes(rol as Rol);
-        if (!rolValido) {
+    async crearUsuario({cedula, email, name, password, idRol, apellido1, apellido2}: RegisterDto) {
+        const rol = await this.rolRepository.findOneBy({ id_rol: idRol });
+        if (!rol) {
             throw new BadRequestException("Rol inválido");
         }
 
         const usuario = await this.gestionUsuarios.findOneByCedula(cedula);
-
-        if(usuario){
+        if (usuario) {
             throw new BadRequestException("La cedula ya se encuentra registrada");
         }
 
-        const correo  = await this.gestionUsuarios.findOneByEmail(email);
-
-        if(correo){
+        const correo = await this.gestionUsuarios.findOneByEmail(email);
+        if (correo) {
             throw new BadRequestException("El correo ya se encuentra registrado");
         }
 
@@ -53,13 +55,16 @@ export class AutenticacionService {
             email,
             name,
             password: hashedPassword,
-            role: rol as Rol
+            rol,
+            apellido1,
+            apellido2
         });
 
         return {
             message: "Usuario creado con exito",
         };
     }
+
 
     async login({ cedula, password }: LoginDto) {
         const user = await this.gestionUsuarios.findOneByCedula(cedula);
@@ -68,7 +73,12 @@ export class AutenticacionService {
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) throw new UnauthorizedException('Contraseña inválida');
 
-        const payload = { id: user.id, email: user.email, role: user.role, name: user.name };
+        const payload = { 
+            id: user.id, 
+            email: user.email, 
+            role: user.rol.nombre,  
+            name: user.name 
+        };
 
         const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
         const refreshToken = await this.jwtService.signAsync(payload, { expiresIn: '7d' });
@@ -100,7 +110,7 @@ export class AutenticacionService {
         const isRefreshTokenMatching = await bcrypt.compare(refreshToken, user.refreshToken);
         if (!isRefreshTokenMatching) throw new UnauthorizedException('Refresh token no coincide');
 
-        const newPayload = { id: user.id, email: user.email, role: user.role, name: user.name };
+        const newPayload = { id: user.id, email: user.email, role: user.rol.nombre, name: user.name };
 
         const newAccessToken = await this.jwtService.signAsync(newPayload, { expiresIn: '15m' });
         const newRefreshToken = await this.jwtService.signAsync(newPayload, { expiresIn: '1d' });

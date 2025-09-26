@@ -4,7 +4,7 @@ import { EstadoSolicitud } from "src/common/enums/estadosSolicitudes.enum";
 import { Solicitud_donacion_pendiente } from "../../entities/solicitudDonacionPendiente.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
-import { GestionUsuarioService } from "src/modulos/gestion-usuario/gestion-usuario.service";
+import { GestionUsuarioService } from "src/modulos/gestion-usuario/services/gestion-usuario.service";
 import { EmailService } from "src/modulos/autenticacion/email/email.service";
 import { SolicitudDonacionGateway } from "../../solicitudDonacion.gateway";
 import { Usuario } from "src/modulos/gestion-usuario/entities/usuario.entity";

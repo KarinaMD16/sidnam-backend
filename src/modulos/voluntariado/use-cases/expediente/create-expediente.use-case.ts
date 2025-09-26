@@ -11,7 +11,7 @@ import { SolicitudPendiente } from '../../entities/solicitudPendiente.entity';
 import { Tipo_voluntariado } from '../../entities/tipoVoluntariado.entity';
 import { Voluntario } from '../../entities/voluntariado.entity';
 import { CrearExpediente } from '../../dto/crearExpedienteDto';
-import { GestionUsuarioService } from 'src/modulos/gestion-usuario/gestion-usuario.service';
+import { GestionUsuarioService } from 'src/modulos/gestion-usuario/services/gestion-usuario.service';
 import { EstadoSolicitud } from 'src/common/enums/estadosSolicitudes.enum';
 import { EstadoMap } from 'src/common/constants/estado.constant';
 import { EmailService } from 'src/modulos/autenticacion/email/email.service';

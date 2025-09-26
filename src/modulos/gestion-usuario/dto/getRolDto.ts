@@ -1,15 +1,8 @@
 import { Expose } from "class-transformer";
 
-export class GetRolesDto{
+export class GetRolDto{
     @Expose()
     id_rol: number;
-
     @Expose()
     nombre: string;
-
-    @Expose()
-    descripcion: string;
-
-    @Expose()
-    estado: boolean;
 }
