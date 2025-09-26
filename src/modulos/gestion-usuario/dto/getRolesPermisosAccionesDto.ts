@@ -15,6 +15,9 @@ export class GetRolesPermisosAccionesDto {
     descripcion: string;
 
     @Expose()
+    estado: boolean
+    
+    @Expose()
     @Type(() => GetPermisoConAccionesDto)
     permisos: GetPermisoConAccionesDto[];
 

@@ -103,7 +103,9 @@ export class GestionUsuarioService {
 
     async getRoles(): Promise<GetRolesDto[]> {
 
-        const roles = await this.rolRepository.find();
+        const roles = await this.rolRepository.find({
+          order: { estado: 'DESC' }
+        });
         
         const dto = plainToInstance(GetRolesDto, roles, { excludeExtraneousValues: true });
         return dto;
