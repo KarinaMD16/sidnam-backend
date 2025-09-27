@@ -1,4 +1,5 @@
 import { Expose, Transform, Type } from "class-transformer";
+import { EstadoUsuarioOpts } from "src/common/enums/esatadoUsuario.enum";
 
 export class AccionDto {
   @Expose()
@@ -59,6 +60,13 @@ export class GetUsuarioPermisosDto {
 
   @Expose()
   email: string;
+
+  @Expose()
+  @Transform(({ obj }) => {
+    const opt = EstadoUsuarioOpts.find(o => o.value === obj.estado);
+    return opt ? opt.nombre : null;
+  })
+  estado: string;
 
   @Expose()
   @Transform(({ value }) => {
