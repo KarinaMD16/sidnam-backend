@@ -312,6 +312,7 @@ export class GestionUsuarioService {
       apellido1: usuario.apellido1,
       apellido2: usuario.apellido2,
       email: usuario.email,
+      estado: usuario.estado,
       createdAt: usuario.createdAt,
       rol: {
         id_rol: usuario.rol.id_rol,
