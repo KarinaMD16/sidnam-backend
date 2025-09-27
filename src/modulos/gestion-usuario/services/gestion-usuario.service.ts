@@ -12,6 +12,7 @@ import { Estado_Usuario, getEstadoUsuarioById } from 'src/common/enums/esatadoUs
 import { UpdateUsuarioDto } from '../dto/updateUsuarioDto';
 import { UpdateRolDto } from '../dto/updateRolDto';
 import { UsuarioPreviewDto } from '../dto/getUsuariosPreviewsDto';
+import { Accion } from '../entities/accion.entity';
 
 @Injectable()
 export class GestionUsuarioService {
@@ -22,6 +23,9 @@ export class GestionUsuarioService {
 
         @InjectRepository(RolUsuario)
         private readonly rolRepository: Repository<RolUsuario>,
+
+        @InjectRepository(Accion)
+        private readonly accionRepository: Repository<Accion>
     ){}
 
     async saveUsuario(usuario: Usuario){
@@ -254,9 +258,78 @@ export class GestionUsuarioService {
     const dtos = plainToInstance(UsuarioPreviewDto, data, { excludeExtraneousValues: true });
 
     return { data: dtos, total };
-}
+  }
 
-  
+  async findUsuariosByCedula(
+    cedula: string,
+  ): Promise<GetUsuarioPermisosDto | { message: string }> {
+    const usuario = await this.usuariosRepository.findOne({
+      where: { cedula },
+      relations: [
+        'rol',
+        'rol.rolPermisoAcciones',
+        'rol.rolPermisoAcciones.permiso',
+        'rol.rolPermisoAcciones.accion',
+      ],
+    });
+
+    if (!usuario) {
+      return { message: 'Usuario no encontrado' };
+    }
+
+    // Traer todas las acciones posibles
+    const todasAcciones = await this.accionRepository.find();
+
+    // Agrupar acciones por permiso y marcar cuáles están activas
+    const permisosMap = new Map<number, any>();
+    for (const rpa of usuario.rol.rolPermisoAcciones) {
+      const permisoId = rpa.permiso.id_permiso;
+
+      if (!permisosMap.has(permisoId)) {
+        permisosMap.set(permisoId, {
+          id_permiso: permisoId,
+          modulo: rpa.permiso.modulo,
+          seccion: rpa.permiso.seccion,
+          accionesActivas: [],
+        });
+      }
+
+      permisosMap.get(permisoId).accionesActivas.push(rpa.accion.id_accion);
+    }
+
+    // Construir array de acciones con 'activo'
+    for (const permisoObj of permisosMap.values()) {
+      permisoObj.acciones = todasAcciones.map(a => ({
+        id_accion: a.id_accion,
+        accion: a.accion,
+        activo: permisoObj.accionesActivas.includes(a.id_accion),
+      }));
+      delete permisoObj.accionesActivas; // ya no necesitamos este array
+    }
+
+    // Construir el objeto final
+    const usuarioConPermisos = {
+      id: usuario.id,
+      cedula: usuario.cedula,
+      name: usuario.name,
+      apellido1: usuario.apellido1,
+      apellido2: usuario.apellido2,
+      email: usuario.email,
+      createdAt: usuario.createdAt,
+      rol: {
+        id_rol: usuario.rol.id_rol,
+        nombre: usuario.rol.nombre,
+        descripcion: usuario.rol.descripcion,
+        permisos: Array.from(permisosMap.values()),
+      },
+    };
+
+    return plainToInstance(GetUsuarioPermisosDto, usuarioConPermisos, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+
 
 
 }

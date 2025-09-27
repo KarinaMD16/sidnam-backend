@@ -1,13 +1,17 @@
-import { Expose, Transform, Type } from 'class-transformer';
-class AccionDto {
+import { Expose, Transform, Type } from "class-transformer";
+
+export class AccionDto {
   @Expose()
   id_accion: number;
 
   @Expose()
   accion: string;
+
+  @Expose()
+  activo: boolean;
 }
 
-class PermisoDto {
+export class PermisoConAccionesDto {
   @Expose()
   id_permiso: number;
 
@@ -22,7 +26,7 @@ class PermisoDto {
   acciones: AccionDto[];
 }
 
-class RolDto {
+export class RolUsuarioDto {
   @Expose()
   id_rol: number;
 
@@ -33,10 +37,9 @@ class RolDto {
   descripcion: string;
 
   @Expose()
-  @Type(() => PermisoDto)
-  permisos: PermisoDto[];
+  @Type(() => PermisoConAccionesDto)
+  permisos: PermisoConAccionesDto[];
 }
-
 
 export class GetUsuarioPermisosDto {
   @Expose()
@@ -59,19 +62,16 @@ export class GetUsuarioPermisosDto {
 
   @Expose()
   @Transform(({ value }) => {
-      if (!value) return null;
-  
-      const date = value instanceof Date ? value : new Date(value);
-      const d = date.getDate().toString().padStart(2, '0');
-      const m = (date.getMonth() + 1).toString().padStart(2, '0');
-      const y = date.getFullYear().toString().slice(-2);
-  
-      return `${d}-${m}-${y}`;
-      })
-  createdAt: Date;
+    if (!value) return null;
+    const date = value instanceof Date ? value : new Date(value);
+    const d = date.getDate().toString().padStart(2, '0');
+    const m = (date.getMonth() + 1).toString().padStart(2, '0');
+    const y = date.getFullYear().toString().slice(-2);
+    return `${d}-${m}-${y}`;
+  })
+  createdAt: string;
 
   @Expose()
-  @Type(() => RolDto)
-  rol: RolDto;
-  
+  @Type(() => RolUsuarioDto)
+  rol: RolUsuarioDto;
 }

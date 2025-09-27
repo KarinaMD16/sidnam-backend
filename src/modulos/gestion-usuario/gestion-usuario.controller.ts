@@ -113,4 +113,9 @@ export class GestionUsuarioController {
         return this.userService.findAllUsuarios(estadoID, pageNumber, limitNumber);
     }
 
+    @Get('usuarios/cedula/:cedula')
+    async getUsuarioPorCedula(@Param('cedula') cedula: string) {
+        return this.userService.findUsuariosByCedula(cedula);
+    }
+
 }
