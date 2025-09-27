@@ -18,6 +18,9 @@ export class UsuarioPreviewDto {
     email: string;
 
     @Expose()
+    cedula: string;
+
+    @Expose()
     estado: string; 
 
     @Expose()
