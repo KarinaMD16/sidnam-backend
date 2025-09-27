@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsEmail, IsNumber, IsString, MinLength } from "class-validator";
+import { IsEmail, IsNumber, IsOptional, IsString, MinLength } from "class-validator";
 import { Column } from "typeorm";
 
 export class RegisterDto {
@@ -15,6 +15,7 @@ export class RegisterDto {
   @IsString()
   apellido1: string;
 
+  @IsOptional()
   @IsString()
   apellido2: string;
 
