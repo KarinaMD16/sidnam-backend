@@ -277,10 +277,8 @@ export class GestionUsuarioService {
       return { message: 'Usuario no encontrado' };
     }
 
-    // Traer todas las acciones posibles
     const todasAcciones = await this.accionRepository.find();
 
-    // Agrupar acciones por permiso y marcar cuáles están activas
     const permisosMap = new Map<number, any>();
     for (const rpa of usuario.rol.rolPermisoAcciones) {
       const permisoId = rpa.permiso.id_permiso;
@@ -297,17 +295,16 @@ export class GestionUsuarioService {
       permisosMap.get(permisoId).accionesActivas.push(rpa.accion.id_accion);
     }
 
-    // Construir array de acciones con 'activo'
     for (const permisoObj of permisosMap.values()) {
       permisoObj.acciones = todasAcciones.map(a => ({
         id_accion: a.id_accion,
         accion: a.accion,
         activo: permisoObj.accionesActivas.includes(a.id_accion),
       }));
-      delete permisoObj.accionesActivas; // ya no necesitamos este array
+      delete permisoObj.accionesActivas; 
     }
 
-    // Construir el objeto final
+
     const usuarioConPermisos = {
       id: usuario.id,
       cedula: usuario.cedula,
