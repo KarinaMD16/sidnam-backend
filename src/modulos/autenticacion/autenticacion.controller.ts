@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AutenticacionService } from './autenticacion.service';
 import { RegisterDto } from './dto/registerDto';
 import { LoginDto } from './dto/loginDto';
@@ -65,6 +65,14 @@ export class AutenticacionController {
         @Body() body: { token: string; password: string }
         ): Promise<void> {
         return this.authService.resetPassword(body.token, body.password);
+    }
+
+    @Get('me')
+    async getMe(@Req() req: any) {
+    const token = req.cookies?.accessToken;
+    if (!token) throw new UnauthorizedException('Token no encontrado en cookies');
+
+    return this.authService.getUserWithPermissions(token);
     }
 
 }
