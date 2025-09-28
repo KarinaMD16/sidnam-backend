@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Usuario } from '../gestion-usuario/entities/usuario.entity';
 import { RolUsuario } from '../gestion-usuario/entities/rol.entity';
+import { RolPermisoAccion } from '../gestion-usuario/entities/rolPermisoAccion.entity';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { RolUsuario } from '../gestion-usuario/entities/rol.entity';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: "1d" },
     }),
-    TypeOrmModule.forFeature([Usuario, RolUsuario])
+    TypeOrmModule.forFeature([Usuario, RolUsuario, RolPermisoAccion])
   ],
   providers: [AutenticacionService, EmailService],
   controllers: [AutenticacionController],

@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Response } from 'express';
 import { RolUsuario } from '../gestion-usuario/entities/rol.entity';
+import { RolPermisoAccion } from '../gestion-usuario/entities/rolPermisoAccion.entity';
 
 
 
@@ -28,7 +29,10 @@ export class AutenticacionService {
         private readonly emailService: EmailService,
 
         @InjectRepository(RolUsuario)
-        private readonly rolRepository: Repository<RolUsuario>
+        private readonly rolRepository: Repository<RolUsuario>,
+
+        @InjectRepository(RolPermisoAccion)
+        private readonly rpaRepo: Repository<RolPermisoAccion>
 
     ){}
 
@@ -77,7 +81,8 @@ export class AutenticacionService {
             id: user.id, 
             email: user.email, 
             role: user.rol.nombre,  
-            name: user.name 
+            name: user.name,
+            roleid: user.rol.id_rol
         };
 
         const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
@@ -110,7 +115,7 @@ export class AutenticacionService {
         const isRefreshTokenMatching = await bcrypt.compare(refreshToken, user.refreshToken);
         if (!isRefreshTokenMatching) throw new UnauthorizedException('Refresh token no coincide');
 
-        const newPayload = { id: user.id, email: user.email, role: user.rol.nombre, name: user.name };
+        const newPayload = { id: user.id, email: user.email, role: user.rol.nombre, name: user.name, roleid: user.rol.id_rol};
 
         const newAccessToken = await this.jwtService.signAsync(newPayload, { expiresIn: '15m' });
         const newRefreshToken = await this.jwtService.signAsync(newPayload, { expiresIn: '1d' });
@@ -162,4 +167,45 @@ export class AutenticacionService {
          await this.gestionUsuarios.updateUsuario(email, hashedPassword)
         
     }
+
+    async getUserWithPermissions(token: string) {
+    let payload: any;
+    try {
+      payload = this.jwtService.verify(token);
+    } catch {
+      throw new UnauthorizedException('Token inválido o expirado');
+    }
+
+    const usuario = await this.usuarios.findOne({
+      where: { id: payload.id },
+      relations: ['rol'],
+    });
+
+    if (!usuario) throw new UnauthorizedException('Usuario no encontrado');
+
+    const rpas = await this.rpaRepo.find({
+      where: { rol: { id_rol: payload.roleid } },
+      relations: ['permiso', 'accion'],
+    });
+
+    const permissions = rpas.map((rpa) => {
+      const modulo = rpa.permiso.modulo;
+      const seccion = rpa.permiso.seccion ? `.${rpa.permiso.seccion}` : '';
+      return `${modulo}${seccion}:${rpa.accion.accion}`;
+    });
+
+    return {
+      user: {
+        id: usuario.id,
+        cedula: usuario.cedula,
+        name: usuario.name,
+        email: usuario.email,
+        roles: [usuario.rol.nombre],
+      },
+      permissions,
+      version: 8, 
+      issuedAt: new Date().toISOString(),
+    };
+  }
+
 }
