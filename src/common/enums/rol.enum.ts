@@ -39,6 +39,9 @@ export enum Secciones{
   GESTIONVOLUNTARIADO = 'GESTIONVOLUNTARIADO',
   PROVEDURIAGENERAL = 'PROVEDURIAGENERAL',
   PROVEDURIAFACTURAS = 'PROVEDURIAFACTURAS',
+  PROYECTOS = 'PROYECTOS',
+  EVENTOS = 'EVENTOS',
+  GALERIA = 'GALERIA',
 }
 
 export const ModulosOpts = [
@@ -53,7 +56,10 @@ export const ModulosOpts = [
   { id: 9, value: Modulos.DONACIONES, modulo: 'Donaciones', value2: Secciones.GESTIONDONACIONES, seccion: 'Gestión Donaciones' },
   { id: 10, value: Modulos.DONACIONES, modulo: 'Donaciones', value2: Secciones.SOLICITUDDONACIONES, seccion: 'Solicitud Donaciones' },
   { id: 11, value: Modulos.VOLUNTARIADO, modulo: 'Voluntariado', value2: Secciones.GESTIONVOLUNTARIADO, seccion: 'Gestión Voluntariado' },
-  { id: 12, value: Modulos.VOLUNTARIADO, modulo: 'Voluntariado', value2: Secciones.SOLICITUDESVOLUNARIADO, seccion: 'Solicitudes Voluntariado' },
+  { id: 12, value: Modulos.VOLUNTARIADO, modulo: 'Voluntariado', value2: Secciones.SOLICITUDESVOLUNARIADO, seccion: 'Solicitudes Voluntariado'},
+  { id: 13, value: Modulos.INFORMATIVA, modulo: 'Informativa', value2: Secciones.EVENTOS, seccion: 'Eventos'},
+  { id: 14, value: Modulos.INFORMATIVA, modulo: 'Informativa', value2: Secciones.GALERIA, seccion: 'Galeria'},
+  { id: 15, value: Modulos.INFORMATIVA, modulo: 'Informativa', value2: Secciones.PROYECTOS, seccion: 'Proyectos'},
 ];
 
 
@@ -68,6 +74,8 @@ export const SeccionesOpts = [
   { id: 8, value: Secciones.GESTIONDONACIONES, modulo: 'Gestión Donaciones' },
   { id: 9, value: Secciones.SOLICITUDESVOLUNARIADO, modulo: 'Solicitudes Voluntariado' },
   { id: 10, value: Secciones.GESTIONVOLUNTARIADO, modulo: 'Gestión Voluntariado' },
+  { id: 11, value: Secciones.EVENTOS, modulo: 'Informativa' },
+  { id: 11, value: Secciones.GALERIA, modulo: 'Informativa' },
 ];
 
 
