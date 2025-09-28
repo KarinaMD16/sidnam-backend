@@ -68,8 +68,11 @@ export class AutenticacionController {
     }
 
     @Get('me')
-    async getMe(@Req() req: any) {
-    const token = req.cookies?.accessToken;
+    async getMe(
+    @Req() req: Request & { cookies: { [key: string]: string } },
+    @Res({ passthrough: true }) res: Response
+    ) {
+    const token = req.cookies['accessToken'];
     if (!token) throw new UnauthorizedException('Token no encontrado en cookies');
 
     return this.authService.getUserWithPermissions(token);
