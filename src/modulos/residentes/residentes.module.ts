@@ -22,6 +22,8 @@ import { HistorialPatologias } from './entities/historiaoPatologias.entity';
 import { HistorialCuraciones } from './entities/historialCuraciones.entity';
 import { PdfHtmlService } from 'src/common/services/pdf-html.service';
 import { ReporteExpedienteService } from './ReporteExpediente.service';
+import { RolPermisoAccion } from '../gestion-usuario/entities/rolPermisoAccion.entity';
+import { RolUsuario } from '../gestion-usuario/entities/rol.entity';
 
 
 
@@ -46,6 +48,8 @@ import { ReporteExpedienteService } from './ReporteExpediente.service';
       Libro_Campo,
       HistorialPatologias,
       HistorialCuraciones,  
+      RolPermisoAccion,  
+      RolUsuario,  
     ]),
     GestionUsuarioModule, 
   ],

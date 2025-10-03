@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { GestionUsuarioService } from './services/gestion-usuario.service';
 import { AuthGuard } from '../autenticacion/guard/auth.guard';
-import { RolesGuard } from '../autenticacion/guard/roles.guard';
 import { CreateRolDto } from './dto/createRolDto';
 import { PermisosService } from './services/permiso-roles.service';
 import { UpdateUsuarioDto } from './dto/updateUsuarioDto';
@@ -13,7 +12,7 @@ export class GestionUsuarioController {
     constructor(private readonly userService: GestionUsuarioService, private readonly permisosService: PermisosService){}
 
     @Delete('eliminarUsuario/:cedula')
-    @UseGuards(AuthGuard, RolesGuard)
+    @UseGuards(AuthGuard)
     eliminarUsuario(@Param('cedula') cedula: string){
         return this.userService.eliminarUsuario(cedula);
     }

@@ -22,6 +22,7 @@ export enum Modulos{
   DONACIONES = 'DONACIONES',
   INFORMATIVA = 'INFORMATIVA',
   INVENTARIADO = 'INVENTARIADO',
+  SEGURIDAD = "SEGURIDAD",
 }
 
 
@@ -42,6 +43,8 @@ export enum Secciones{
   PROYECTOS = 'PROYECTOS',
   EVENTOS = 'EVENTOS',
   GALERIA = 'GALERIA',
+  USUARIOS = 'USUARIOS',
+  ROLES = "ROLES"
 }
 
 export const ModulosOpts = [
@@ -60,6 +63,8 @@ export const ModulosOpts = [
   { id: 13, value: Modulos.INFORMATIVA, modulo: 'Informativa', value2: Secciones.EVENTOS, seccion: 'Eventos'},
   { id: 14, value: Modulos.INFORMATIVA, modulo: 'Informativa', value2: Secciones.GALERIA, seccion: 'Galeria'},
   { id: 15, value: Modulos.INFORMATIVA, modulo: 'Informativa', value2: Secciones.PROYECTOS, seccion: 'Proyectos'},
+  { id: 15, value: Modulos.SEGURIDAD, modulo: 'Seguridad', value2: Secciones.USUARIOS, seccion: 'Usuarios'},
+  { id: 15, value: Modulos.SEGURIDAD, modulo: 'Seguridad', value2: Secciones.ROLES, seccion: 'Roles'},
 ];
 
 

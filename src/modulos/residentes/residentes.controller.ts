@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Put, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Patch, Post, Put, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ResidentesService } from './residentes.service';
 import { CreateExpedienteCompletoDto } from './dto/createExpedienteResidenteDto';
 import { ExpedienteResidentePreviewDto } from './dto/getPreviewExpediente';
@@ -19,6 +19,11 @@ import { CrearLibroCampoDto } from './dto/createLibroCampoDto';
 import { AtualizarLibroCampoDto } from './dto/actualizarLibroCampoDto';
 import { ReporteExpedienteService } from './ReporteExpediente.service';
 import { Response } from 'express';
+import { RolesAccionesGuard } from '../autenticacion/guard/actions.guard';
+import { AccionRequerida } from '../autenticacion/decorators/roles.decorator';
+import { AuthGuard } from '../autenticacion/guard/auth.guard';
+import { SeccionGuard } from '../autenticacion/guard/seccion.guard';
+import { SeccionRequerida } from '../autenticacion/decorators/seccionRequerida.decorator';
 
 
 
@@ -31,11 +36,16 @@ export class ResidentesController {
 
 
    @Post('expediente')
-   async createExpediente(@Body() createExpediente: CreateExpedienteCompletoDto) {
-       return this.residentesService.createExpediente(createExpediente);
-   }
+   @UseGuards(AuthGuard, RolesAccionesGuard, SeccionGuard)
+   @AccionRequerida('Crear')
+   @SeccionRequerida('General Expedientes')
+   async createExpediente(@Body() dto: CreateExpedienteCompletoDto, @Req() req) {
+    return this.residentesService.createExpediente(dto, req.user);
+  }
 
    @Get('tipos-pension')
+   @UseGuards(AuthGuard, RolesAccionesGuard)
+   @AccionRequerida('Ver')
    async getTiposPension() {
        return this.residentesService.getTiposPension();
    }
