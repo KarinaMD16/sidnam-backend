@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { GestionUsuarioService } from '../gestion-usuario/services/gestion-usuario.service';
 import { RegisterDto } from './dto/registerDto';
 import * as bcryptjs from 'bcryptjs';
@@ -79,7 +79,7 @@ export class AutenticacionService {
         if (!isPasswordValid) throw new UnauthorizedException('Contraseña inválida');
 
         if(user.estado == Estado_Usuario.inactivo){
-            throw new UnauthorizedException('Error a la hora de iniciar sesion, consulta el error')
+            throw new ForbiddenException('Error a la hora de iniciar sesion, consulta el error')
         }
 
         const payload = { 
