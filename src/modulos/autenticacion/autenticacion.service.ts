@@ -12,6 +12,7 @@ import * as bcrypt from 'bcryptjs';
 import { Response } from 'express';
 import { RolUsuario } from '../gestion-usuario/entities/rol.entity';
 import { RolPermisoAccion } from '../gestion-usuario/entities/rolPermisoAccion.entity';
+import { Estado_Usuario } from 'src/common/enums/esatadoUsuario.enum';
 
 
 
@@ -76,6 +77,10 @@ export class AutenticacionService {
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) throw new UnauthorizedException('Contraseña inválida');
+
+        if(user.estado == Estado_Usuario.inactivo){
+            throw new UnauthorizedException('Error a la hora de iniciar sesion, consulta el error')
+        }
 
         const payload = { 
             id: user.id, 
