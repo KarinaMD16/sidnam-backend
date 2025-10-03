@@ -113,7 +113,7 @@ export class ResidentesService {
      private MAX_SEGMENT_LENGTH = 1000;
 
 
-  async createExpediente(createExpedienteDto: CreateExpedienteCompletoDto) {
+  async createExpediente(createExpedienteDto: CreateExpedienteCompletoDto, user: any) {
  
       const residenteExistente = await this.residenteRepository.findOne({
         where: { cedula: createExpedienteDto.residente.cedula },
