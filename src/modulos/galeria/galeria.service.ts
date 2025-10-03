@@ -1,13 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Categoria } from './entities/categoria.entity';
 import { Repository } from 'typeorm';
 import { CategoriaDto } from './dto/createCategoriaDto';
 import { Galeria } from './entities/galeria.entity';
-import { GaleriaDto } from './dto/createGaleriaDto';
+import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
+import { Readable } from 'stream';
+import { configureCloudinary } from 'src/common/cloudinary/cloudinary.config';
+
 
 @Injectable()
 export class GaleriaService {
+
+    private readonly cloudinary = configureCloudinary();
 
     constructor(
          @InjectRepository(Categoria)
@@ -28,20 +33,43 @@ export class GaleriaService {
         return this.categoriaRepository.find();
     }
     //Imagenes
-    async createImagen(createGaleria: GaleriaDto): Promise<Galeria>{
-        const categoria = await this.categoriaRepository.findOne({
-            where: {id: createGaleria.categoriaId},
-        });
+    
+    async createImagen(file: Express.Multer.File, categoriaId: number): Promise<Galeria> {
 
-        if(!categoria) throw new NotFoundException('Categoria no encontrada');
+    const categoria = await this.categoriaRepository.findOne({ where: { id: categoriaId } });
+    if (!categoria) throw new NotFoundException(`Categoría con id ${categoriaId} no encontrada`);
 
-        const nuevaImagen = this.galeriaRepository.create({
-            imagenUrl: createGaleria.imagenUrl,
-            categoria,
-        });
+    const { secure_url } = await this.uploadBufferToCloudinary(file.buffer, `galeria/${categoriaId}`);
 
-        return this.galeriaRepository.save(nuevaImagen);
-    }
+    const nueva = this.galeriaRepository.create({
+      imagenUrl: secure_url,
+      categoria,
+    });
+
+    return this.galeriaRepository.save(nueva);
+  }
+
+    private uploadBufferToCloudinary(buffer: Buffer, folder: string): Promise<{ secure_url: string; public_id: string }> {
+     return new Promise((resolve, reject) => {
+
+     const uploadStream = this.cloudinary.uploader.upload_stream(
+      { folder },
+      (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
+        if (error || !result) {
+          return reject(new InternalServerErrorException('Error subiendo la imagen a Cloudinary'));
+        }
+        resolve({ secure_url: result.secure_url, public_id: result.public_id });
+      },
+    );
+
+    const stream = new Readable();
+    stream._read = () => {};
+    stream.push(buffer);
+    stream.push(null);
+    stream.pipe(uploadStream);
+  });
+}
+
 
     async findAllImagenes(page?: number, limit?: number): Promise<Galeria[]>{
 

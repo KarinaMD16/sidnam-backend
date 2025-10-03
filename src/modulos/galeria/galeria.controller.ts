@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Optional, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { GaleriaService } from './galeria.service';
 import { CategoriaDto } from './dto/createCategoriaDto';
-import { GaleriaDto } from './dto/createGaleriaDto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('galeria')
 export class GaleriaController {
@@ -23,8 +24,15 @@ export class GaleriaController {
     //Imagenes
 
     @Post('createImagen')
-    createImagenes(@Body() createImagenes: GaleriaDto){
-        return this.galeriaService.createImagen(createImagenes);
+    @UseInterceptors(FileInterceptor('imagen'))
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ schema: { type: 'object', properties: { categoriaId: { type: 'integer', example: 1 }, imagen: { type: 'string', format: 'binary' } } } })
+    createImagen(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('categoriaId', ParseIntPipe) categoriaId: number,
+    ) {
+    if (!file) throw new BadRequestException('Debes subir un archivo en el campo "imagen"');
+    return this.galeriaService.createImagen(file, categoriaId);
     }
 
     @Get('getImagenes')
