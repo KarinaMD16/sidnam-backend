@@ -8,11 +8,6 @@ export class UpdateUsuarioDto {
   email?: string;
   @IsOptional()
   name?: string;
-  
-  @IsOptional()
-  password?: string;
-  @IsOptional()
-  rol?: RolUsuario;
   @IsOptional()
   apellido1?: string;
   @IsOptional()
