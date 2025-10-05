@@ -14,6 +14,7 @@ import { UpdateRolDto } from '../dto/updateRolDto';
 import { UsuarioPreviewDto } from '../dto/getUsuariosPreviewsDto';
 import { Accion } from '../entities/accion.entity';
 import { PerfilUsuario } from '../dto/GetPerfilDto';
+import { uploadBufferToCloudinary } from 'src/common/services/cloudinary-buffer.service';
 
 @Injectable()
 export class GestionUsuarioService {
@@ -342,6 +343,16 @@ export class GestionUsuarioService {
     return plainToInstance(PerfilUsuario, usuario, {
       excludeExtraneousValues: true,
     });
+  }
+
+  async createImagenUsuario(file: Express.Multer.File, usuarioId: number): Promise<Usuario> {
+    const usuario = await this.usuariosRepository.findOne({ where: { id: usuarioId } });
+    if (!usuario) throw new NotFoundException(`Usuario con id ${usuarioId} no encontrado`);
+
+    const { secure_url } = await uploadBufferToCloudinary(file.buffer, `usuario/${usuarioId}`);
+
+    usuario.imagenUrl = secure_url; 
+    return this.usuariosRepository.save(usuario);
   }
 
 }
