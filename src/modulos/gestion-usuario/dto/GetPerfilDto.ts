@@ -17,4 +17,7 @@ export class PerfilUsuario{
     @Expose()
     apellido2: string;
 
+    @Expose()
+    email: string;
+
 }
