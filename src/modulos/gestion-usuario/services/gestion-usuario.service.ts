@@ -330,7 +330,10 @@ export class GestionUsuarioService {
 
   async findPerfil(user: Usuario): Promise<PerfilUsuario>{
 
-    const usuario = await this.findOneById(user.id)
+    const usuario = await this.usuariosRepository.findOne({
+      where: {id: user.id},
+      relations: ['rol']
+    })
 
     if(!usuario){
       throw new NotFoundException('Usuario no encontrado')
