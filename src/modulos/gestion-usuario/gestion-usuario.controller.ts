@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { GestionUsuarioService } from './services/gestion-usuario.service';
 import { AuthGuard } from '../autenticacion/guard/auth.guard';
 import { CreateRolDto } from './dto/createRolDto';
@@ -116,5 +116,12 @@ export class GestionUsuarioController {
     async getUsuarioPorCedula(@Param('cedula') cedula: string) {
         return this.userService.findUsuariosByCedula(cedula);
     }
+
+    @Get('usuarios')
+    @UseGuards(AuthGuard)
+    async getPerfil(@Req() req){
+        return this.userService.findPerfil(req.user);
+    }
+
 
 }

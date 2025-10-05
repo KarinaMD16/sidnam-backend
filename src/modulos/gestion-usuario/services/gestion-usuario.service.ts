@@ -13,6 +13,7 @@ import { UpdateUsuarioDto } from '../dto/updateUsuarioDto';
 import { UpdateRolDto } from '../dto/updateRolDto';
 import { UsuarioPreviewDto } from '../dto/getUsuariosPreviewsDto';
 import { Accion } from '../entities/accion.entity';
+import { PerfilUsuario } from '../dto/GetPerfilDto';
 
 @Injectable()
 export class GestionUsuarioService {
@@ -327,7 +328,17 @@ export class GestionUsuarioService {
     });
   }
 
+  async findPerfil(user: Usuario): Promise<PerfilUsuario>{
 
+    const usuario = await this.findOneById(user.id)
 
+    if(!usuario){
+      throw new NotFoundException('Usuario no encontrado')
+    }
+
+    return plainToInstance(PerfilUsuario, usuario, {
+      excludeExtraneousValues: true,
+    });
+  }
 
 }
