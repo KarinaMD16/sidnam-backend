@@ -1,4 +1,5 @@
-import { Expose } from "class-transformer";
+import { Expose, Type } from "class-transformer";
+import { GetRolNombreDto } from "./getRolNombreDto";
 
 export class PerfilUsuario{
 
@@ -19,5 +20,9 @@ export class PerfilUsuario{
 
     @Expose()
     email: string;
+
+    @Expose()
+    @Type(() => GetRolNombreDto)
+    rol: GetRolNombreDto;
 
 }
