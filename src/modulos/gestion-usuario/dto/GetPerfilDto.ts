@@ -35,5 +35,6 @@ export class PerfilUsuario{
         return `${d}-${m}-${y}`;
       })
       createdAt: string;
+      
 
 }
