@@ -26,6 +26,9 @@ export class PerfilUsuario{
     rol: GetRolNombreDto;
 
     @Expose()
+    imagenUrl: string;
+
+    @Expose()
       @Transform(({ value }) => {
         if (!value) return null;
         const date = value instanceof Date ? value : new Date(value);
@@ -33,8 +36,8 @@ export class PerfilUsuario{
         const m = (date.getMonth() + 1).toString().padStart(2, '0');
         const y = date.getFullYear().toString().slice(-2);
         return `${d}-${m}-${y}`;
-      })
-      createdAt: string;
+    })
+    createdAt: string;
       
 
 }
