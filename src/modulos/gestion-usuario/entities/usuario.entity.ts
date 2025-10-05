@@ -34,6 +34,9 @@ export class Usuario {
   @Column({ type: 'enum', enum: Estado_Usuario, default: Estado_Usuario.activo })
   estado: Estado_Usuario
 
+  @Column({ nullable: true })
+  imagenUrl: string;
+
   @DeleteDateColumn()
   deletedAt: Date;
 

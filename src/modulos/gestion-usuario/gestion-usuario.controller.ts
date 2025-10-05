@@ -1,10 +1,12 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { GestionUsuarioService } from './services/gestion-usuario.service';
 import { AuthGuard } from '../autenticacion/guard/auth.guard';
 import { CreateRolDto } from './dto/createRolDto';
 import { PermisosService } from './services/permiso-roles.service';
 import { UpdateUsuarioDto } from './dto/updateUsuarioDto';
 import { UpdateRolDto } from './dto/updateRolDto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('gestion-usuario')
 export class GestionUsuarioController {
@@ -123,5 +125,16 @@ export class GestionUsuarioController {
         return this.userService.findPerfil(req.user);
     }
 
+    @Post('createImagen')
+    @UseInterceptors(FileInterceptor('imagen'))
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ schema: { type: 'object', properties: { usuarioId: { type: 'integer', example: 1 }, imagen: { type: 'string', format: 'binary' } } } })
+    createImagen(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('usuarioId', ParseIntPipe) usuarioId: number,
+    ) {
+    if (!file) throw new BadRequestException('Debes subir un archivo en el campo "imagen"');
+    return this.userService.createImagenUsuario(file, usuarioId);
+    }
 
 }
