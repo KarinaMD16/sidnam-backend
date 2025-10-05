@@ -345,14 +345,17 @@ export class GestionUsuarioService {
     });
   }
 
-  async createImagenUsuario(file: Express.Multer.File, usuarioId: number): Promise<Usuario> {
+  async createImagenUsuario(file: Express.Multer.File, usuarioId: number): Promise<{message: string}> {
     const usuario = await this.usuariosRepository.findOne({ where: { id: usuarioId } });
     if (!usuario) throw new NotFoundException(`Usuario con id ${usuarioId} no encontrado`);
 
     const { secure_url } = await uploadBufferToCloudinary(file.buffer, `usuario/${usuarioId}`);
 
     usuario.imagenUrl = secure_url; 
-    return this.usuariosRepository.save(usuario);
+
+    await this.usuariosRepository.save(usuario)
+    
+    return {message: "Imagen subida con exito"};
   }
 
 }
