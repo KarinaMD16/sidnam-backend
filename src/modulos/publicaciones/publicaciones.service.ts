@@ -16,13 +16,13 @@ export class PublicacionesService {
 
     constructor(
         @InjectRepository(Donacion)
-        private donacionesRepository: Repository<Donacion>,
+        private readonly donacionesRepository: Repository<Donacion>,
 
         @InjectRepository(Eventos)
-        private eventosRepository: Repository<Eventos>,
+        private readonly eventosRepository: Repository<Eventos>,
 
         @InjectRepository(Proyectos)
-        private proyectosRepository: Repository<Proyectos>,
+        private readonly proyectosRepository: Repository<Proyectos>,
     ){}
 
     //Proyectos
