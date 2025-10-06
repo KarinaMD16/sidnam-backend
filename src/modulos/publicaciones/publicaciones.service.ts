@@ -10,6 +10,7 @@ import { updateProyectoDto } from './dto/updateProyectoDto';
 import { DonacionDto } from './dto/createDonacionDto';
 import { EventoDto } from './dto/createEventosDto';
 import { updateEventosDto } from './dto/updateEventosDto';
+import { uploadBufferToCloudinary } from 'src/common/services/cloudinary-buffer.service';
 
 @Injectable()
 export class PublicacionesService {
@@ -26,9 +27,16 @@ export class PublicacionesService {
     ){}
 
     //Proyectos
-    async createProyecto(proyectoDto: ProyectoDto): Promise<Proyectos> {
-        const nuevoProyecto = this.proyectosRepository.create(proyectoDto);
-        return await this.proyectosRepository.save(nuevoProyecto);
+   async createProyecto(dto: ProyectoDto, file: Express.Multer.File): Promise<Proyectos> {
+
+     const { secure_url } = await uploadBufferToCloudinary(file.buffer, 'publicaciones/proyectos');
+
+     const nuevoProyecto = this.proyectosRepository.create({
+      ...dto,
+     imagenUrl: secure_url,
+     });
+
+     return await this.proyectosRepository.save(nuevoProyecto);
     }
 
    async updateProyecto(id: number, updateProyectoDto: updateProyectoDto): Promise<Proyectos> {
@@ -88,10 +96,17 @@ export class PublicacionesService {
 
     //Donaciones
 
-    async createDoanciones(createDonaciones: DonacionDto): Promise<Donacion> {
-        const nuevaDonacion = this.donacionesRepository.create(createDonaciones);
-        return await this.donacionesRepository.save(nuevaDonacion);
-    }
+    async createDonacion(dto: DonacionDto, file: Express.Multer.File): Promise<Donacion> {
+
+    const { secure_url } = await uploadBufferToCloudinary(file.buffer, 'publicaciones/donaciones');
+
+    const nuevaDonacion = this.donacionesRepository.create({
+    ...dto,
+    imagenUrl: secure_url,
+    });
+
+    return await this.donacionesRepository.save(nuevaDonacion);
+   }
 
    async updateDonacion(id: number, updateDonacion: updateDonacionDto): Promise<Donacion> {
         await this.donacionesRepository.update(id, updateDonacion);
@@ -153,10 +168,16 @@ export class PublicacionesService {
 
     //Eventos
 
-    async createEventos(createEventos: EventoDto): Promise<Eventos> {
-        const nuevoEvento = this.eventosRepository.create(createEventos);
-        return await this.eventosRepository.save(nuevoEvento);
-    }
+    async createEvento(dto: EventoDto, file: Express.Multer.File): Promise<Eventos> {
+  const { secure_url } = await uploadBufferToCloudinary(file.buffer, 'publicaciones/eventos');
+
+  const nuevoEvento = this.eventosRepository.create({
+    ...dto,
+    imagenUrl: secure_url,
+  });
+
+  return await this.eventosRepository.save(nuevoEvento);
+}
 
    async updateEventos(id: number, updateEvento: updateEventosDto): Promise<Eventos> {
         await this.eventosRepository.update(id, updateEvento);

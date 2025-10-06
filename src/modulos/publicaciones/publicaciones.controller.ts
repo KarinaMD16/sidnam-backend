@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, Query, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, ParseIntPipe, Query, Patch, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
 import { PublicacionesService } from './publicaciones.service';
 import { ProyectoDto } from './dto/createProyectosDto';
 import { updateProyectoDto } from './dto/updateProyectoDto';
@@ -9,6 +9,8 @@ import { Donacion } from './entities/donacion.entity';
 import { updateEventosDto } from './dto/updateEventosDto';
 import { Eventos } from './entities/eventos.entity';
 import { EventoDto } from './dto/createEventosDto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('publicaciones')
 export class PublicacionesController {
@@ -25,8 +27,25 @@ export class PublicacionesController {
   }
 
   @Post('createProyecto')
-  createProyecto(@Body() proyectoDto: ProyectoDto): Promise<Proyectos> {
-    return this.publicacionesService.createProyecto(proyectoDto);
+  @UseInterceptors(FileInterceptor('imagen'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      Titulo: { type: 'string', example: 'Proyecto de reciclaje comunitario' },
+      Descripcion: { type: 'string', example: 'Recolección de plástico en el barrio.' },
+      fecha: { type: 'string', example: '2025-10-10' },
+      imagen: { type: 'string', format: 'binary' },
+    },
+  },
+  })
+  async createProyecto(
+  @UploadedFile() file: Express.Multer.File,
+  @Body() dto: ProyectoDto,
+   ) {
+    if (!file) throw new BadRequestException('Debes subir una imagen en el campo "imagen"');
+    return this.publicacionesService.createProyecto(dto, file);
   }
 
   @Patch('updateProyecto/:id')
@@ -56,9 +75,26 @@ export class PublicacionesController {
 
 
   @Post('createDonacion')
-  createDonaciones(@Body() donacionDto: DonacionDto): Promise<Donacion> {
-    return this.publicacionesService.createDoanciones(donacionDto);
-  }
+@UseInterceptors(FileInterceptor('imagen'))
+@ApiConsumes('multipart/form-data')
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      Titulo: { type: 'string', example: 'Campaña de alimentos 2025' },
+      Descripcion: { type: 'string', example: 'Recolección de víveres para familias vulnerables.' },
+      fecha: { type: 'string', example: '2025-09-30' },
+      imagen: { type: 'string', format: 'binary' },
+    },
+  },
+})
+async createDonacion(
+  @UploadedFile() file: Express.Multer.File,
+  @Body() dto: DonacionDto,
+) {
+  if (!file) throw new BadRequestException('Debes subir una imagen en el campo "imagen"');
+  return this.publicacionesService.createDonacion(dto, file);
+}
 
   @Patch('updateDonacion/:id')
   updateDonacion(@Param() id: number, @Body() updateDonacionDto: updateDonacionDto,
@@ -87,8 +123,25 @@ export class PublicacionesController {
   }
 
   @Post('createEvento')
-  createEventos(@Body() createEvento: EventoDto): Promise<Eventos> {
-    return this.publicacionesService.createEventos(createEvento);
+  @UseInterceptors(FileInterceptor('imagen'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      Titulo: { type: 'string', example: 'Festival del Voluntariado' },
+      Descripcion: { type: 'string', example: 'Celebración anual con participación comunitaria.' },
+      fecha: { type: 'string', example: '2025-12-01' },
+      imagen: { type: 'string', format: 'binary' },
+    },
+  },
+  })
+  async createEvento(
+  @UploadedFile() file: Express.Multer.File,
+  @Body() dto: EventoDto,
+  ) {
+   if (!file) throw new BadRequestException('Debes subir una imagen en el campo "imagen"');
+   return this.publicacionesService.createEvento(dto, file);
   }
 
   @Patch('updateEvento/:id')

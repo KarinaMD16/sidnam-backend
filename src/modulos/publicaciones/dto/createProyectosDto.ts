@@ -1,4 +1,4 @@
-import { IsDateString, IsString, IsBoolean, IsOptional, IsNotEmpty } from 'class-validator';
+import { IsDateString, IsString, IsOptional, IsNotEmpty } from 'class-validator';
 
 export class ProyectoDto {
   
