@@ -1,11 +1,9 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Categoria } from './entities/categoria.entity';
 import { Repository } from 'typeorm';
 import { CategoriaDto } from './dto/createCategoriaDto';
 import { Galeria } from './entities/galeria.entity';
-import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
-import { Readable } from 'stream';
 import { configureCloudinary } from 'src/common/cloudinary/cloudinary.config';
 import { uploadBufferToCloudinary } from 'src/common/services/cloudinary-buffer.service';
 
