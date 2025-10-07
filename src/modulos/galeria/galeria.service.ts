@@ -28,8 +28,18 @@ export class GaleriaService {
         return await this.categoriaRepository.save(nuevaCategoria);
     }
 
-    async findAllCategorias(): Promise<Categoria[]> {
-        return this.categoriaRepository.find();
+    async findAllCategoriasActivas(): Promise<Categoria[]> {
+        return this.categoriaRepository.find({
+          where: { isActive: true},
+          order: { id: 'ASC' },
+        });
+    }
+
+    async findAllCategoriasInactivas(): Promise<Categoria[]> {
+        return this.categoriaRepository.find({
+          where: { isActive: false},
+          order: { id: 'ASC' },
+        });
     }
 
 

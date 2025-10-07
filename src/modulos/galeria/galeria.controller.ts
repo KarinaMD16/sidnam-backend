@@ -15,9 +15,14 @@ export class GaleriaController {
         return this.galeriaService.createCategoria(createCategoriaDto);
     }
 
-    @Get('getCategorias')
-    findAllCategorias(){
-        return this.galeriaService.findAllCategorias();
+    @Get('getCategoriasActivas')
+    findAllCategoriasActivas(){
+        return this.galeriaService.findAllCategoriasActivas();
+    }
+
+    @Get('getCategoriasInactivas')
+    findAllCategoriasInactivas(){
+        return this.galeriaService.findAllCategoriasInactivas();
     }
 
     @Patch('handleCategoria/:id')
