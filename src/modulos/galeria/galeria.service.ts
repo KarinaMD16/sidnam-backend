@@ -31,6 +31,22 @@ export class GaleriaService {
     async findAllCategorias(): Promise<Categoria[]> {
         return this.categoriaRepository.find();
     }
+
+
+    async handleEstadoCategoria(id: number): Promise<{ message: string}> {
+        const categoria = await this.categoriaRepository.findOne({ where: { id } });
+
+         if (!categoria) {
+            throw new NotFoundException(`La categoría con id ${id} no encontrada.`);
+          }
+
+          categoria.isActive = !categoria.isActive;
+
+          await this.categoriaRepository.save(categoria);
+
+          return {message: `Categoría ${categoria.isActive ? 'activada' : 'desactivada'} exitosamente.`};
+     }
+
     //Imagenes
     
   async createImagen(file: Express.Multer.File, categoriaId: number): Promise<Galeria> {

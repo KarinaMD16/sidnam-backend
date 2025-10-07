@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { GaleriaService } from './galeria.service';
 import { CategoriaDto } from './dto/createCategoriaDto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -18,6 +18,11 @@ export class GaleriaController {
     @Get('getCategorias')
     findAllCategorias(){
         return this.galeriaService.findAllCategorias();
+    }
+
+    @Patch('handleCategoria/:id')
+    async toggleEstado(@Param('id', ParseIntPipe) id: number) {
+       return this.galeriaService.handleEstadoCategoria(id);
     }
 
 
