@@ -117,6 +117,36 @@ export class GaleriaService {
         await this.galeriaRepository.delete(id);
     }
 
+    async updateCategoriaImagen(imagenId: number, categoriaId: number) {
+
+     const imagen = await this.galeriaRepository.findOne({
+    where: { id: imagenId },
+    relations: ['categoria'],
+  });
+
+  if (!imagen) {
+    throw new NotFoundException(`Imagen con el id ${imagenId} no encontrada`);
+  }
+
+  const nuevaCategoria = await this.categoriaRepository.findOne({
+    where: { id: categoriaId, isActive: true },
+  });
+
+  if (!nuevaCategoria) {
+    throw new NotFoundException(
+      `La categoría con ID ${categoriaId} no existe o está inactiva`,
+    );
+  }
+
+  imagen.categoria = nuevaCategoria;
+  imagen.categoriaId = categoriaId;
+  await this.galeriaRepository.save(imagen);
+
+  return {
+    message: `Categoría de la imagen actualizada exitosamente`,
+  };
+}
+
 
     
 

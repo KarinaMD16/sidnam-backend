@@ -3,6 +3,7 @@ import { GaleriaService } from './galeria.service';
 import { CategoriaDto } from './dto/createCategoriaDto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { UpdateCategoriaImagenDto } from './dto/updateCategoriaImagenDto';
 
 @Controller('galeria')
 export class GaleriaController {
@@ -74,6 +75,15 @@ export class GaleriaController {
       removeImagen(@Param() id: number): Promise<void> {
         return this.galeriaService.removeImagen(id);
     }
+
+    @Patch('updateCategoria/:imagenId')
+    async updateCategoriaImagen(
+    @Param('imagenId', ParseIntPipe) imagenId: number,
+    @Body() dto: UpdateCategoriaImagenDto,
+    ) {
+      return this.galeriaService.updateCategoriaImagen(imagenId, dto.categoriaId);
+    }
+
 
 }
 
