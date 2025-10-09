@@ -72,8 +72,8 @@ export class GaleriaController {
     }
     
     @Delete('removeImagen/:id')
-      removeImagen(@Param() id: number): Promise<void> {
-        return this.galeriaService.removeImagen(id);
+     async removeImagen(@Param('id', ParseIntPipe) id: number) {
+     return this.galeriaService.removeImagen(id);
     }
 
     @Patch('updateCategoria/:imagenId')
