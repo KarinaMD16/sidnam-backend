@@ -113,8 +113,19 @@ export class GaleriaService {
       });   
     }
 
-    async removeImagen(id: number): Promise<void> {
-        await this.galeriaRepository.delete(id);
+    async removeImagen(id: number): Promise<{ message: string }> {
+
+     const imagen = await this.galeriaRepository.findOne({ where: { id } });
+
+      if (!imagen) {
+         throw new NotFoundException(`Imagen con el id ${id} no encontrada`);
+      }
+       // Para eliminar de cloudinary tambien, se tendría que implementar más cosas.
+       // await cloudinary.uploader.destroy(imagen.publicId);
+
+      await this.galeriaRepository.remove(imagen);
+
+      return { message: `Imagen con id ${id} eliminada exitosamente` };
     }
 
     async updateCategoriaImagen(imagenId: number, categoriaId: number) {
