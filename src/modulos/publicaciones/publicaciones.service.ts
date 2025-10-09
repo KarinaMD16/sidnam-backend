@@ -12,6 +12,7 @@ import { EventoDto } from './dto/createEventosDto';
 import { updateEventosDto } from './dto/updateEventosDto';
 import { uploadBufferToCloudinary } from 'src/common/services/cloudinary-buffer.service';
 
+
 @Injectable()
 export class PublicacionesService {
 
@@ -39,15 +40,23 @@ export class PublicacionesService {
      return await this.proyectosRepository.save(nuevoProyecto);
     }
 
-   async updateProyecto(id: number, updateProyectoDto: updateProyectoDto): Promise<Proyectos> {
-        await this.proyectosRepository.update(id, updateProyectoDto);
+   async updateProyecto(id: number, updateProyectoDto: updateProyectoDto, file?: Express.Multer.File): Promise<Proyectos> {
+        const proyecto = await this.proyectosRepository.findOne({ where: { id } });
+        if (!proyecto) throw new NotFoundException(`Proyecto con id ${id} no encontrado`);
 
-        const proyectoActualizado = await this.proyectosRepository.findOneBy({ id });
-            if (!proyectoActualizado) {
-                throw new NotFoundException(`Proyecto con id ${id} no encontrado`);
-            }
+        if (file) {
+          const { secure_url } = await uploadBufferToCloudinary(file.buffer, 'publicaciones/proyectos');
+          proyecto.imagenUrl = secure_url;
+        }
 
-        return proyectoActualizado;
+        for (const [key, value] of Object.entries(updateProyectoDto)) {
+          if (value !== undefined && value !== '') {
+            (proyecto as any)[key] = value;
+          }
+    }
+        await this.proyectosRepository.save(proyecto);
+
+        return proyecto;
     }
 
     async removeProyecto(id: number): Promise<{message: string}> {
@@ -108,16 +117,26 @@ export class PublicacionesService {
     return await this.donacionesRepository.save(nuevaDonacion);
    }
 
-   async updateDonacion(id: number, updateDonacion: updateDonacionDto): Promise<Donacion> {
-        await this.donacionesRepository.update(id, updateDonacion);
+   async updateDonacion(id: number, dto: updateDonacionDto, file?: Express.Multer.File): Promise<Donacion> {
+  const donacion = await this.donacionesRepository.findOne({ where: { id } });
+  if (!donacion) throw new NotFoundException(`Donación con id ${id} no encontrada`);
 
-        const donacionActualizada = await this.donacionesRepository.findOneBy({ id });
-            if (!donacionActualizada) {
-                throw new NotFoundException(`Donacion con id ${id} no encontrado`);
-            }
+  
+  if (file) {
+    
+    const { secure_url} = await uploadBufferToCloudinary(file.buffer, 'publicaciones/donaciones');
+    donacion.imagenUrl = secure_url;
+  }
 
-        return donacionActualizada;
-    }
+  for (const [key, value] of Object.entries(dto)) {
+  if (value !== undefined && value !== '') {
+    (donacion as any)[key] = value;
+  }
+}
+  await this.donacionesRepository.save(donacion);
+
+  return donacion;
+}
 
     async removeDonacion(id: number): Promise<{message: string}> {
 
@@ -179,16 +198,26 @@ export class PublicacionesService {
   return await this.eventosRepository.save(nuevoEvento);
 }
 
-   async updateEventos(id: number, updateEvento: updateEventosDto): Promise<Eventos> {
-        await this.eventosRepository.update(id, updateEvento);
+   async updateEventos(id: number, updateEvento: updateEventosDto, file?: Express.Multer.File): Promise<Eventos> {
+    const evento = await this.eventosRepository.findOne({ where: { id } });
+    if (!evento) throw new NotFoundException(`Evento con id ${id} no encontrado`);
+        
+    if (file) {
+        const { secure_url } = await uploadBufferToCloudinary(file.buffer, 'publicaciones/eventos');
+        evento.imagenUrl = secure_url;
+     }
 
-        const eventoActualizado = await this.eventosRepository.findOneBy({ id });
-            if (!eventoActualizado) {
-                throw new NotFoundException(`Evento con id ${id} no encontrado`);
-            }
-
-        return eventoActualizado;
+        for (const [key, value] of Object.entries(updateEvento)) {
+        if (value !== undefined && value !== '') {
+           (evento as any)[key] = value;
+        }
     }
+
+    await this.eventosRepository.save(evento);
+
+    return evento;
+       
+  }
 
     async removeEventos(id: number): Promise<{message: string}> {
 

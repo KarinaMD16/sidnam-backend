@@ -1,7 +1,7 @@
-import { IsDateString, IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
 
 export class updateEventosDto {
-  @IsDateString()
+  @IsString()
   @IsOptional()
   fecha: string; 
   

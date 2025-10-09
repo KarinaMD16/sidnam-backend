@@ -49,8 +49,24 @@ export class PublicacionesController {
   }
 
   @Patch('updateProyecto/:id')
-  updateProyecto(@Param() id: number, @Body() updateProyectoDto: updateProyectoDto,): Promise<Proyectos> {
-    return this.publicacionesService.updateProyecto(id, updateProyectoDto);
+  @UseInterceptors(FileInterceptor('imagen'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      Titulo: { type: 'string', example: 'Ampliación de la granja' },
+      Descripcion: { type: 'string', example: 'Crecimiento de las zonas verdes.' },
+      fecha: { type: 'string', example: '2025-10-25' },
+      imagen: { type: 'string', format: 'binary' },
+    },
+  },
+})
+ async updateProyecto(@Param('id', ParseIntPipe) id: number, 
+ @Body() updateProyectoDto: updateProyectoDto,
+  @UploadedFile() file?: Express.Multer.File,
+) {
+    return this.publicacionesService.updateProyecto(id, updateProyectoDto, file);
   }
 
   @Delete('removeProyecto/:id')
@@ -97,9 +113,25 @@ async createDonacion(
 }
 
   @Patch('updateDonacion/:id')
-  updateDonacion(@Param() id: number, @Body() updateDonacionDto: updateDonacionDto,
-  ): Promise<Donacion> {
-    return this.publicacionesService.updateDonacion(id, updateDonacionDto);
+  @UseInterceptors(FileInterceptor('imagen'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      Titulo: { type: 'string', example: 'Nueva campaña solidaria' },
+      Descripcion: { type: 'string', example: 'Recolecta de víveres para familias necesitadas.' },
+      fecha: { type: 'string', example: '2025-10-25' },
+      imagen: { type: 'string', format: 'binary' },
+    },
+  },
+})
+async updateDonacion(
+  @Param('id', ParseIntPipe) id: number,
+  @Body() updateDonacionDto: updateDonacionDto,
+  @UploadedFile() file?: Express.Multer.File,
+  ){
+    return this.publicacionesService.updateDonacion(id, updateDonacionDto, file);
   }
 
   @Delete('removeDonacion/:id')
@@ -145,8 +177,25 @@ async createDonacion(
   }
 
   @Patch('updateEvento/:id')
-  updateEventos(@Param() id: number, @Body() updateEventos: updateEventosDto,): Promise<Eventos> {
-    return this.publicacionesService.updateEventos(id, updateEventos);
+  @UseInterceptors(FileInterceptor('imagen'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      Titulo: { type: 'string', example: 'Gran Cena Navideña' },
+      Descripcion: { type: 'string', example: 'Acompañanos en esta gran noche.' },
+      fecha: { type: 'string', example: '2025-10-25' },
+      imagen: { type: 'string', format: 'binary' },
+    },
+  },
+})
+async updateEventos(
+  @Param('id', ParseIntPipe) id: number, 
+  @Body() updateEventos: updateEventosDto,
+  @UploadedFile() file?: Express.Multer.File,
+) {
+    return this.publicacionesService.updateEventos(id, updateEventos, file);
   }
 
   @Delete('removeEvento/:id')
