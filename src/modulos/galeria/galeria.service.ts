@@ -1,13 +1,12 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Categoria } from './entities/categoria.entity';
 import { Repository } from 'typeorm';
 import { CategoriaDto } from './dto/createCategoriaDto';
 import { Galeria } from './entities/galeria.entity';
-import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
-import { Readable } from 'stream';
 import { configureCloudinary } from 'src/common/cloudinary/cloudinary.config';
 import { uploadBufferToCloudinary } from 'src/common/services/cloudinary-buffer.service';
+import { UpdateCategoriaDto } from './dto/updateCategoriaDto';
 
 
 @Injectable()
@@ -30,9 +29,35 @@ export class GaleriaService {
         return await this.categoriaRepository.save(nuevaCategoria);
     }
 
-    async findAllCategorias(): Promise<Categoria[]> {
-        return this.categoriaRepository.find();
+    async findAllCategoriasActivas(): Promise<Categoria[]> {
+        return this.categoriaRepository.find({
+          where: { isActive: true},
+          order: { id: 'ASC' },
+        });
     }
+
+    async findAllCategoriasInactivas(): Promise<Categoria[]> {
+        return this.categoriaRepository.find({
+          where: { isActive: false},
+          order: { id: 'ASC' },
+        });
+    }
+
+
+    async handleEstadoCategoria(id: number): Promise<{ message: string}> {
+        const categoria = await this.categoriaRepository.findOne({ where: { id } });
+
+         if (!categoria) {
+            throw new NotFoundException(`La categoría con id ${id} no encontrada.`);
+          }
+
+          categoria.isActive = !categoria.isActive;
+
+          await this.categoriaRepository.save(categoria);
+
+          return {message: `Categoría ${categoria.isActive ? 'activada' : 'desactivada'} exitosamente.`};
+     }
+
     //Imagenes
     
   async createImagen(file: Express.Multer.File, categoriaId: number): Promise<Galeria> {
@@ -57,7 +82,7 @@ export class GaleriaService {
                 skip: (page - 1) * limit,
                 take: limit,
                 order: { id: 'DESC' },
-                select: ['id', 'imagenUrl'],
+                select: ['id', 'imagenUrl', 'categoriaId'],
             });
         }
         
@@ -79,7 +104,7 @@ export class GaleriaService {
                 skip: (page - 1) * limit,
                 take: limit,
                 order: { id: 'DESC' },
-                select: ['id', 'imagenUrl'],
+                select: ['id', 'imagenUrl', 'categoriaId'],
             });
         }
       
@@ -89,11 +114,95 @@ export class GaleriaService {
       });   
     }
 
-    async removeImagen(id: number): Promise<void> {
-        await this.galeriaRepository.delete(id);
+    async removeImagen(id: number): Promise<{ message: string }> {
+
+     const imagen = await this.galeriaRepository.findOne({ where: { id } });
+
+      if (!imagen) {
+         throw new NotFoundException(`Imagen con el id ${id} no encontrada`);
+      }
+       // Para eliminar de cloudinary tambien, se tendría que implementar más cosas.
+       // await cloudinary.uploader.destroy(imagen.publicId);
+
+      await this.galeriaRepository.remove(imagen);
+
+      return { message: `Imagen con id ${id} eliminada exitosamente` };
     }
 
+    async updateCategoriaImagen(imagenId: number, categoriaId: number) {
 
+     const imagen = await this.galeriaRepository.findOne({
+    where: { id: imagenId },
+    relations: ['categoria'],
+  });
+
+  if (!imagen) {
+    throw new NotFoundException(`Imagen con el id ${imagenId} no encontrada`);
+  }
+
+  const nuevaCategoria = await this.categoriaRepository.findOne({
+    where: { id: categoriaId, isActive: true },
+  });
+
+  if (!nuevaCategoria) {
+    throw new NotFoundException(
+      `La categoría con ID ${categoriaId} no existe o está inactiva`,
+    );
+  }
+
+  imagen.categoria = nuevaCategoria;
+  imagen.categoriaId = categoriaId;
+  await this.galeriaRepository.save(imagen);
+
+  return {
+    message: `Categoría de la imagen actualizada exitosamente`,
+  };
+}
+
+
+  async updateCategoria(id: number, dto: UpdateCategoriaDto): Promise<{ message: string }> {
+  const categoria = await this.categoriaRepository.findOne({ where: { id } });
+  
+  if (!categoria) {
+    throw new NotFoundException('Categoría no encontrada');
+  }
+
+  if (
+    dto.nombre === undefined && 
+    dto.descripcion === undefined
+  ) {
+    throw new BadRequestException('No hay campos para actualizar');
+  }
+
+  if (!categoria.isActive) {
+    throw new BadRequestException('No se puede editar una categoría inactiva');
+  }
+
+  let touched = false;
+
+  if (dto.nombre !== undefined) {
     
+    const existe = await this.categoriaRepository.findOne({
+      where: { nombre: dto.nombre },
+    });
+    if (existe && existe.id !== id) {
+      throw new BadRequestException('Ya existe una categoría con ese nombre');
+    }
+
+    categoria.nombre = dto.nombre;
+    touched = true;
+  }
+
+  if (dto.descripcion !== undefined) {
+    categoria.descripcion = dto.descripcion;
+    touched = true;
+  }
+
+  if (touched) {
+    await this.categoriaRepository.save(categoria);
+  }
+
+  return { message: 'Categoría actualizada exitosamente' };
+}
 
 }

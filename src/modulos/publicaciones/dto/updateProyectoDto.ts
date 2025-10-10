@@ -1,8 +1,8 @@
-import { IsDateString, IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
 
 export class updateProyectoDto {
 
-  @IsDateString()
+  @IsString()
   @IsOptional()
   fecha: string;
 

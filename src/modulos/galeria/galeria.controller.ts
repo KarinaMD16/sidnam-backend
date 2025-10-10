@@ -1,8 +1,10 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { GaleriaService } from './galeria.service';
 import { CategoriaDto } from './dto/createCategoriaDto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { UpdateCategoriaImagenDto } from './dto/updateCategoriaImagenDto';
+import { UpdateCategoriaDto } from './dto/updateCategoriaDto';
 
 @Controller('galeria')
 export class GaleriaController {
@@ -15,9 +17,19 @@ export class GaleriaController {
         return this.galeriaService.createCategoria(createCategoriaDto);
     }
 
-    @Get('getCategorias')
-    findAllCategorias(){
-        return this.galeriaService.findAllCategorias();
+    @Get('getCategoriasActivas')
+    findAllCategoriasActivas(){
+        return this.galeriaService.findAllCategoriasActivas();
+    }
+
+    @Get('getCategoriasInactivas')
+    findAllCategoriasInactivas(){
+        return this.galeriaService.findAllCategoriasInactivas();
+    }
+
+    @Patch('handleCategoria/:id')
+    async toggleEstado(@Param('id', ParseIntPipe) id: number) {
+       return this.galeriaService.handleEstadoCategoria(id);
     }
 
 
@@ -61,9 +73,26 @@ export class GaleriaController {
     }
     
     @Delete('removeImagen/:id')
-      removeImagen(@Param() id: number): Promise<void> {
-        return this.galeriaService.removeImagen(id);
+     async removeImagen(@Param('id', ParseIntPipe) id: number) {
+     return this.galeriaService.removeImagen(id);
     }
+
+    @Patch('updateCategoria/:imagenId')
+    async updateCategoriaImagen(
+    @Param('imagenId', ParseIntPipe) imagenId: number,
+    @Body() dto: UpdateCategoriaImagenDto,
+    ) {
+      return this.galeriaService.updateCategoriaImagen(imagenId, dto.categoriaId);
+    }
+
+    @Patch('updateCategoriasGaleria/:id')
+    updateCategoria(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateCategoriaDto,
+    ) {
+      return this.galeriaService.updateCategoria(id, dto);
+    }
+
 
 }
 
