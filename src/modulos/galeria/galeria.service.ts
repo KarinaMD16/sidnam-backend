@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Categoria } from './entities/categoria.entity';
 import { Repository } from 'typeorm';
@@ -6,6 +6,7 @@ import { CategoriaDto } from './dto/createCategoriaDto';
 import { Galeria } from './entities/galeria.entity';
 import { configureCloudinary } from 'src/common/cloudinary/cloudinary.config';
 import { uploadBufferToCloudinary } from 'src/common/services/cloudinary-buffer.service';
+import { UpdateCategoriaDto } from './dto/updateCategoriaDto';
 
 
 @Injectable()
@@ -159,6 +160,49 @@ export class GaleriaService {
 }
 
 
+  async updateCategoria(id: number, dto: UpdateCategoriaDto): Promise<{ message: string }> {
+  const categoria = await this.categoriaRepository.findOne({ where: { id } });
+  
+  if (!categoria) {
+    throw new NotFoundException('Categoría no encontrada');
+  }
+
+  if (
+    dto.nombre === undefined && 
+    dto.descripcion === undefined
+  ) {
+    throw new BadRequestException('No hay campos para actualizar');
+  }
+
+  if (!categoria.isActive) {
+    throw new BadRequestException('No se puede editar una categoría inactiva');
+  }
+
+  let touched = false;
+
+  if (dto.nombre !== undefined) {
     
+    const existe = await this.categoriaRepository.findOne({
+      where: { nombre: dto.nombre },
+    });
+    if (existe && existe.id !== id) {
+      throw new BadRequestException('Ya existe una categoría con ese nombre');
+    }
+
+    categoria.nombre = dto.nombre;
+    touched = true;
+  }
+
+  if (dto.descripcion !== undefined) {
+    categoria.descripcion = dto.descripcion;
+    touched = true;
+  }
+
+  if (touched) {
+    await this.categoriaRepository.save(categoria);
+  }
+
+  return { message: 'Categoría actualizada exitosamente' };
+}
 
 }

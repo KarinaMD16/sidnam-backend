@@ -4,6 +4,7 @@ import { CategoriaDto } from './dto/createCategoriaDto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { UpdateCategoriaImagenDto } from './dto/updateCategoriaImagenDto';
+import { UpdateCategoriaDto } from './dto/updateCategoriaDto';
 
 @Controller('galeria')
 export class GaleriaController {
@@ -82,6 +83,14 @@ export class GaleriaController {
     @Body() dto: UpdateCategoriaImagenDto,
     ) {
       return this.galeriaService.updateCategoriaImagen(imagenId, dto.categoriaId);
+    }
+
+    @Patch('updateCategoriasGaleria/:id')
+    updateCategoria(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateCategoriaDto,
+    ) {
+      return this.galeriaService.updateCategoria(id, dto);
     }
 
 
