@@ -82,7 +82,7 @@ export class GaleriaService {
                 skip: (page - 1) * limit,
                 take: limit,
                 order: { id: 'DESC' },
-                select: ['id', 'imagenUrl'],
+                select: ['id', 'imagenUrl', 'categoriaId'],
             });
         }
         
@@ -104,7 +104,7 @@ export class GaleriaService {
                 skip: (page - 1) * limit,
                 take: limit,
                 order: { id: 'DESC' },
-                select: ['id', 'imagenUrl'],
+                select: ['id', 'imagenUrl', 'categoriaId'],
             });
         }
       
