@@ -6,6 +6,8 @@ import * as bcrypt from 'bcryptjs';
 import { CreatePasswordDto } from './dtos/createPasswordDto';
 import { UpdatePasswordDto } from './dtos/updatePasswordDto';
 import { Password_Edus } from './entities/hash_contrasenia_edus.entity';
+import { GetPasswordDto } from './dtos/getPasswordDto';
+import { plainToInstance } from 'class-transformer';
 
 
 @Injectable()
@@ -31,8 +33,14 @@ export class EdusService {
         return {message: "Contraseña creada correctamente"}
     }
 
-    async getPassword(){
-        return this.hashedPasswordEdusRepository.find()
+    async getPassword(): Promise<GetPasswordDto>{
+        const contrasenia = this.hashedPasswordEdusRepository.findOne({
+            where: {},
+        })
+
+        const dto = plainToInstance(GetPasswordDto, contrasenia, {excludeExtraneousValues: true})
+
+        return dto
     }
 
     async updatePassword(updatePassword: UpdatePasswordDto){
