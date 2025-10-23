@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
@@ -18,6 +18,13 @@ export class EdusService {
 
 
     async createHashedPassword(createPasswordDto: CreatePasswordDto): Promise<{message: string}> {
+
+        const passwordExisted = await this.hashedPasswordEdusRepository.find()
+
+        if(passwordExisted){
+            throw new BadRequestException('La contraseña ya ha sido creada')
+        }
+
         const password = await this.hashedPasswordEdusRepository.create(createPasswordDto);
         this.hashedPasswordEdusRepository.save(password)
 
