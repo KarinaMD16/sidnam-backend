@@ -1,8 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
 import { CreatePasswordDto } from './dtos/createPasswordDto';
 import { UpdatePasswordDto } from './dtos/updatePasswordDto';
 import { Password_Edus } from './entities/hash_contrasenia_edus.entity';
@@ -19,14 +17,14 @@ export class EdusService {
 
     async createHashedPassword(createPasswordDto: CreatePasswordDto): Promise<{message: string}> {
 
-        const passwordExisted = await this.hashedPasswordEdusRepository.find()
+        const passwordExists = await this.hashedPasswordEdusRepository.find()
 
-        if(passwordExisted){
+        if (passwordExists.length > 0) {
             throw new BadRequestException('La contraseña ya ha sido creada')
         }
 
-        const password = await this.hashedPasswordEdusRepository.create(createPasswordDto);
-        this.hashedPasswordEdusRepository.save(password)
+        const password = this.hashedPasswordEdusRepository.create(createPasswordDto);
+        void this.hashedPasswordEdusRepository.save(password)
 
         return {message: "Contraseña creada correctamente"}
     }
