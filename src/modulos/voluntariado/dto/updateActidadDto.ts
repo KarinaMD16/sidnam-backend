@@ -1,10 +1,11 @@
-import { IsOptional } from "class-validator";
+import { IsOptional, Min } from "class-validator";
 
 export class ActualizarActividadesDto {
   @IsOptional()
   fecha?: Date;
 
   @IsOptional()
+  @Min(1)
   cantidadHoras?: number;
 
   @IsOptional()

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 
 export class CrearACtividadesDto {
@@ -8,6 +8,7 @@ export class CrearACtividadesDto {
 
   @IsOptional()
   @IsNumber()
+  @Min(1)
   cantidadHoras?: number; 
 
   @IsNotEmpty()
