@@ -157,6 +157,7 @@ export class UpdateExpedienteUseCase {
     async updateActividades(updateActividadesDto: ActualizarActividadesDto, idActividad: number): Promise<{ message: string }> {
         const actividad = await this.actividadRepository.findOne({
             where: { id: idActividad },
+            relations: ['solicitud']
         });
 
         if (!actividad) {
@@ -166,6 +167,18 @@ export class UpdateExpedienteUseCase {
         if (!actividad) {
             throw new NotFoundException('No hay actividades registradas para esta actividad');
         }
+
+
+        if (updateActividadesDto.fecha) {
+
+            if(new Date(updateActividadesDto.fecha) < new Date(actividad.solicitud.aprobadaEn)){
+                throw new BadRequestException('La fecha de la actividad tiene que ser mayor a la de la fecha de aprobacion del expediente')
+            }
+            throw new BadRequestException(
+                'La fecha de actividad tiene que ser mayor o igual a la fecha de aprobación del expediente'
+            );
+        }
+
 
         actividad.fecha = updateActividadesDto.fecha ?? actividad.fecha;
         actividad.cantidadHoras = updateActividadesDto.cantidadHoras ?? actividad.cantidadHoras;

@@ -9,6 +9,7 @@ import { SolicitudPendiente } from '../../entities/solicitudPendiente.entity';
 import { Tipo_voluntariado } from '../../entities/tipoVoluntariado.entity';
 import { VoluntariadoGateway } from '../../voluntariado.gateway';
 import { CrearSolicitudPendienteDto } from '../../dto/crearSolicitudPendienteDto';
+import { getTiposVoluntario } from 'src/common/enums/tipoVoluntarios.enum';
 
 @Injectable()
 export class CreateSolicitudUseCase {
@@ -26,9 +27,7 @@ export class CreateSolicitudUseCase {
 
    async crearSolicitudPendiente(solicitud: CrearSolicitudPendienteDto): Promise<SolicitudPendiente>{
    
-           const voluntariado = await this.tipoVoluntariado.findOne({
-               where: {id: solicitud.tipoVoluntariado},
-           });
+           const voluntariado = getTiposVoluntario(solicitud.tipoVoluntariado)
    
            if(!voluntariado){
                throw new NotFoundException(`Tipo de voluntariado con id ${solicitud.tipoVoluntariado} no encontrado`);

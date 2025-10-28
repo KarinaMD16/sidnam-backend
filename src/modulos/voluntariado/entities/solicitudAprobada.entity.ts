@@ -13,7 +13,7 @@ export class SolicitudAprobada {
   @Column()
   datosExtra?: string; 
 
-  @Column()
+  @Column({nullable: true})
   observaciones: string;
 
   @Column({ default: 'Activo' })

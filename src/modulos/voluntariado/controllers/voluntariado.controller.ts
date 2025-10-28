@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { VoluntariadoService } from '../services/voluntariado.service';
 import { CrearSolicitudPendienteDto } from '../dto/crearSolicitudPendienteDto';
 import { TipoVoluntarioDto } from '../dto/crearTipoVoluntarioDto';
@@ -14,6 +14,9 @@ import { ReporteService } from '../services/reporte.service';
 import { Response } from 'express';
 import { DeleteExpediente } from '../use-cases/expediente/delete-expediente.use-case';
 import { ActualizarActividadesDto } from '../dto/updateActidadDto';
+import { AuthGuard } from 'src/modulos/autenticacion/guard/auth.guard';
+
+
 
 
 @Controller('voluntariado')
@@ -57,6 +60,9 @@ export class VoluntariadoController {
         @Query('page', new ParseIntPipe({ optional: true })) page?: number,
         @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
     ){
+        if(page == 0){
+            throw new BadRequestException('No puedes enviar 0 en el query "page"')
+        }
         if (page && limit) {
             return this.getSolicitudesUseCase.findAllPreviews(page, limit);
         }
@@ -154,7 +160,7 @@ export class VoluntariadoController {
 
     @Delete('horarios/:id')
     async removeHorario(@Param('id', new ParseIntPipe) id: number){
-        await this.removeExpedientes.deleteHorario(id);
+        return await this.removeExpedientes.deleteHorario(id);
     }
 
     @Patch('actividades/:idActividad')
@@ -164,6 +170,6 @@ export class VoluntariadoController {
 
     @Delete('actividades/:idActividad')
     async removeActividad(@Param('idActividad', new ParseIntPipe) idActividad: number){
-        await this.removeExpedientes.deleteActividad(idActividad);
+        return await this.removeExpedientes.deleteActividad(idActividad);
     }
 }
