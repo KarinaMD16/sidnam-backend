@@ -20,6 +20,7 @@ import { AuthGuard } from 'src/modulos/autenticacion/guard/auth.guard';
 
 
 @Controller('voluntariado')
+@UseGuards(AuthGuard)
 export class VoluntariadoController {
 
 
@@ -160,7 +161,7 @@ export class VoluntariadoController {
 
     @Delete('horarios/:id')
     async removeHorario(@Param('id', new ParseIntPipe) id: number){
-        return await this.removeExpedientes.deleteHorario(id);
+        return await this.removeExpedientes.deleteHorario(id); //esto se cambio
     }
 
     @Patch('actividades/:idActividad')
