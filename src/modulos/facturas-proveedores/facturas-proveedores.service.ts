@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Factura } from './entities/factura.entity';
 import { Area } from './entities/area.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, Not, Repository } from 'typeorm';
 import { Proveedor } from './entities/proveedor.entity';
 import { CreateFacturaDto } from './dto/createFacturaDto';
 import { CreateAreaDto } from './dto/createAreaDto';
@@ -43,7 +43,7 @@ export class FacturasProveedoresService {
         const nuevaArea = this.areaRepository.create({ nombre: area.nombre });
         this.areaRepository.save(nuevaArea);
 
-        return {message: 'Area creada con exito'}
+        return {message: 'Área creada con éxito'}
     }
 
     async getAreas(){
@@ -68,7 +68,13 @@ export class FacturasProveedoresService {
         const areaExistente = await this.areaRepository.findOneBy({id_area: createProveedor.id_area})
 
         if(!areaExistente){
-            throw new NotFoundException('Arae no registrada')
+            throw new NotFoundException('Árae no registrada')
+        }
+
+        const proveedorExistente = await this.proveedorRepository.findOneBy({correo: createProveedor.email})
+
+        if(proveedorExistente){
+            throw new BadRequestException('Este proveedor ya existe con este correo')
         }
 
         const proveedorNuevo = this.proveedorRepository.create({
@@ -79,9 +85,9 @@ export class FacturasProveedoresService {
             area: areaExistente,
         })
 
-        this.proveedorRepository.save(proveedorNuevo)
+        await this.proveedorRepository.save(proveedorNuevo)
 
-        return {message: 'Proveedor agregado con exito'}
+        return {message: 'Proveedor agregado con éxito'}
     }
 
     async getProveedores(){
@@ -110,7 +116,7 @@ export class FacturasProveedoresService {
         })
 
         if(!area){
-            throw new NotFoundException('Area no encontrada')
+            throw new NotFoundException('Área no encontrada')
         }
 
         const proveedorPorArea = await this.proveedorRepository.find({
@@ -135,7 +141,7 @@ export class FacturasProveedoresService {
         })
 
         if(!area){
-            throw new NotFoundException('Area no encontrada')
+            throw new NotFoundException('Área no encontrada')
         }
 
         const dto = plainToInstance(MostrarAreasActivas, area, {excludeExtraneousValues: true})
@@ -366,6 +372,19 @@ export class FacturasProveedoresService {
 
         if (!proveedor) {
            throw new NotFoundException('Proveedor no encontrado');
+        }
+
+       if (dto.correo) {
+            const proveedorExistente = await this.proveedorRepository.findOne({
+                where: {
+                correo: dto.correo,
+                id_proveedor: Not(idProveedor),
+                },
+            });
+
+            if (proveedorExistente) {
+                throw new BadRequestException('Este proveedor ya se encuentra registrado con este correo');
+            }
         }
 
         if (
