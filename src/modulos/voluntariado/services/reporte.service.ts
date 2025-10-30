@@ -28,6 +28,8 @@ export class ReporteService {
       throw new NotFoundException('No hay actividades registradas para esta solicitud');
     }
 
+    solicitud.cantidadHoras = solicitud.cantidadHoras ?? 0;
+
     const html = this.generarHtml(solicitud);
     await this.pdfHtmlService.generarDesdeHtml(html, res, {
       
