@@ -44,8 +44,6 @@ export class ResidentesController {
   }
 
    @Get('tipos-pension')
-   @UseGuards(AuthGuard, RolesAccionesGuard)
-   @AccionRequerida('Ver')
    async getTiposPension() {
        return this.residentesService.getTiposPension();
    }
