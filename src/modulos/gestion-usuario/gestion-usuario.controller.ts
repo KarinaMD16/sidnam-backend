@@ -120,7 +120,6 @@ export class GestionUsuarioController {
     }
 
     @Get('usuarios')
-    @UseGuards(AuthGuard)
     async getPerfil(@Req() req){
         return this.userService.findPerfil(req.user);
     }
