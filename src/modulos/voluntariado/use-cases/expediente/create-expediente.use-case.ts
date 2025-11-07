@@ -46,7 +46,9 @@ export class CreateExpedienteUseCase {
 
    async crearExpediente(solicitud: CrearExpediente, idUsuario: number): Promise<{message: string}>{
    
-           const voluntariado = getTiposVoluntario(solicitud.tipoVoluntariado)
+           const voluntariado = await this.tipoVoluntariado.findOne({
+               where: {id: solicitud.tipoVoluntariado},
+           });
    
            const expediente = await this.solicitudAprobada.findOne({
                where: {
