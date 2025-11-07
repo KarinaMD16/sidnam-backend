@@ -70,15 +70,15 @@ async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: 
     
             if (estado === 'aprobada') {
                 solicitud.estado = estado;
-                await this.crearSolicitudDonacionOficial(solicitud, usuario);
                 await this.solicitudPendiente.save(solicitud);
+                await this.crearSolicitudDonacionOficial(solicitud, usuario);
                 return {message: 'Esta solicitud ha sido aceptada'};
             }
     
             if (estado == 'rechazada') {
                 solicitud.estado = estado;
-                await this.emailService.sendSolicitudDonacionRechazadaEmail(solicitud.email, solicitud.nombre)
                 await this.solicitudPendiente.save(solicitud);
+                await this.emailService.sendSolicitudDonacionRechazadaEmail(solicitud.email, solicitud.nombre)
                 return {message: 'Esta solicitud ha sido rechazada'};
             }
     
