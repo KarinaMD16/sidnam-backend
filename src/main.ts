@@ -11,6 +11,7 @@ async function bootstrap() {
   origin: [
     'http://localhost:5173', 
     'https://hogar-san-blas-informativa.vercel.app', 
+    'https://sidnam-administrativa.vercel.app'
   ],
   credentials: true,
 });
