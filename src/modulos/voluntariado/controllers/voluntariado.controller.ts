@@ -20,7 +20,6 @@ import { AuthGuard } from 'src/modulos/autenticacion/guard/auth.guard';
 
 
 @Controller('voluntariado')
-@UseGuards(AuthGuard)
 export class VoluntariadoController {
 
 
