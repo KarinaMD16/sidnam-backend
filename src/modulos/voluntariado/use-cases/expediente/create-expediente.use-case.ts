@@ -164,15 +164,15 @@ export class CreateExpedienteUseCase {
     
     
             if (estado === 'aprobada') {
-                await this.crearSolicitudOficial(solicitud, usuario);
                 solicitud.estado = estado;
+                await this.crearSolicitudOficial(solicitud, usuario);
                 await this.solicitudPendiente.save(solicitud);
                 return {message: 'Esta solicitud ha sido aceptada'};
             }
     
             if (estado == 'rechazada') {
-                await this.emailService.sendSolicitudRechazadaEmail(solicitud.email, solicitud.nombre)
                 solicitud.estado = estado;
+                await this.emailService.sendSolicitudRechazadaEmail(solicitud.email, solicitud.nombre)
                 await this.solicitudPendiente.save(solicitud);
                 return {message: 'Esta solicitud ha sido rechazada'};
             }
