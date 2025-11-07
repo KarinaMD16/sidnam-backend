@@ -17,6 +17,7 @@ import { EstadoMap } from 'src/common/constants/estado.constant';
 import { EmailService } from 'src/modulos/autenticacion/email/email.service';
 import { VoluntariadoGateway } from '../../voluntariado.gateway';
 import { Usuario } from 'src/modulos/gestion-usuario/entities/usuario.entity';
+import { getTiposVoluntario } from 'src/common/enums/tipoVoluntarios.enum';
 
 @Injectable()
 export class CreateExpedienteUseCase {
@@ -45,9 +46,7 @@ export class CreateExpedienteUseCase {
 
    async crearExpediente(solicitud: CrearExpediente, idUsuario: number): Promise<{message: string}>{
    
-           const voluntariado = await this.tipoVoluntariado.findOne({
-               where: {id: solicitud.tipoVoluntariado},
-           });
+           const voluntariado = getTiposVoluntario(solicitud.tipoVoluntariado)
    
            const expediente = await this.solicitudAprobada.findOne({
                where: {
