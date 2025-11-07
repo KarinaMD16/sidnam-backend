@@ -44,10 +44,7 @@ export class VoluntariadoService {
     }
 
     async getAllTipoVoluntario(){
-        return TipoVoluntariadoOpts.map(opt => ({
-            id: opt.id,
-            nombre: opt.nombre
-        }));
+        return this.tipoVoluntariado.find()
     }
 
     async getEstadosSolicitud() {
