@@ -62,6 +62,8 @@ import { Permiso } from './modulos/gestion-usuario/entities/permiso.entity';
 import { RolUsuario } from './modulos/gestion-usuario/entities/rol.entity';
 import { Accion } from './modulos/gestion-usuario/entities/accion.entity';
 import { RolPermisoAccion } from './modulos/gestion-usuario/entities/rolPermisoAccion.entity';
+import { EdusModule } from './modulos/edus/edus.module';
+import { Password_Edus } from './modulos/edus/entities/hash_contrasenia_edus.entity';
 
 
 
@@ -127,7 +129,8 @@ dotenv.config();
         RolUsuario,
         Permiso, 
         Accion,
-        RolPermisoAccion
+        RolPermisoAccion,
+        Password_Edus
       ],
       synchronize: true,
       dropSchema: false,
@@ -141,6 +144,7 @@ dotenv.config();
     InventarioModule,
     UnidadesMedidaModule,
     FacturasProveedoresModule,
+    EdusModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min, ValidateNested } from "class-validator";
 import { Sexo } from "src/common/enums/rol.enum";
 import { ContactoEmergenciaPendienteDto } from "./ContactoEmergenciaPendienteDto";
 import { HorarioPendienteDto } from "./horarioPendienteDto";
@@ -49,6 +49,7 @@ export class CrearSolicitudPendienteDto {
 
   @IsNumber()
   @IsOptional()
+  @Min(1)
   cantidadHoras: number
 
   @IsOptional()

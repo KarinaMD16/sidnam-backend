@@ -12,7 +12,7 @@ import { SolicitudAprobada } from '../entities/solicitudAprobada.entity';
 import { CrearACtividadesDto } from '../dto/crearActividadesDto';
 import { Actividades } from '../entities/actividades.entity';
 import { verActividadesDto } from '../dto/verActividadesDto';
-import { TipoVoluntario } from 'src/common/enums/tipoVoluntarios.enum';
+import { TipoVoluntariadoOpts, TipoVoluntario } from 'src/common/enums/tipoVoluntarios.enum';
 
 
 @Injectable()
@@ -43,8 +43,11 @@ export class VoluntariadoService {
         return await this.tipoVoluntariado.save(nuevoTipo);
     }
 
-    async getAllTipoVoluntario(): Promise<TipoVoluntarioDto[]>{
-        return await this.tipoVoluntariado.find()
+    async getAllTipoVoluntario(){
+        return TipoVoluntariadoOpts.map(opt => ({
+            id: opt.id,
+            nombre: opt.nombre
+        }));
     }
 
     async getEstadosSolicitud() {
@@ -71,6 +74,12 @@ export class VoluntariadoService {
 
         if (!expediente) {
             throw new NotFoundException('Expediente no encontrado');
+        }
+
+        if (new Date(crearActividades.fecha) <= new Date(expediente.aprobadaEn)) {
+        throw new BadRequestException(
+            'La fecha de actividad tiene que ser mayor o igual a la fecha de aprobación del expediente'
+        );
         }
 
         if(expediente.estado == "Inactivo"){

@@ -44,7 +44,8 @@ export enum Secciones{
   EVENTOS = 'EVENTOS',
   GALERIA = 'GALERIA',
   USUARIOS = 'USUARIOS',
-  ROLES = "ROLES"
+  ROLES = "ROLES",
+  SALIDAS = "SALIDAS"
 }
 
 export const ModulosOpts = [
@@ -56,15 +57,16 @@ export const ModulosOpts = [
   { id: 6, value: Modulos.INVENTARIADO, modulo: 'Inventariado', value2: Secciones.ALIMENTOS, seccion: 'Alimentos' },
   { id: 7, value: Modulos.INVENTARIADO, modulo: 'Inventariado', value2: Secciones.MEDICAMENTOS, seccion: 'Medicamentos' },
   { id: 8, value: Modulos.INVENTARIADO, modulo: 'Inventariado', value2: Secciones.LIMPIEZA, seccion: 'Limpieza' },
-  { id: 9, value: Modulos.DONACIONES, modulo: 'Donaciones', value2: Secciones.GESTIONDONACIONES, seccion: 'Gestión Donaciones' },
-  { id: 10, value: Modulos.DONACIONES, modulo: 'Donaciones', value2: Secciones.SOLICITUDDONACIONES, seccion: 'Solicitud Donaciones' },
-  { id: 11, value: Modulos.VOLUNTARIADO, modulo: 'Voluntariado', value2: Secciones.GESTIONVOLUNTARIADO, seccion: 'Gestión Voluntariado' },
-  { id: 12, value: Modulos.VOLUNTARIADO, modulo: 'Voluntariado', value2: Secciones.SOLICITUDESVOLUNARIADO, seccion: 'Solicitudes Voluntariado'},
-  { id: 13, value: Modulos.INFORMATIVA, modulo: 'Informativa', value2: Secciones.EVENTOS, seccion: 'Eventos'},
-  { id: 14, value: Modulos.INFORMATIVA, modulo: 'Informativa', value2: Secciones.GALERIA, seccion: 'Galeria'},
-  { id: 15, value: Modulos.INFORMATIVA, modulo: 'Informativa', value2: Secciones.PROYECTOS, seccion: 'Proyectos'},
-  { id: 15, value: Modulos.SEGURIDAD, modulo: 'Seguridad', value2: Secciones.USUARIOS, seccion: 'Usuarios'},
-  { id: 15, value: Modulos.SEGURIDAD, modulo: 'Seguridad', value2: Secciones.ROLES, seccion: 'Roles'},
+  { id: 9, value: Modulos.INVENTARIADO, modulo: 'Inventariado', value2: Secciones.SALIDAS, seccion: 'Salidas' },
+  { id: 10, value: Modulos.DONACIONES, modulo: 'Donaciones', value2: Secciones.GESTIONDONACIONES, seccion: 'Gestión Donaciones' },
+  { id: 11, value: Modulos.DONACIONES, modulo: 'Donaciones', value2: Secciones.SOLICITUDDONACIONES, seccion: 'Solicitud Donaciones' },
+  { id: 12, value: Modulos.VOLUNTARIADO, modulo: 'Voluntariado', value2: Secciones.GESTIONVOLUNTARIADO, seccion: 'Gestión Voluntariado' },
+  { id: 13, value: Modulos.VOLUNTARIADO, modulo: 'Voluntariado', value2: Secciones.SOLICITUDESVOLUNARIADO, seccion: 'Solicitudes Voluntariado'},
+  { id: 14, value: Modulos.INFORMATIVA, modulo: 'Informativa', value2: Secciones.EVENTOS, seccion: 'Eventos'},
+  { id: 15, value: Modulos.INFORMATIVA, modulo: 'Informativa', value2: Secciones.GALERIA, seccion: 'Galeria'},
+  { id: 16, value: Modulos.INFORMATIVA, modulo: 'Informativa', value2: Secciones.PROYECTOS, seccion: 'Proyectos'},
+  { id: 17, value: Modulos.SEGURIDAD, modulo: 'Seguridad', value2: Secciones.USUARIOS, seccion: 'Usuarios'},
+  { id: 18, value: Modulos.SEGURIDAD, modulo: 'Seguridad', value2: Secciones.ROLES, seccion: 'Roles'},
 ];
 
 
