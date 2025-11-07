@@ -70,7 +70,7 @@ export class AutenticacionController {
     @Get('me')
     async getMe(
     @Req() req: Request & { cookies: { [key: string]: string } }    ) {
-    const token = req.cookies['token'];
+    const token = req.cookies['refresh_token'];
     if (!token) throw new UnauthorizedException('Token no encontrado en cookies');
 
     return this.authService.getUserWithPermissions(token);
