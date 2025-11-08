@@ -10,16 +10,18 @@ export class EmailService {
   private readonly resend: Resend;
 
   constructor(
-    private readonly configService: ConfigService,
-    private readonly gestionUsuarios: GestionUsuarioService,
-    private readonly jwtService: JwtService,
-  ) {
-    const apiKey = this.configService.get<string>('RESEND_API_KEY');
-    if (!apiKey) {
-      throw new Error('RESEND_API_KEY no está configurada en las variables de entorno');
-    }
-    this.resend = new Resend(apiKey);
+  private readonly configService: ConfigService,
+  private readonly gestionUsuarios: GestionUsuarioService,
+  private readonly jwtService: JwtService,
+) {
+  const apiKey = this.configService.get<string>('RESEND_API_KEY');
+  this.logger.log(`🔑 Resend API Key (inicio): ${apiKey ? apiKey.slice(0, 10) + '...' : 'NO ENCONTRADA'}`);
+  if (!apiKey) {
+    throw new Error('❌ RESEND_API_KEY no está configurada en las variables de entorno');
   }
+  this.resend = new Resend(apiKey);
+}
+
 
   private async sendMail(to: string, subject: string, html: string) {
     const from = this.configService.get<string>('EMAIL_FROM');
