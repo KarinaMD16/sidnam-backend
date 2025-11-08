@@ -119,9 +119,10 @@ export class GestionUsuarioController {
         return this.userService.findUsuariosByCedula(cedula);
     }
 
-    @Get('usuarios')
-    async getPerfil(@Req() req){
-        return this.userService.findPerfil(req.user);
+    @UseGuards(AuthGuard)
+    @Get('perfil')
+    async getPerfil(@Req() req) {
+    return this.userService.findPerfil(req.user);
     }
 
     @Post('createImagen')
