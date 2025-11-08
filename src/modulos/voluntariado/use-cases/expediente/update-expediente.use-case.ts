@@ -172,11 +172,8 @@ export class UpdateExpedienteUseCase {
         if (updateActividadesDto.fecha) {
 
             if(new Date(updateActividadesDto.fecha) < new Date(actividad.solicitud.aprobadaEn)){
-                throw new BadRequestException('La fecha de la actividad tiene que ser mayor a la de la fecha de aprobacion del expediente')
+                throw new BadRequestException('La fecha de la actividad tiene que ser mayor o igual a la de la fecha de aprobacion del expediente')
             }
-            throw new BadRequestException(
-                'La fecha de actividad tiene que ser mayor o igual a la fecha de aprobación del expediente'
-            );
         }
 
 
