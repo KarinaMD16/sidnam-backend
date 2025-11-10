@@ -73,11 +73,18 @@ export class VoluntariadoService {
             throw new NotFoundException('Expediente no encontrado');
         }
 
-        if (new Date(crearActividades.fecha) < new Date(expediente.aprobadaEn)) {
+        const fechaActividad = new Date(crearActividades.fecha);
+        const fechaAprobacion = new Date(expediente.aprobadaEn);
+
+        fechaActividad.setHours(0, 0, 0, 0);
+        fechaAprobacion.setHours(0, 0, 0, 0);
+
+        if (fechaActividad < fechaAprobacion) {
         throw new BadRequestException(
             'La fecha de actividad tiene que ser mayor o igual a la fecha de aprobación del expediente'
         );
         }
+
 
         if(expediente.estado == "Inactivo"){
             throw new NotFoundException('Expediente inactivo. no puedes agregar actividades');
