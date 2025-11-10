@@ -73,7 +73,7 @@ export class VoluntariadoService {
             throw new NotFoundException('Expediente no encontrado');
         }
 
-        if (new Date(crearActividades.fecha) <= new Date(expediente.aprobadaEn)) {
+        if (new Date(crearActividades.fecha) < new Date(expediente.aprobadaEn)) {
         throw new BadRequestException(
             'La fecha de actividad tiene que ser mayor o igual a la fecha de aprobación del expediente'
         );
