@@ -18,7 +18,7 @@ import { AuthGuard } from 'src/modulos/autenticacion/guard/auth.guard';
 
 
 
-
+@UseGuards(AuthGuard)
 @Controller('voluntariado')
 export class VoluntariadoController {
 
