@@ -50,7 +50,7 @@ export class AutenticacionService {
             throw new BadRequestException('Correo en uso')
         }
 
-        if (usuario) {
+        if (usuario?.estado == Estado_Usuario.activo && usuario) {
             throw new BadRequestException("La cedula ya se encuentra registrada");
         }
 
