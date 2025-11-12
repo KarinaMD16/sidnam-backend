@@ -44,13 +44,14 @@ export class AutenticacionService {
         }
 
         const usuario = await this.gestionUsuarios.findOneByCedula(cedula);
-        if (usuario) {
-            throw new BadRequestException("La cedula ya se encuentra registrada");
+        const correo = await this.gestionUsuarios.findOneByEmail(email);
+
+        if(usuario?.estado == Estado_Usuario.activo && correo){
+            throw new BadRequestException('Correo en uso')
         }
 
-        const correo = await this.gestionUsuarios.findOneByEmail(email);
-        if (correo) {
-            throw new BadRequestException("El correo ya se encuentra registrado");
+        if (usuario) {
+            throw new BadRequestException("La cedula ya se encuentra registrada");
         }
 
         const hashedPassword = await bcryptjs.hash(password, 10);
