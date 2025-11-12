@@ -8,13 +8,13 @@ import { UpdateRolDto } from './dto/updateRolDto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
+@UseGuards(AuthGuard)
 @Controller('gestion-usuario')
 export class GestionUsuarioController {
 
     constructor(private readonly userService: GestionUsuarioService, private readonly permisosService: PermisosService){}
 
     @Delete('eliminarUsuario/:cedula')
-    @UseGuards(AuthGuard)
     eliminarUsuario(@Param('cedula') cedula: string){
         return this.userService.eliminarUsuario(cedula);
     }

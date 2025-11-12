@@ -27,6 +27,7 @@ import { SeccionRequerida } from '../autenticacion/decorators/seccionRequerida.d
 
 
 
+@UseGuards(AuthGuard)
 @Controller('residentes')
 export class ResidentesController {
 

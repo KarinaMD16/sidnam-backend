@@ -3,8 +3,10 @@ import { AutenticacionService } from './autenticacion.service';
 import { RegisterDto } from './dto/registerDto';
 import { LoginDto } from './dto/loginDto';
 import { Response } from 'express';
+import { AuthGuard } from './guard/auth.guard';
 
 
+@UseGuards(AuthGuard)
 @Controller('autenticacion')
 export class AutenticacionController {
 

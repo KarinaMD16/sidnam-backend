@@ -1,11 +1,14 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { GaleriaService } from './galeria.service';
 import { CategoriaDto } from './dto/createCategoriaDto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { UpdateCategoriaImagenDto } from './dto/updateCategoriaImagenDto';
 import { UpdateCategoriaDto } from './dto/updateCategoriaDto';
+import { AuthGuard } from '../autenticacion/guard/auth.guard';
 
+
+@UseGuards(AuthGuard)
 @Controller('galeria')
 export class GaleriaController {
 

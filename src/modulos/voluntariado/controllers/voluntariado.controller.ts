@@ -18,7 +18,6 @@ import { AuthGuard } from 'src/modulos/autenticacion/guard/auth.guard';
 
 
 
-@UseGuards(AuthGuard)
 @Controller('voluntariado')
 export class VoluntariadoController {
 
@@ -40,11 +39,13 @@ export class VoluntariadoController {
         return this.createSolicitud.crearSolicitudPendiente(SolicitudPendiente)
     }
 
+    @UseGuards(AuthGuard)
     @Post('expedientes/:idUsuario')
     crearExpediente(@Body() crearExp: CrearExpediente, @Param('idUsuario', ParseIntPipe) idUsuario: number){
         return this.createExpediente.crearExpediente(crearExp, idUsuario)
     }
 
+    @UseGuards(AuthGuard)
     @Post('tipos-voluntariado')
     crearTipoVoluntario(@Body() crearTipoVoluntario: TipoVoluntarioDto){
         return this.voluntariadoService.crearTipoVoluntario(crearTipoVoluntario);
@@ -55,6 +56,7 @@ export class VoluntariadoController {
         return this.voluntariadoService.getAllTipoVoluntario()
     }
 
+    @UseGuards(AuthGuard)
     @Get('solicitudes/preview')
     getPreviewSolicitudes(
         @Query('page', new ParseIntPipe({ optional: true })) page?: number,
@@ -69,17 +71,19 @@ export class VoluntariadoController {
         return this.getSolicitudesUseCase.findAllPreviews();
     }
 
-
+@UseGuards(AuthGuard)
     @Get('solicitudes/estados')
     getEstadosSolicitd(){
         return this.voluntariadoService.getEstadosSolicitud()
     }
     
+    @UseGuards(AuthGuard)
     @Get('solicitudes/:id')
     getSolicitudesById(@Param('id') id: number){
         return this.getSolicitudesUseCase.findSolicitudById(id);
     }   
 
+    @UseGuards(AuthGuard)
     @Get('solicitudes/preview/filtrar/estados/:id')
     getFiltro(
         @Param('id', ParseIntPipe) id: number,
@@ -92,11 +96,13 @@ export class VoluntariadoController {
          return this.getSolicitudesUseCase.getFiltosEstados(id)
     }
 
+    @UseGuards(AuthGuard)
     @Patch('solicitudes/:idSoli/estado/:idEstado/usuario/:idUsuario')
     updateEstado( @Param('idEstado', ParseIntPipe)  idEstado: number, @Param('idSoli', ParseIntPipe) idSoli: number, @Param('idUsuario', ParseIntPipe) idUsuario: number){
         return this.createExpediente.updateEstadoSolicitudes(idEstado, idSoli, idUsuario)
     }
 
+    @UseGuards(AuthGuard)
     @Get('expedientes/preview')
     getPreviewExpedientes(
         @Query('page', new ParseIntPipe({ optional: true })) page?: number,
@@ -108,46 +114,55 @@ export class VoluntariadoController {
         return this.getExpedientesUseCase.findAllPreviewsExpedientes();
     }
 
+    @UseGuards(AuthGuard)
     @Post('expedientes/:idSolicitud/actividades')
     createActividad(@Body() crearActividad: CrearACtividadesDto, @Param('idSolicitud') idSolicitud: number){
         return this.voluntariadoService.createActividades(crearActividad, idSolicitud);
     }
 
+    @UseGuards(AuthGuard)
     @Get('expedientes/:idExpediente')
     getExpedienteById(@Param('idExpediente') idExpediente: number){
         return this.getExpedientesUseCase.getByIdExpediente(idExpediente);
     }
 
+    @UseGuards(AuthGuard)
     @Get('expedientes/activos/cedula/:cedula')
     getExpedientesByCedula(@Param('cedula') cedula: string ){
         return this.getExpedientesUseCase.getExpedienteActivoByCedula(cedula);
     }
 
+    @UseGuards(AuthGuard)
     @Patch('expedientes/:idSolicitud/inactivar')
     updateEstadoExpediente(@Param('idSolicitud', ParseIntPipe) idSolicitud: number){
         return this.updateExpedientes.updateEstadoAInactivo(idSolicitud);
     }
 
+    @UseGuards(AuthGuard)
     @Get('expedientes/activos/preview')
     getExpedientesActivos( @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
         return this.getExpedientesUseCase.getExpedientesActivos(page, limit)
     }
 
+    @UseGuards(AuthGuard)
     @Get('expedientes/cedula/:cedula')
     getAllExpedientesByCedula( @Param('cedula') cedula: string, @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
         return this.getExpedientesUseCase.getAllExpedientesByCedula(cedula, page, limit)
     }
 
+    @UseGuards(AuthGuard)
     @Get('expedientes/:idExpediente/actividades')
     getAllActividades( @Param('idExpediente', new ParseIntPipe) idExpediente: number, @Query('page', new ParseIntPipe({ optional: true })) page?: number, @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,){
         return this.voluntariadoService.getActividades(idExpediente, page, limit)
     }
 
+    @UseGuards(AuthGuard)
     @Patch('expedientes/:idExpediente')
     async updateExpediente(@Body() actualizar: ActualizarExpedienteDto, @Param('idExpediente', new ParseIntPipe) idExpediente: number){
         return this.updateExpedientes.updateExpediente(idExpediente, actualizar);
     }
 
+    @UseGuards(AuthGuard)
     @Get('expedientes/:id/pdf')
         async generarPdf(@Param('id') id: string, @Res() res: Response) {
         const idNum = Number(id);
@@ -158,16 +173,19 @@ export class VoluntariadoController {
         await this.reporteService.generarReporteActividades(idNum, res);
     }
 
+    @UseGuards(AuthGuard)
     @Delete('horarios/:id')
     async removeHorario(@Param('id', new ParseIntPipe) id: number){
         return await this.removeExpedientes.deleteHorario(id); //esto se cambio
     }
 
+    @UseGuards(AuthGuard)
     @Patch('actividades/:idActividad')
     async updateActividades(@Param('idActividad', new ParseIntPipe) idActividad: number, @Body() updateActividadesDto: ActualizarActividadesDto) {
         return this.updateExpedientes.updateActividades(updateActividadesDto, idActividad);
     }
 
+    @UseGuards(AuthGuard)
     @Delete('actividades/:idActividad')
     async removeActividad(@Param('idActividad', new ParseIntPipe) idActividad: number){
         return await this.removeExpedientes.deleteActividad(idActividad);

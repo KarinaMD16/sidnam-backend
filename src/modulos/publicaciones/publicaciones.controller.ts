@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body, ParseIntPipe, Query, Patch, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, ParseIntPipe, Query, Patch, UseInterceptors, UploadedFile, BadRequestException, UseGuards } from '@nestjs/common';
 import { PublicacionesService } from './publicaciones.service';
 import { ProyectoDto } from './dto/createProyectosDto';
 import { updateProyectoDto } from './dto/updateProyectoDto';
@@ -11,7 +11,10 @@ import { Eventos } from './entities/eventos.entity';
 import { EventoDto } from './dto/createEventosDto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { AuthGuard } from '../autenticacion/guard/auth.guard';
 
+
+@UseGuards(AuthGuard)
 @Controller('publicaciones')
 export class PublicacionesController {
   constructor(private readonly publicacionesService: PublicacionesService) {}

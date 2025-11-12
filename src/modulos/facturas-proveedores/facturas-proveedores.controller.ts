@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { FacturasProveedoresService } from './facturas-proveedores.service';
 import { CreateAreaDto } from './dto/createAreaDto';
 import { CreateProveedor } from './dto/createProveedorDto';
@@ -8,8 +8,11 @@ import { ReporteFacturaService } from './reporte/reporteFacturas.service';
 import { Response as ExpressResponse } from 'express';
 import { ApiOkResponse, ApiOperation, ApiProduces, ApiQuery } from '@nestjs/swagger';
 import { UpdateProveedorDto } from './dto/updateProveedorDto';
+import { AuthGuard } from '../autenticacion/guard/auth.guard';
 
 
+
+@UseGuards(AuthGuard)
 @Controller('facturas-proveedores')
 export class FacturasProveedoresController {
 
@@ -135,3 +138,5 @@ export class FacturasProveedoresController {
         return this.facturasproveedoresService.getFacturas(page, limit, estado);
     }
 }
+
+

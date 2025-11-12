@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
 import { EdusService } from './edus.service';
 import { CreatePasswordDto } from './dtos/createPasswordDto';
 import { UpdatePasswordDto } from './dtos/updatePasswordDto';
+import { AuthGuard } from '../autenticacion/guard/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('edus')
 export class EdusController {
 

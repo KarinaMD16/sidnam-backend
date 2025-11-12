@@ -1,4 +1,4 @@
-import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from "@nestjs/common";
+import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Patch, Post, Query, Res, UseGuards } from "@nestjs/common";
 import { Response as ExpressResponse } from 'express';
 import { InventarioService } from "../services/inventario.service";
 import { CreateProductoUseCase } from "../use-cases/producto/create-producto.use-case";
@@ -22,8 +22,10 @@ import { CrearEntradaMedicamentoDto } from "../dto/crearEntradaMedicamentosDto";
 import { CreateEntradaMedicamentoUseCase } from "../use-cases/entradaMedicamentos/create-entradaMedicamento.use-case";
 import { GetEntradaMedicamentoUseCase } from "../use-cases/entradaMedicamentos/get-entradaMedicamento.use-case";
 import { ReporteEntradaMedicamentoService } from "../services/reporteEntradaMedicamentos.service";
+import { AuthGuard } from "src/modulos/autenticacion/guard/auth.guard";
 
 
+@UseGuards(AuthGuard)
 @Controller('inventario')
 export class InventarioController {
 

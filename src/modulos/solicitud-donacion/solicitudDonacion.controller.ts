@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Res,} from "@nestjs/common";
+import {Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Res, UseGuards,} from "@nestjs/common";
 import { SolicitudDonacionService } from "./solicitudDonacion.service";
 import { CrearSolicitudPendienteDto } from "./dto/crearSolicitudPendienteDto";
 import { CreateSolicitudDonacionUseCase } from "./use-cases/solicitud/create-solicitudDonacion.use-case";
@@ -12,6 +12,7 @@ import { ReporteDonacionesService } from "./reporteDonacion.service";
 import { ApiOkResponse, ApiOperation, ApiProduces, ApiQuery } from "@nestjs/swagger";
 import { ReporteDonacionesMensualDto } from "./dto/reporteDonacionMensualDto";
 import { Response as ExpressResponse } from 'express';
+import { AuthGuard } from "../autenticacion/guard/auth.guard";
 
 
 @Controller('donacion')
@@ -33,6 +34,7 @@ export class SolicitudDonacionController {
     }
 
 
+    @UseGuards(AuthGuard)
     @Get('getPreviewSolicitudesDonacion')
         getPreviewSolicitudes(
             @Query('page', new ParseIntPipe({ optional: true })) page?: number,
@@ -43,19 +45,19 @@ export class SolicitudDonacionController {
             }
             return this.getSolicitudesDonacionUseCase.findAllPreviews();
         }
-    
+      @UseGuards(AuthGuard)
         @Get('getSolicitudById/:id')
         getSolicitudesById(@Param('id') id: number){
             return this.getSolicitudesDonacionUseCase.findSolicitudById(id);
         }   
 
-
+        @UseGuards(AuthGuard)
         @Get('getEstadoSolicitudDonacion')
         getEstadosSolicitudDonacion(){
             return this.solicitudDonacionService.getEstadosSolicitudDonacion()
         }
 
-
+        @UseGuards(AuthGuard)
         @Get('getFiltroSolicitudesDonacion/:id')
          getFiltro(
         @Param('id', ParseIntPipe) id: number,
@@ -68,13 +70,13 @@ export class SolicitudDonacionController {
          return this.getSolicitudesDonacionUseCase.getFiltrosEstados(id)
     }
 
-
+    @UseGuards(AuthGuard)
     @Patch('updateEstado/:idEstado/:idSoli/:idUsuario')
         updateEstado( @Param('idEstado', ParseIntPipe)  idEstado: number, @Param('idSoli', ParseIntPipe) idSoli: number, @Param('idUsuario', ParseIntPipe) idUsuario: number){
             return this.createRegistroDonacionUseCase.updateEstadoSolicitudes(idEstado, idSoli, idUsuario)
         }
 
-
+    @UseGuards(AuthGuard)
     @Get('getPreviewRegistros')
     getPreviewRegistros(
         @Query('page', new ParseIntPipe({ optional: true })) page?: number,
@@ -86,27 +88,32 @@ export class SolicitudDonacionController {
         return this.getRegistrosUseCase.findAllPreviewsRegistros();
     }    
 
+    @UseGuards(AuthGuard)
     @Get('getRegistroById/:idRegistro')
     getRegistroById(@Param('idRegistro') idRegistro: number){
         return this.getRegistrosUseCase.getRegistroById(idRegistro);
     }
 
-    
+    @UseGuards(AuthGuard)
     @Patch('updateEstadoARecibido/:idRegistro/:idUsuario')
     updateEstadoRegistro(@Param('idRegistro', ParseIntPipe) idRegistro: number, @Param('idUsuario', ParseIntPipe) idUsuario: number){
         return this.updateRegistros.updateEstadoARecibido(idRegistro, idUsuario);
     }
 
+    @UseGuards(AuthGuard)
     @Post('crearRegistro/:idUsuario')
         crearRegistro(@Body() crearReg: CrearRegistroDto, @Param('idUsuario', ParseIntPipe) idUsuario: number){
             return this.createRegistroDonacionUseCase.crearRegistro(crearReg, idUsuario)
         }
 
+    @UseGuards(AuthGuard)
     @Patch('updateRegistro/:idRegistro')
         async updateRegistro(@Body() actualizar: ActualizarRegistroDto, @Param('idRegistro', new ParseIntPipe) idRegistro: number){
             return this.updateRegistros.updateRegistro(idRegistro, actualizar);
         }
 
+
+    @UseGuards(AuthGuard)
     @Get('reportes/mensual/pdf')
         @ApiOperation({ summary: 'Descargar PDF mensual de donaciones' })
         @ApiProduces('application/pdf')
