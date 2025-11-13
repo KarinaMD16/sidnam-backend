@@ -19,7 +19,6 @@ export class GaleriaController {
         return this.galeriaService.createCategoria(createCategoriaDto);
     }
 
-    @UseGuards(AuthGuard)
     @Get('getCategoriasActivas')
     findAllCategoriasActivas(){
         return this.galeriaService.findAllCategoriasActivas();
