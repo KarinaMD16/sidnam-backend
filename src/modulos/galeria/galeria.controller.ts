@@ -7,29 +7,31 @@ import { UpdateCategoriaImagenDto } from './dto/updateCategoriaImagenDto';
 import { UpdateCategoriaDto } from './dto/updateCategoriaDto';
 import { AuthGuard } from '../autenticacion/guard/auth.guard';
 
-
-@UseGuards(AuthGuard)
 @Controller('galeria')
 export class GaleriaController {
 
     constructor(private readonly galeriaService: GaleriaService){}
 
     //Categorias
+    @UseGuards(AuthGuard)
     @Post('createCategoria')
     createCategoria(@Body() createCategoriaDto: CategoriaDto){
         return this.galeriaService.createCategoria(createCategoriaDto);
     }
 
+    @UseGuards(AuthGuard)
     @Get('getCategoriasActivas')
     findAllCategoriasActivas(){
         return this.galeriaService.findAllCategoriasActivas();
     }
 
+    @UseGuards(AuthGuard)
     @Get('getCategoriasInactivas')
     findAllCategoriasInactivas(){
         return this.galeriaService.findAllCategoriasInactivas();
     }
 
+    @UseGuards(AuthGuard)
     @Patch('handleCategoria/:id')
     async toggleEstado(@Param('id', ParseIntPipe) id: number) {
        return this.galeriaService.handleEstadoCategoria(id);
@@ -38,6 +40,7 @@ export class GaleriaController {
 
     //Imagenes
 
+    @UseGuards(AuthGuard)
     @Post('createImagen')
     @UseInterceptors(FileInterceptor('imagen'))
     @ApiConsumes('multipart/form-data')
@@ -50,6 +53,7 @@ export class GaleriaController {
     return this.galeriaService.createImagen(file, categoriaId);
     }
 
+    
     @Get('getImagenes')
     findAllImagenes(
         @Query('page', new ParseIntPipe({ optional: true })) page?: number,

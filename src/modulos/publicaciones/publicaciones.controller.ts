@@ -14,7 +14,6 @@ import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { AuthGuard } from '../autenticacion/guard/auth.guard';
 
 
-@UseGuards(AuthGuard)
 @Controller('publicaciones')
 export class PublicacionesController {
   constructor(private readonly publicacionesService: PublicacionesService) {}
@@ -29,6 +28,7 @@ export class PublicacionesController {
     return this.publicacionesService.findAllProyectos(page, limit);
   }
 
+  @UseGuards(AuthGuard)
   @Post('createProyecto')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -51,6 +51,7 @@ export class PublicacionesController {
     return this.publicacionesService.createProyecto(dto, file);
   }
 
+  @UseGuards(AuthGuard)
   @Patch('updateProyecto/:id')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -72,6 +73,7 @@ export class PublicacionesController {
     return this.publicacionesService.updateProyecto(id, updateProyectoDto, file);
   }
 
+  @UseGuards(AuthGuard)
   @Delete('removeProyecto/:id')
   removeProyecto(@Param('id', ParseIntPipe) id: number): Promise<{message: string}> {
     return this.publicacionesService.removeProyecto(id);
@@ -92,7 +94,7 @@ export class PublicacionesController {
     return this.publicacionesService.findAllDonacion(page, limit);
   }
 
-
+@UseGuards(AuthGuard)
   @Post('createDonacion')
 @UseInterceptors(FileInterceptor('imagen'))
 @ApiConsumes('multipart/form-data')
@@ -115,6 +117,7 @@ async createDonacion(
   return this.publicacionesService.createDonacion(dto, file);
 }
 
+  @UseGuards(AuthGuard)
   @Patch('updateDonacion/:id')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -137,11 +140,13 @@ async updateDonacion(
     return this.publicacionesService.updateDonacion(id, updateDonacionDto, file);
   }
 
+  @UseGuards(AuthGuard)
   @Delete('removeDonacion/:id')
   removeDonacion(@Param('id', ParseIntPipe) id: number): Promise<{message: string}> {
     return this.publicacionesService.removeDonacion(id);
   }
 
+  @UseGuards(AuthGuard)
   @Get('getDonacion/:id')
   getDonacionById(@Param('id') id: number) {
     return this.publicacionesService.getDonacionById(id); 
@@ -157,6 +162,7 @@ async updateDonacion(
     return this.publicacionesService.findAllEventos(page, limit);
   }
 
+  @UseGuards(AuthGuard)
   @Post('createEvento')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -179,6 +185,7 @@ async updateDonacion(
    return this.publicacionesService.createEvento(dto, file);
   }
 
+  @UseGuards(AuthGuard)
   @Patch('updateEvento/:id')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -201,11 +208,13 @@ async updateEventos(
     return this.publicacionesService.updateEventos(id, updateEventos, file);
   }
 
+  @UseGuards(AuthGuard)
   @Delete('removeEvento/:id')
   removeEventos(@Param('id', ParseIntPipe) id: number): Promise<{message: string}> {
     return this.publicacionesService.removeEventos(id);
   }
 
+  @UseGuards(AuthGuard)
   @Get('getEvento/:id')
   getEventoById(@Param('id') id: number) {
     return this.publicacionesService.getEventoById(id);
