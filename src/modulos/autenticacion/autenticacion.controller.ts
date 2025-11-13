@@ -6,13 +6,13 @@ import { Response } from 'express';
 import { AuthGuard } from './guard/auth.guard';
 
 
-@UseGuards(AuthGuard)
+
 @Controller('autenticacion')
 export class AutenticacionController {
 
     constructor(private readonly authService: AutenticacionService){}
 
-    
+    @UseGuards(AuthGuard)
     @Post("register")
     registerAdministrador(@Body() registerDto: RegisterDto){
         return this.authService.crearUsuario(registerDto);
@@ -33,12 +33,14 @@ export class AutenticacionController {
         return { accessToken, id };
     }
 
+    @UseGuards(AuthGuard)
     @Post('refresh')
         async refresh(@Req() req: Request & { cookies: { [key: string]: string } }, @Res({ passthrough: true }) res: Response) {
         const refreshToken = req.cookies['refresh_token'];
         return this.authService.refresh(refreshToken, res);
     }
 
+    @UseGuards(AuthGuard)
     @Post('logout')
     async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         
@@ -69,6 +71,7 @@ export class AutenticacionController {
         return this.authService.resetPassword(body.token, body.password);
     }
 
+    @UseGuards(AuthGuard)
     @Get('me')
     async getMe(
     @Req() req: Request & { cookies: { [key: string]: string } }    ) {
