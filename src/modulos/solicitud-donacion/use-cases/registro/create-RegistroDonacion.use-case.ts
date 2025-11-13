@@ -127,7 +127,7 @@ async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: 
             await this.emailService.sendSolicitudDonacionAceptadaEmail(solicitud.email, solicitud.nombre);
             } catch (error) {
     console.error('🔥 Error en crearSolicitudDonacionOficial:', error);
-    throw new InternalServerErrorException('Error al procesar la solicitud de donación');
+    throw new InternalServerErrorException('No se pudo enviar el correo');
           }
      }
 
