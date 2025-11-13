@@ -49,7 +49,6 @@ export class CrearSolicitudPendienteDto {
 
   @IsNumber()
   @IsOptional()
-  @Min(1)
   cantidadHoras: number
 
   @IsOptional()
