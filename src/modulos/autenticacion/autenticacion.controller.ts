@@ -13,6 +13,7 @@ export class AutenticacionController {
     constructor(private readonly authService: AutenticacionService){}
 
 
+    @UseGuards(AuthGuard)
     @Post("register")
     registerAdministrador(@Body() registerDto: RegisterDto){
         return this.authService.crearUsuario(registerDto);
