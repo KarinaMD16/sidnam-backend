@@ -7,6 +7,7 @@ import { Inventario } from "../../entities/inventario.entity";
 import { Unidad_Medida } from "src/modulos/unidades-medida/entities/unidadMedida.entity";
 import { Subcategoria_Producto } from "../../entities/subCategoriaProducto.entity";
 import { getCategoriasId } from "src/common/enums/categoriasPrincipalesProductos.enum";
+import { uploadBufferToCloudinary } from "src/common/services/cloudinary-buffer.service";
 
 
 @Injectable()
@@ -28,9 +29,12 @@ export class CreateProductoUseCase {
   ){}
 
 
-    async crearProducto(producto: ProductoDto): Promise<Producto>{
+    async crearProducto(producto: ProductoDto, file?: Express.Multer.File): Promise<Producto>{
 
-        const categoriaTipo = getCategoriasId(producto.categoriaId);
+    
+       const categoriaId = Number(producto.categoriaId);
+  
+        const categoriaTipo = getCategoriasId(categoriaId);
         if (!categoriaTipo) {
            throw new BadRequestException(`Categoría inválida: ${producto.categoriaId}` );
           }
@@ -59,13 +63,21 @@ export class CreateProductoUseCase {
          );
        }
 
+       let imagen_url: string | null = null;
+       if (file){
+        const {secure_url} = await uploadBufferToCloudinary(
+          file.buffer,
+          'inventario/productos',
+        );
+        imagen_url = secure_url;
+       }
 
        const crearProducto = this.productoRepository.create({
            nombre: producto.nombre,
            codigo: producto.codigo,
            categoriaTipo,
            subcategoria: subcategoria ?? null,
-          imagen_url: producto.imagen_url ?? null,
+          imagen_url,
 
        }as DeepPartial<Producto>);
 

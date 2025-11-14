@@ -11,6 +11,7 @@ export class PatchEditarInventarioDto {
   codigo?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   unidadMedida?: number;
 
@@ -20,7 +21,9 @@ export class PatchEditarInventarioDto {
   stock?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
+  @Min(1)
   subcategoriaId?: number;
 
   @IsOptional()
@@ -28,6 +31,7 @@ export class PatchEditarInventarioDto {
   imagen_url?: string; 
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   categoriaId?: number;
