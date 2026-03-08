@@ -19,25 +19,17 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: jwtConstants.secret,
       });
-      request.user = payload;
-    } catch (error) {
+      (request as any).user = payload;
+      return true;
+    } catch {
       throw new UnauthorizedException('Token inválido o expirado');
     }
-
-    return true;
   }
 
   private extractToken(request: Request): string | undefined {
-
-    const cookieToken = request.cookies?.['token'] ?? request.cookies?.['refresh_token'];
+    const cookieToken = request.cookies?.['access_token'];
     if (cookieToken) return cookieToken;
 
-    const rawCookie = request.headers.cookie || "";
-    const match = rawCookie.split(';').map(s => s.trim()).find(s => s.startsWith('token='));
-    if (match) return decodeURIComponent(match.substring('token='.length));
-
-
-  
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
