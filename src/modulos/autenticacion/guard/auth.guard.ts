@@ -1,7 +1,12 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { Request } from "express";
-import { jwtConstants } from "src/common/constants/jwt.constant";
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
+import { jwtConstants } from 'src/common/constants/jwt.constant';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -20,10 +25,11 @@ export class AuthGuard implements CanActivate {
         secret: jwtConstants.secret,
       });
       (request as any).user = payload;
-      return true;
     } catch {
       throw new UnauthorizedException('Token inválido o expirado');
     }
+
+    return true;
   }
 
   private extractToken(request: Request): string | undefined {
