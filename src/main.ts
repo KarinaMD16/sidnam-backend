@@ -19,6 +19,8 @@ async function bootstrap() {
     const allowed = [
       /^http:\/\/localhost:\d+$/,
       /^http:\/\/127\.0\.0\.1:\d+$/,
+      /^https:\/\/.*\.ngrok-free\.dev$/,
+      /^https:\/\/.*\.ngrok-free\.app$/,
       "https://sidnam.org",
       "https://www.sidnam.org",
     ];
