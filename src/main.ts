@@ -13,14 +13,21 @@ async function bootstrap() {
 
 
   app.enableCors({
-    origin: [
-      'http://localhost:5173',
-      'https://hogar-san-blas-informativa.vercel.app',
-      'https://sidnam-administrativa.vercel.app',
-        'http://187.124.88.238:8080',
-    ],
-    credentials: true, 
-  });
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // Postman/curl
+
+    const allowed = [
+      /^http:\/\/localhost:\d+$/,
+      /^http:\/\/127\.0\.0\.1:\d+$/,
+      "https://sidnam.org",
+      "https://www.sidnam.org",
+    ];
+
+    const ok = allowed.some((o) => (o instanceof RegExp ? o.test(origin) : o === origin));
+    return ok ? callback(null, true) : callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+});
 
   app.useGlobalPipes(new ValidationPipe());
 
