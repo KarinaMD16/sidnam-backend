@@ -72,14 +72,24 @@ export class AutenticacionController {
         return this.authService.resetPassword(body.token, body.password);
     }
 
-    @UseGuards(AuthGuard)
-    @Get('me')
-    async getMe(
-    @Req() req: Request & { cookies: { [key: string]: string } }    ) {
-    const token = req.cookies['refresh_token'];
-    if (!token) throw new UnauthorizedException('Token no encontrado en cookies');
+  @UseGuards(AuthGuard)
+  @Get('me')
+  async getMe(@Req() req: any) {
+    let token = req.cookies?.token;
+
+    if (!token) {
+      const raw = req.headers?.cookie || "";
+      const part = raw.split(";").map(s => s.trim()).find(s => s.startsWith("token="));
+      if (part) token = decodeURIComponent(part.substring("token=".length));
+    }
+
+    if (!token) {
+      const auth = req.headers?.authorization || "";
+      const parts = auth.split(" ");
+      if (parts[0] === "Bearer") token = parts[1];
+    }
 
     return this.authService.getUserWithPermissions(token);
-    }
+  }
 
 }

@@ -7,6 +7,8 @@ import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+
+
   app.use(cookieParser());
 
 
@@ -15,6 +17,7 @@ async function bootstrap() {
       'http://localhost:5173',
       'https://hogar-san-blas-informativa.vercel.app',
       'https://sidnam-administrativa.vercel.app',
+        'http://187.124.88.238:8080',
     ],
     credentials: true, 
   });
@@ -25,6 +28,8 @@ async function bootstrap() {
     .setTitle('API SIDNAM')
     .setDescription('Documentación de la API del sistema de voluntariado')
     .setVersion('1.0')
+    .addServer('https://sidnam.org/api')
+
     .addBearerAuth()
     .build();
 
