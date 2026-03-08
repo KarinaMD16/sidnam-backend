@@ -124,18 +124,27 @@ export class AutenticacionService {
         const newPayload = { id: user.id, email: user.email, role: user.rol.nombre, name: user.name, roleid: user.rol.id_rol};
 
         const newAccessToken = await this.jwtService.signAsync(newPayload, { expiresIn: '15m' });
-        const newRefreshToken = await this.jwtService.signAsync(newPayload, { expiresIn: '1d' });
+        const newRefreshToken = await this.jwtService.signAsync(newPayload, { expiresIn: '7d' });
 
         const newHashedRefreshToken = await bcrypt.hash(newRefreshToken, 10);
         user.refreshToken = newHashedRefreshToken;
         await this.gestionUsuarios.saveUsuario(user);
 
-        res.cookie('refresh_token', newRefreshToken, {
+        const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 1 * 24 * 60 * 60 * 1000,
+        sameSite: 'none' as const,
         path: '/',
+        };
+
+        res.cookie('access_token', newAccessToken, {
+        ...cookieOptions,
+        maxAge: 15 * 60 * 1000,
+        });
+
+        res.cookie('refresh_token', newRefreshToken, {
+        ...cookieOptions,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
         return { accessToken: newAccessToken, id: user.id };

@@ -21,42 +21,60 @@ export class AutenticacionController {
 
     @HttpCode(HttpStatus.OK)
     @Post('login')
-    async login(@Res({ passthrough: true }) res: Response, @Body() loginDto: LoginDto) {
+        async login(@Res({ passthrough: true }) res: Response, @Body() loginDto: LoginDto) {
         const { accessToken, refreshToken, id } = await this.authService.login(loginDto);
 
+        const cookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'none' as const,
+            path: '/',
+        };
+
+        res.cookie('access_token', accessToken, {
+            ...cookieOptions,
+            maxAge: 15 * 60 * 1000,
+        });
+
         res.cookie('refresh_token', refreshToken, {
-        httpOnly: true,
-        secure: true, 
-        sameSite: 'none',
-        maxAge: 7 * 24 * 60 * 60 * 1000, 
+            ...cookieOptions,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
         return { accessToken, id };
     }
 
-    @UseGuards(AuthGuard)
     @Post('refresh')
-        async refresh(@Req() req: Request & { cookies: { [key: string]: string } }, @Res({ passthrough: true }) res: Response) {
-        const refreshToken = req.cookies['refresh_token'];
-        return this.authService.refresh(refreshToken, res);
+    async refresh(
+    @Req() req: Request & { cookies: { [key: string]: string } },
+    @Res({ passthrough: true }) res: Response,
+    ) {
+    const refreshToken = req.cookies['refresh_token'];
+    return this.authService.refresh(refreshToken, res);
     }
 
-    @UseGuards(AuthGuard)
     @Post('logout')
     async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-        
-        const refreshToken = (req as any).cookies['refresh_token'];
+    const refreshToken = (req as any).cookies['refresh_token'];
 
-        if (refreshToken) {
+    if (refreshToken) {
         try {
-            const payload = await this.authService['jwtService'].verifyAsync(refreshToken);
-            await this.authService.logout(payload.id);
-        } catch {
-            
-        }
-        }
-        res.clearCookie('refresh_token', { httpOnly: true, secure: true, sameSite: 'strict' });
-        return { message: 'Sesión cerrada' };
+        const payload = await this.authService['jwtService'].verifyAsync(refreshToken);
+        await this.authService.logout(payload.id);
+        } catch {}
+    }
+
+    const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none' as const,
+        path: '/',
+    };
+
+    res.clearCookie('access_token', cookieOptions);
+    res.clearCookie('refresh_token', cookieOptions);
+
+    return { message: 'Sesión cerrada' };
     }
     
     @Post('forgot-password')
