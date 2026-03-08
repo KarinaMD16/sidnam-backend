@@ -26,33 +26,33 @@ export class AutenticacionController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('login')
-  async login(
+    @Post('login')
+    async login(
     @Res({ passthrough: true }) res: Response,
     @Body() loginDto: LoginDto,
-  ) {
+    ) {
     const { accessToken, refreshToken, id } =
-      await this.authService.login(loginDto);
+        await this.authService.login(loginDto);
 
     const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none' as const,
-      path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none' as const,
+        path: '/',
     };
 
     res.cookie('access_token', accessToken, {
-      ...cookieOptions,
-      maxAge: 15 * 60 * 1000,
+        ...cookieOptions,
+        maxAge: 15 * 60 * 1000,
     });
 
     res.cookie('refresh_token', refreshToken, {
-      ...cookieOptions,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+        ...cookieOptions,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return { id };
-  }
+    return { accessToken, id };
+    }
 
   @Post('refresh')
   async refresh(

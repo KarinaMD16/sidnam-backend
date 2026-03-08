@@ -174,7 +174,7 @@ export class AutenticacionService {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return { id: user.id };
+    return { accessToken: newAccessToken, id: user.id };
   }
 
   async verifyToken(token: string) {
