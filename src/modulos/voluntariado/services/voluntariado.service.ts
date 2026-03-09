@@ -5,14 +5,13 @@ import { SolicitudPendiente } from '../entities/solicitudPendiente.entity';
 import { Tipo_voluntariado } from '../entities/tipoVoluntariado.entity';
 import { TipoVoluntarioDto } from '../dto/crearTipoVoluntarioDto';
 import { plainToInstance } from 'class-transformer';
-import { SolicitudPreviewDto } from '../dto/solicitudPreviewDto';
 import { EstadoSolicitud } from 'src/common/enums/estadosSolicitudes.enum';
-import { EstadoMap } from 'src/common/constants/estado.constant';
 import { SolicitudAprobada } from '../entities/solicitudAprobada.entity';
 import { CrearACtividadesDto } from '../dto/crearActividadesDto';
 import { Actividades } from '../entities/actividades.entity';
 import { verActividadesDto } from '../dto/verActividadesDto';
-import { TipoVoluntariadoOpts, TipoVoluntario } from 'src/common/enums/tipoVoluntarios.enum';
+import { TipoVoluntario } from 'src/common/enums/tipoVoluntarios.enum';
+import { parseFechaLocal } from 'src/common/utils/parseFechaLocal';
 
 
 @Injectable()
@@ -96,9 +95,9 @@ export class VoluntariadoService {
             throw new NotFoundException('Expediente no encontrado');
         }
 
-        const fechaActividad = new Date(crearActividades.fecha);
+        const fechaActividad = parseFechaLocal(crearActividades.fecha);
         const fechaAprobacion = new Date(expediente.aprobadaEn);
-
+        
         fechaActividad.setHours(0, 0, 0, 0);
         fechaAprobacion.setHours(0, 0, 0, 0);
 
@@ -153,7 +152,7 @@ export class VoluntariadoService {
         }
         else{
             
-            if(expediente.tipoVoluntariado.nombre == TipoVoluntario.Horas){
+            if (expediente.tipoVoluntariado.nombre === 'Horas'){
                 throw new BadRequestException('El voluntario de este tipo tiene que registrer sus horas')
             }
 
