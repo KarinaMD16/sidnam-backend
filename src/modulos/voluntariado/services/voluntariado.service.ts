@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SolicitudPendiente } from '../entities/solicitudPendiente.entity';
@@ -34,17 +34,40 @@ export class VoluntariadoService {
     ){}
 
 
-    async crearTipoVoluntario(tipoDto: TipoVoluntarioDto): Promise<Tipo_voluntariado>{
+     async crearTipoVoluntario(tipoDto: TipoVoluntarioDto): Promise<Tipo_voluntariado> {
+        const nombreLimpio = tipoDto.nombre?.trim();
 
-        if (!Object.values(TipoVoluntario).includes(tipoDto.nombre)) {
-            throw new BadRequestException(`El nombre debe ser uno de: ${Object.values(TipoVoluntario).join(', ')}`);
+        if (!nombreLimpio) {
+            throw new BadRequestException('El nombre del tipo de voluntariado es obligatorio');
         }
-        const nuevoTipo = this.tipoVoluntariado.create(tipoDto);
+
+        const existente = await this.tipoVoluntariado.findOne({
+        where: { nombre: nombreLimpio },
+        });
+
+        if (existente) {
+        throw new ConflictException('Ya existe un tipo de voluntariado con ese nombre');
+        }
+
+        try {
+        const nuevoTipo = this.tipoVoluntariado.create({
+            nombre: nombreLimpio,
+        });
+
         return await this.tipoVoluntariado.save(nuevoTipo);
+        } catch (error: any) {
+        if (error?.code === 'ER_DUP_ENTRY') {
+            throw new ConflictException('Ya existe un tipo de voluntariado con ese nombre');
+        }
+
+        throw error;
+        }
     }
 
-    async getAllTipoVoluntario(){
-        return this.tipoVoluntariado.find()
+    async getAllTipoVoluntario(): Promise<Tipo_voluntariado[]> {
+        return this.tipoVoluntariado.find({
+            order: { nombre: 'ASC' },
+        });
     }
 
     async getEstadosSolicitud() {

@@ -1,8 +1,8 @@
-import { IsNotEmpty, IsString } from "class-validator";
-import { TipoVoluntario } from "src/common/enums/tipoVoluntarios.enum";
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
-export class TipoVoluntarioDto{
-     @IsString()
-      @IsNotEmpty()
-      nombre: TipoVoluntario;
+export class TipoVoluntarioDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  nombre: string;
 }
