@@ -5,7 +5,7 @@ import { ContactoEmergenciaPendienteDto } from "./ContactoEmergenciaPendienteDto
 import { HorarioPendienteDto } from "./horarioPendienteDto";
 
 export class CrearExpediente{
-  @IsString()
+
   @IsNotEmpty()
   cedula: string;
 
