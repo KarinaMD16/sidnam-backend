@@ -1,19 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { SolicitudAprobada } from './solicitudAprobada.entity';
-import { TipoVoluntario } from 'src/common/enums/tipoVoluntarios.enum';
 
 @Entity()
-export class Tipo_voluntariado{
-
+export class Tipo_voluntariado {
   @PrimaryGeneratedColumn()
   id: number;
 
-   @Column({
-    type: 'enum',
-    enum: TipoVoluntario,
-  }) 
-
-  nombre: TipoVoluntario
+  @Column({ type: 'varchar', length: 100, unique: true })
+  nombre: string;
 
   @OneToMany(() => SolicitudAprobada, solicitud => solicitud.tipoVoluntariado)
   solicitudes: SolicitudAprobada[];
