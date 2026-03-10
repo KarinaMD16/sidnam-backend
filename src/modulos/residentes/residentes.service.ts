@@ -49,6 +49,7 @@ import { HistorialPatologias } from './entities/historiaoPatologias.entity';
 import { HistorialCuraciones } from './entities/historialCuraciones.entity';
 import { getLineaPobreza, LineaPobrezaOPs } from 'src/common/enums/lineaProbeza.enum';
 import { getEStadoExpedienteDto } from './dto/getEstadoExpedienteDto';
+import { InformacionPersonalResidenteDto } from './dto/informacionPersonalResidenteDto';
 
 
 
@@ -1327,7 +1328,7 @@ export class ResidentesService {
       relations: ['expediente']
     });
 
-    return plainToInstance(getEStadoExpedienteDto, informacion_personal, { excludeExtraneousValues: true });
+    return plainToInstance(InformacionPersonalResidenteDto, informacion_personal, { excludeExtraneousValues: true });
   }
 
 }
