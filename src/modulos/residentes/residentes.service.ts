@@ -1325,7 +1325,7 @@ export class ResidentesService {
   getInformacionPersonalResidente(idExpediente: number){
     const informacion_personal = this.expedienteResidenteRepository.findOne({
       where: {id_expediente: idExpediente},
-      relations: ['residente ']
+      relations: ['residente']
     });
 
     return plainToInstance(getEStadoExpedienteDto, informacion_personal, { excludeExtraneousValues: true });
