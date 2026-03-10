@@ -27,7 +27,7 @@ export class CreateSolicitudUseCase {
 
    async crearSolicitudPendiente(solicitud: CrearSolicitudPendienteDto): Promise<SolicitudPendiente>{
    
-           const voluntariado = getTiposVoluntario(solicitud.tipoVoluntariado)
+           const voluntariado = await this.tipoVoluntariado.findOne({where: {id: solicitud.tipoVoluntariado}})
    
            if(!voluntariado){
                throw new NotFoundException(`Tipo de voluntariado con id ${solicitud.tipoVoluntariado} no encontrado`);
