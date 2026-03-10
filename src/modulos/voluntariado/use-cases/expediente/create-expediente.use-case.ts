@@ -183,82 +183,93 @@ export class CreateExpedienteUseCase {
             return {message: 'Estado actualizado correctamente'};
         }
     
-        async crearSolicitudOficial(solicitud: SolicitudPendiente, usuario: Usuario): Promise<void> {
-    
-            await this.dataSource.transaction(async manager => {
-    
-                const expediente = await this.solicitudAprobada.findOne({
-                where: {
-                    estado: 'Activo',
-                    voluntario: {
-                        cedula: solicitud.cedula
-                    }
+        async crearSolicitudOficial(
+        solicitud: SolicitudPendiente,
+        usuario: Usuario,
+        ): Promise<void> {
+        await this.dataSource.transaction(async (manager) => {
+            const expediente = await manager.findOne(SolicitudAprobada, {
+            where: {
+                estado: 'Activo',
+                voluntario: {
+                cedula: solicitud.cedula,
                 },
-                relations: ['voluntario']
-                });
-    
-                if (expediente) {
-                    throw new BadRequestException('Hay expedientes activos, no se puede aceptar la solicitud');
-                }
-            
-                let voluntario = await this.voluntarioRepository.findOne({
-                    where: { cedula: solicitud.cedula },
-                    relations: ['contactosEmergencia'],
-                });
-    
-                const tipoVoluntariado = await manager.findOne(Tipo_voluntariado, {
-                where: { id: solicitud.tipoVoluntariado as unknown as number },
-                });
-                if (!tipoVoluntariado) {
-                throw new NotFoundException(`Tipo de voluntariado no encontrado`);
-                }
-    
-                if(voluntario){
-                    await manager.delete('Contacto_emergencia', { voluntario: voluntario.id });
-    
-                    const nuevosContactos = solicitud.contactosEmergencia.map(c => ({
-                        nombre: c.nombre,
-                        telefono: c.telefono,
-                        voluntario,
-                    }));
-                    await manager.save('Contacto_emergencia', nuevosContactos);
-                }
-                else{
-                    voluntario = manager.create(Voluntario, {
-                    cedula: solicitud.cedula,
-                    nombre: solicitud.nombre,
-                    apellido1: solicitud.apellido1,
-                    apellido2: solicitud.apellido2,
-                    email: solicitud.email,
-                    telefono: solicitud.telefono,
-                    ocupacion: solicitud.ocupacion,
-                    direccion: solicitud.direccion,
-                    sexo: solicitud.sexo,
-                    experienciaLaboral: solicitud.experienciaLaboral,
-                    contactosEmergencia: solicitud.contactosEmergencia.map(c => ({
-                        nombre: c.nombre,
-                        telefono: c.telefono,
-                    })),
-                    });
-                    await manager.save(voluntario);
-                }            
-            
-                const solicitudAprobada = manager.create(SolicitudAprobada, {
-                voluntario,
-                tipoVoluntariado,
-                datosExtra: `Aprobada por: ${usuario.name}`,
-                observaciones: solicitud.observaciones,
-                cantidadHoras: solicitud.cantidadHoras,
-                horarios: solicitud.horarios.map(h => ({
-                    dia: h.dia,
-                    horaInicio: h.horaInicio,
-                    horaFin: h.horaFin,
-                })),
-                });
-                await manager.save(solicitudAprobada);
+            },
+            relations: ['voluntario'],
             });
-    
-            await this.emailService.sendSolicitudAceptadaEmail(solicitud.email, solicitud.nombre);
-    }  
+
+            if (expediente) {
+            throw new BadRequestException(
+                'Hay expedientes activos, no se puede aceptar la solicitud',
+            );
+            }
+
+            let voluntario = await manager.findOne(Voluntario, {
+            where: { cedula: solicitud.cedula },
+            relations: ['contactosEmergencia'],
+            });
+
+            const tipoVoluntariado = await manager.findOne(Tipo_voluntariado, {
+            where: { id: solicitud.tipoVoluntariado as unknown as number },
+            });
+
+            if (!tipoVoluntariado) {
+            throw new NotFoundException('Tipo de voluntariado no encontrado');
+            }
+
+            if (voluntario) {
+            await manager.delete('Contacto_emergencia', {
+                voluntario: voluntario.id,
+            });
+
+            const nuevosContactos = solicitud.contactosEmergencia.map((c) => ({
+                nombre: c.nombre,
+                telefono: c.telefono,
+                voluntario,
+            }));
+
+            await manager.save('Contacto_emergencia', nuevosContactos);
+            } else {
+            voluntario = manager.create(Voluntario, {
+                cedula: solicitud.cedula,
+                nombre: solicitud.nombre,
+                apellido1: solicitud.apellido1,
+                apellido2: solicitud.apellido2,
+                email: solicitud.email,
+                telefono: solicitud.telefono,
+                ocupacion: solicitud.ocupacion,
+                direccion: solicitud.direccion,
+                sexo: solicitud.sexo,
+                experienciaLaboral: solicitud.experienciaLaboral,
+                contactosEmergencia: solicitud.contactosEmergencia.map((c) => ({
+                nombre: c.nombre,
+                telefono: c.telefono,
+                })),
+            });
+
+            await manager.save(voluntario);
+            }
+
+            const solicitudAprobada = manager.create(SolicitudAprobada, {
+            voluntario,
+            tipoVoluntariado,
+            datosExtra: `Aprobada por: ${usuario.name}`,
+            observaciones: solicitud.observaciones,
+            cantidadHoras: solicitud.cantidadHoras,
+            horarios: solicitud.horarios.map((h) => ({
+                dia: h.dia,
+                horaInicio: h.horaInicio,
+                horaFin: h.horaFin,
+            })),
+            });
+
+            await manager.save(solicitudAprobada);
+
+            await this.emailService.sendSolicitudAceptadaEmail(
+            solicitud.email,
+            solicitud.nombre,
+            );
+        });
+        }
  
 }
