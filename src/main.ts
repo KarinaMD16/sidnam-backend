@@ -23,6 +23,8 @@ async function bootstrap() {
       /^https:\/\/.*\.ngrok-free\.app$/,
       "https://sidnam.org",
       "https://www.sidnam.org",
+      'https://hogarsanblas.com',
+      'https://www.hogarsanblas.com',
     ];
 
     const ok = allowed.some((o) => (o instanceof RegExp ? o.test(origin) : o === origin));
