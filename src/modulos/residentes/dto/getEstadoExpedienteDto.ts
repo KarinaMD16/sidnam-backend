@@ -10,5 +10,5 @@ export class getEStadoExpedienteDto {
 
     @Expose()
        @Type(() => InformacionPersonalResidenteDto)
-       expediente: InformacionPersonalResidenteDto;
+       residente: InformacionPersonalResidenteDto;
 }
