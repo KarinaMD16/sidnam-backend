@@ -1,6 +1,5 @@
 import { Expose, Transform, Type } from "class-transformer";
-import { EncargadorDto } from "./EncaregadosDto";
-import { getEStadoExpedienteDto } from "./getEstadoExpedienteDto";
+
 
 export class InformacionPersonalResidenteDto {
     @Expose()
@@ -27,8 +26,4 @@ export class InformacionPersonalResidenteDto {
         return isNaN(date.getTime()) ? null : date.toLocaleDateString('es-CR');
       })
        fecha_nacimiento: string;
-
-    @Expose()
-       @Type(() => getEStadoExpedienteDto)
-       expediente: getEStadoExpedienteDto;
 }
