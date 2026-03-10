@@ -1323,12 +1323,12 @@ export class ResidentesService {
 
 
   getInformacionPersonalResidente(idExpediente: number){
-    const informacion_personal = this.residenteRepository.findOne({
-      where: {id_adulto_mayor: idExpediente},
-      relations: ['expediente']
+    const informacion_personal = this.expedienteResidenteRepository.findOne({
+      where: {id_expediente: idExpediente},
+      relations: ['residente ']
     });
 
-    return plainToInstance(InformacionPersonalResidenteDto, informacion_personal, { excludeExtraneousValues: true });
+    return plainToInstance(getEStadoExpedienteDto, informacion_personal, { excludeExtraneousValues: true });
   }
 
 }
