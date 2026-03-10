@@ -299,6 +299,10 @@ export class ResidentesController {
         return this.residentesService.getLineaProbeza()
     }
 
+    @Get('informacion-personal/:idExpediente')
+    async getInformacionPersonalResidente(@Param('idExpediente', ParseIntPipe) idExpediente: number){
+        return this.residentesService.getInformacionPersonalResidente(idExpediente);
+    }
 
 }
     

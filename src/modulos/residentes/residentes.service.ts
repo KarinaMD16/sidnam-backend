@@ -48,6 +48,7 @@ import { GestionUsuarioService } from '../gestion-usuario/services/gestion-usuar
 import { HistorialPatologias } from './entities/historiaoPatologias.entity';
 import { HistorialCuraciones } from './entities/historialCuraciones.entity';
 import { getLineaPobreza, LineaPobrezaOPs } from 'src/common/enums/lineaProbeza.enum';
+import { getEStadoExpedienteDto } from './dto/getEstadoExpedienteDto';
 
 
 
@@ -1317,6 +1318,16 @@ export class ResidentesService {
       id: opt.id,
       nombre: opt.nombre, 
     }));
+  }
+
+
+  getInformacionPersonalResidente(idExpediente: number){
+    const informacion_personal = this.residenteRepository.findOne({
+      where: {id_adulto_mayor: idExpediente},
+      relations: ['expediente']
+    });
+
+    return plainToInstance(getEStadoExpedienteDto, informacion_personal, { excludeExtraneousValues: true });
   }
 
 }
