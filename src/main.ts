@@ -38,7 +38,7 @@ async function bootstrap() {
     .setTitle('API SIDNAM')
     .setDescription('Documentación de la API del sistema de voluntariado')
     .setVersion('1.0')
-    .addServer('https://api.sidnam.org')
+    .addServer('https://api.sidnam.org/api')
 
     .addBearerAuth()
     .build();
