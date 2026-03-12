@@ -19,12 +19,11 @@ async function bootstrap() {
     const allowed = [
       /^http:\/\/localhost:\d+$/,
       /^http:\/\/127\.0\.0\.1:\d+$/,
-      /^https:\/\/.*\.ngrok-free\.dev$/,
-      /^https:\/\/.*\.ngrok-free\.app$/,
-      "https://sidnam.org",
-      "https://www.sidnam.org",
+      'https://sidnam.org',
+      'https://www.sidnam.org',
       'https://hogarsanblas.com',
       'https://www.hogarsanblas.com',
+      'https://api.sidnam.org',
     ];
 
     const ok = allowed.some((o) => (o instanceof RegExp ? o.test(origin) : o === origin));
@@ -39,7 +38,7 @@ async function bootstrap() {
     .setTitle('API SIDNAM')
     .setDescription('Documentación de la API del sistema de voluntariado')
     .setVersion('1.0')
-    .addServer('https://sidnam.org/api')
+    .addServer('https://api.sidnam.org')
 
     .addBearerAuth()
     .build();
