@@ -184,10 +184,32 @@ export class GestionUsuarioService {
 
   async desactivarUsuario(id: number): Promise<{message: string}> {
 
-    const usuario = await this.usuariosRepository.findOneBy({ id });
+    const usuario = await this.usuariosRepository.findOne({
+      where: { id },
+      relations: {
+        rol: {
+          rolPermisoAcciones: {
+            permiso: true,
+            accion: true,
+          },
+        },
+      },
+    });
 
     if (!usuario) {
       throw new NotFoundException('Usuario no encontrado');
+    }
+
+    const tieneAccionActualizarEnSeguridad = usuario.rol.rolPermisoAcciones.some(
+      (item) =>
+        item.permiso?.modulo === 'Seguridad' &&
+        (item.permiso?.seccion === 'Usuarios' ||
+          item.permiso?.seccion === 'Roles') &&
+        item.accion?.accion === 'Actualizar',
+    );
+
+    if (!tieneAccionActualizarEnSeguridad){
+        throw new BadRequestException('El rol del usuario no tiene permisos para ser desactivado');
     }
 
     usuario.estado = Estado_Usuario.inactivo;
@@ -199,10 +221,32 @@ export class GestionUsuarioService {
 
   async activarUsuario(id: number): Promise<{message: string}> {
 
-    const usuario = await this.usuariosRepository.findOneBy({ id });
+    const usuario = await this.usuariosRepository.findOne({
+      where: { id },
+      relations: {
+        rol: {
+          rolPermisoAcciones: {
+            permiso: true,
+            accion: true,
+          },
+        },
+      },
+    });
 
-    if (!usuario) {
+    if(!usuario){
       throw new NotFoundException('Usuario no encontrado');
+    }
+
+    const tieneAccionActualizarEnSeguridad = usuario.rol.rolPermisoAcciones.some(
+      (item) =>
+        item.permiso?.modulo === 'Seguridad' &&
+        (item.permiso?.seccion === 'Usuarios' ||
+          item.permiso?.seccion === 'Roles') &&
+        item.accion?.accion === 'Actualizar',
+    );
+
+    if (!tieneAccionActualizarEnSeguridad) {
+        throw new BadRequestException('El rol del usuario no tiene permisos para ser activado');
     }
 
     usuario.estado = Estado_Usuario.activo;
