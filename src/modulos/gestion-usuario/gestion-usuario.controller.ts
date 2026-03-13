@@ -9,7 +9,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 
-@UseGuards(AuthGuard)
+
 @Controller('gestion-usuario')
 export class GestionUsuarioController {
 
