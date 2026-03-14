@@ -164,7 +164,6 @@ export class CreateExpedienteUseCase {
     
     
             if (estado === 'aprobada') {
-                solicitud.estado = estado;
                 await this.solicitudPendiente.save(solicitud);
                 await this.crearSolicitudOficial(solicitud, usuario);
                 const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
@@ -259,6 +258,7 @@ export class CreateExpedienteUseCase {
             tipoVoluntariado,
             datosExtra: `Aprobada por: ${usuario.name}`,
             observaciones: solicitud.observaciones,
+            estado: 'Activo',
             cantidadHoras: solicitud.cantidadHoras,
             horarios: solicitud.horarios.map((h) => ({
                 dia: h.dia,
