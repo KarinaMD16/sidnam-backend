@@ -168,6 +168,7 @@ export class CreateExpedienteUseCase {
                 await this.crearSolicitudOficial(solicitud, usuario);
                 const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
                 await this.emitirTotalSolicitudesPendientes(totalPendientes);
+                solicitud.estado = estado;
                 return {message: 'Esta solicitud ha sido aceptada'};
             }
     
