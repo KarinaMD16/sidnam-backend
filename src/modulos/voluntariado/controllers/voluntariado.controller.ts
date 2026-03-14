@@ -190,4 +190,11 @@ export class VoluntariadoController {
     async removeActividad(@Param('idActividad', new ParseIntPipe) idActividad: number){
         return await this.removeExpedientes.deleteActividad(idActividad);
     }
+    
+    @UseGuards(AuthGuard)
+    @Get('solicitudes/pendientes/count')
+    async getSolicitudesPendientesCount(): Promise<{ count: number }> {
+        return this.voluntariadoService.getSolicitudesPendientesCount();
+    }
+
 }

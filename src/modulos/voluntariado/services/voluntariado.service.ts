@@ -194,4 +194,12 @@ export class VoluntariadoService {
         return { data, total };
     }
 
+    async getSolicitudesPendientesCount(): Promise<{ count: number }> {
+        const count = await this.solicitudPendiente.count({
+            where: { estado: 'pendiente' },
+        });
+
+        return { count };
+    }
+
 }

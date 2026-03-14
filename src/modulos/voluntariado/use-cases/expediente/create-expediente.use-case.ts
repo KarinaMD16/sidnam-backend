@@ -167,7 +167,8 @@ export class CreateExpedienteUseCase {
                 solicitud.estado = estado;
                 await this.solicitudPendiente.save(solicitud);
                 await this.crearSolicitudOficial(solicitud, usuario);
-                await this.emitirTotalSolicitudesPendientes();
+                const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
+                await this.emitirTotalSolicitudesPendientes(totalPendientes);
                 return {message: 'Esta solicitud ha sido aceptada'};
             }
     
@@ -175,12 +176,13 @@ export class CreateExpedienteUseCase {
                 solicitud.estado = estado;
                 await this.solicitudPendiente.save(solicitud);
                 await this.emailService.sendSolicitudRechazadaEmail(solicitud.email, solicitud.nombre)
-                await this.emitirTotalSolicitudesPendientes();
+                const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
+                await this.emitirTotalSolicitudesPendientes(totalPendientes);
                 return {message: 'Esta solicitud ha sido rechazada'};
             }
     
             const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
-            this.voluntariadoGateway.emitSolicitudesPendientesCount(totalPendientes);
+            this.voluntariadoGateway.emitSolicitudesPendientesCount(totalPendientes, solicitud);
     
             return {message: 'Estado actualizado correctamente'};
         }
@@ -274,12 +276,20 @@ export class CreateExpedienteUseCase {
         });
         }
  
-        private async emitirTotalSolicitudesPendientes(): Promise<void> {
-
-            const totalPendientes = await this.solicitudPendiente.count({
+        private async emitirTotalSolicitudesPendientes(totalPendientes: number): Promise<void> {
+            const ultimaSolicitudPendiente = await this.solicitudPendiente.findOne({
                 where: { estado: 'pendiente' },
+                order: { id: 'DESC' },
             });
 
-            this.voluntariadoGateway.emitSolicitudesPendientesCount(totalPendientes);
+            if(!ultimaSolicitudPendiente){
+                this.voluntariadoGateway.emitirNomasSolicitudesPendientes();
+                return;
+            }
+
+            this.voluntariadoGateway.emitSolicitudesPendientesCount(
+                totalPendientes,
+                ultimaSolicitudPendiente,
+            );
         }
 }
