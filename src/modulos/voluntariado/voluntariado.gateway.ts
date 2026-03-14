@@ -20,4 +20,6 @@ export class VoluntariadoGateway implements OnGatewayInit{
         this.server.emit('solicitudesPendientesCount', count);
     }
 
+    
+
 }

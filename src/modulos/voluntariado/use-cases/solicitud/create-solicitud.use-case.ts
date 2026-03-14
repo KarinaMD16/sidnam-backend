@@ -53,9 +53,16 @@ export class CreateSolicitudUseCase {
    
             const solicitudPentiende = await this.solicitudPendiente.save(crearSolicitud);
    
-            const total = await this.solicitudPendiente.count({where: {estado: 'pendiente'}})
-            this.voluntariadoGateway.emitSolicitudesPendientesCount(total)
+            await this.emitirTotalSolicitudesPendientes();
    
             return solicitudPentiende
+    }
+
+    private async emitirTotalSolicitudesPendientes() {
+      const total = await this.solicitudPendiente.count({
+        where: { estado: 'pendiente' },
+      });
+
+      this.voluntariadoGateway.emitSolicitudesPendientesCount(total);
     }
 }

@@ -167,6 +167,7 @@ export class CreateExpedienteUseCase {
                 solicitud.estado = estado;
                 await this.solicitudPendiente.save(solicitud);
                 await this.crearSolicitudOficial(solicitud, usuario);
+                await this.emitirTotalSolicitudesPendientes();
                 return {message: 'Esta solicitud ha sido aceptada'};
             }
     
@@ -174,6 +175,7 @@ export class CreateExpedienteUseCase {
                 solicitud.estado = estado;
                 await this.solicitudPendiente.save(solicitud);
                 await this.emailService.sendSolicitudRechazadaEmail(solicitud.email, solicitud.nombre)
+                await this.emitirTotalSolicitudesPendientes();
                 return {message: 'Esta solicitud ha sido rechazada'};
             }
     
@@ -272,4 +274,12 @@ export class CreateExpedienteUseCase {
         });
         }
  
+        private async emitirTotalSolicitudesPendientes(): Promise<void> {
+
+            const totalPendientes = await this.solicitudPendiente.count({
+                where: { estado: 'pendiente' },
+            });
+
+            this.voluntariadoGateway.emitSolicitudesPendientesCount(totalPendientes);
+        }
 }
