@@ -8,6 +8,8 @@ import { Patologias } from '../residentes/entities/patologias.entity';
 import { Administraciones } from '../residentes/entities/administraciones.entity';
 import { AdministracionesEspeciales } from '../residentes/entities/administracionEspecial.entity';
 import { capitalize } from 'src/common/utils/capitalize';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ReporteExpedienteService {
@@ -26,6 +28,14 @@ export class ReporteExpedienteService {
 
     private readonly pdfHtmlService: PdfHtmlService,
   ) { }
+
+   private obtenerLogoBase64(): string {
+
+    const logoPath = path.join(process.cwd(), 'assets', 'hogar-san-blas.png');
+    const logoBuffer = fs.readFileSync(logoPath);
+
+    return `data:image/png;base64,${logoBuffer.toString('base64')}`;
+    }
 
   async generarPdfExpediente(expedienteId: number, res: ExpressResponse) {
 
@@ -87,6 +97,7 @@ export class ReporteExpedienteService {
   ): string {
     const residente = expediente.residente;
     const fechaHoy = new Date().toLocaleDateString('es-CR');
+    const logoBase64 = this.obtenerLogoBase64();
 
     const encargadosHtml = residente.encargados && residente.encargados.length > 0
       ? residente.encargados.map((e, i) => `<tr><td>${i + 1}</td><td>${e.nombre} ${e.apellido1} ${e.apellido2 || ''}</td><td>${e.cedula}</td><td>${e.telefono || ''}</td></tr>`).join('')
@@ -208,7 +219,7 @@ export class ReporteExpedienteService {
 
 <body>
     <div style="display:flex;align-items:center;margin-bottom:16px;">
-        <img class="logo" src="https://i.ibb.co/HDfRP6fX/1749848069832.png" alt="logo" />
+        <img class="logo" src="${logoBase64}" alt="logo" />
         <div style="margin-left:16px;">
             <h1>Expediente de residente</h1>
             <div style="color:var(--muted); font-size:14px;">Fecha de reporte: ${fechaHoy}</div>
