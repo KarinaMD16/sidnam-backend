@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { PdfHtmlService } from 'src/common/services/pdf-html.service';
 import { Response } from 'express';
 import { SolicitudAprobada } from '../entities/solicitudAprobada.entity';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ReporteService {
@@ -13,6 +15,15 @@ export class ReporteService {
     private readonly solicitudRepo: Repository<SolicitudAprobada>,
     private readonly pdfHtmlService: PdfHtmlService,
   ) { }
+
+
+  private obtenerLogoBase64(): string {
+    const logoPath = path.join(process.cwd(), 'assets', 'hogar-san-blas.png');
+    const logoBuffer = fs.readFileSync(logoPath);
+
+    return `data:image/png;base64,${logoBuffer.toString('base64')}`;
+  }
+
 
   async generarReporteActividades(solicitudId: number, res: Response) {
     const solicitud = await this.solicitudRepo.findOne({
@@ -32,13 +43,14 @@ export class ReporteService {
 
     const html = this.generarHtml(solicitud);
     await this.pdfHtmlService.generarDesdeHtml(html, res, {
-      
-      waitUntil: 'networkidle0', 
-      ensureAssets: true,        
+      waitUntil: 'domcontentloaded',
+      ensureAssets: false,
     });
   }
 
   private generarHtml(solicitud: SolicitudAprobada): string {
+    const logoBase64 = this.obtenerLogoBase64();
+
     const actividadesHtml = solicitud.actividades.map((a, i) => `
       <tr>
         <td>${new Date(a.fecha).toLocaleDateString()}</td>
@@ -50,65 +62,75 @@ export class ReporteService {
     return `
       <html>
         <head>
+          <meta charset="UTF-8" />
           <style>
-    @import url('https://fonts.googleapis.com/css2?family=Krona+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-    body{
-        font-family: "Poppins", sans-serif;
-        padding: 20px;
-    }
-    table
-    {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 30px;
-    }
-    th, td {
-        border: 1px solid #c6c6c6;
-        padding: 8px;
-        text-align: left;
-    }
-    th {
-        background-color: #A7074D;
-        color: whitesmoke;
-    }
-    tr:nth-child(even){
-      background-color: whitesmoke;
-    }
-    .info {
-        margin-left: 20px;
+            body {
+              font-family: Arial, Helvetica, sans-serif;
+              padding: 20px;
+              color: #111;
+            }
 
-    }
-    .intro {
-        margin-top: 20px;
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 30px;
+            }
 
-    }
-    img{
-        width: 100px;
-    }
-    .heading{
-      display: flex;
-      gap: 20px;
-    }
-    </style>
+            th, td {
+              border: 1px solid #c6c6c6;
+              padding: 8px;
+              text-align: left;
+            }
+
+            th {
+              background-color: #A7074D;
+              color: whitesmoke;
+            }
+
+            tr:nth-child(even) {
+              background-color: whitesmoke;
+            }
+
+            .info {
+              margin-left: 20px;
+            }
+
+            .intro {
+              margin-top: 20px;
+            }
+
+            img {
+              width: 100px;
+              height: 100px;
+              object-fit: cover;
+              border-radius: 50%;
+            }
+
+            .heading {
+              display: flex;
+              gap: 20px;
+              align-items: center;
+            }
+          </style>
         </head>
         <body>
           <div class="heading">
-              <img src="https://i.ibb.co/HDfRP6fX/1749848069832.png" alt="">
+            <img src="${logoBase64}" alt="Logo">
+            <h1>Reporte de Actividades</h1>
+          </div>
 
-              <h1>Reporte de Actividades</h1>
-            </div>
-            <div class="intro">
-              <strong>Información del voluntario: </strong><br>
+          <div class="intro">
+            <strong>Información del voluntario: </strong><br>
 
             <div class="info">
               <strong>Nombre:</strong> ${solicitud.voluntario.nombre} ${solicitud.voluntario.apellido1} ${solicitud.voluntario.apellido2} <br>
               <strong>Cédula:</strong> ${solicitud.voluntario.cedula}<br>
               <strong>Voluntariado:</strong> ${solicitud.tipoVoluntariado.nombre}<br>
-                    
               <strong>Correo electrónico:</strong> ${solicitud.voluntario.email} <br>
               <strong>Cantidad de horas a cumplir:</strong> ${solicitud.cantidadHoras} <br>
             </div>
-            </div>
+          </div>
+
           <table>
             <thead>
               <tr>
