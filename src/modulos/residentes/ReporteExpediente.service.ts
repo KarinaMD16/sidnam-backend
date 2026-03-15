@@ -82,10 +82,10 @@ export class ReporteExpedienteService {
 
 
     await this.pdfHtmlService.generarDesdeHtml(html, res, {
-      filename: `Expediente_${expediente.residente.nombre}.pdf`,
-      disposition: 'attachment',
-      ensureAssets: true,
-      waitUntil: 'networkidle0',
+        filename: `Expediente_${expediente.residente.nombre}.pdf`,
+        disposition: 'attachment',
+        ensureAssets: false,
+        waitUntil: 'domcontentloaded',
     });
   }
 
