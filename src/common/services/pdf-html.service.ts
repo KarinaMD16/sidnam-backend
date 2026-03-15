@@ -1,24 +1,57 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
-import type { PDFOptions, PuppeteerLifeCycleEvent, PaperFormat } from 'puppeteer';
+import type { Browser, PDFOptions, PuppeteerLifeCycleEvent, PaperFormat } from 'puppeteer';
 import { Response } from 'express';
 
 type Disposition = 'attachment' | 'inline';
 
 export interface PdfGenOptions {
   filename?: string;
-  waitUntil?: PuppeteerLifeCycleEvent;         
+  waitUntil?: PuppeteerLifeCycleEvent;
   timeout?: number;
-  format?: PaperFormat;                        
-  margin?: PDFOptions['margin'];                
+  format?: PaperFormat;
+  margin?: PDFOptions['margin'];
   ensureAssets?: boolean;
-  disposition?: Disposition;                    
+  disposition?: Disposition;
 }
 
 @Injectable()
-export class PdfHtmlService {
-  async generarDesdeHtml(html: string, res: Response, options: PdfGenOptions = {}): Promise<void> {
-    
+export class PdfHtmlService implements OnApplicationShutdown {
+  private browser: Browser | null = null;
+  private browserPromise: Promise<Browser> | null = null;
+
+  private async getBrowser(): Promise<Browser> {
+    if (this.browser) {
+      return this.browser;
+    }
+
+    if (!this.browserPromise) {
+      this.browserPromise = puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--disable-software-rasterizer',
+        ],
+      });
+
+      this.browser = await this.browserPromise;
+      this.browserPromise = null;
+      return this.browser;
+    }
+
+    this.browser = await this.browserPromise;
+    this.browserPromise = null;
+    return this.browser;
+  }
+
+  async generarDesdeHtml(
+    html: string,
+    res: Response,
+    options: PdfGenOptions = {},
+  ): Promise<void> {
     const defaultFormat: PaperFormat = 'A4';
     const defaultWait: PuppeteerLifeCycleEvent = 'domcontentloaded';
 
@@ -32,46 +65,46 @@ export class PdfHtmlService {
       disposition = 'attachment',
     } = options;
 
-    const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--disable-software-rasterizer',
-    ],
-  });
+    const browser = await this.getBrowser();
+    const page = await browser.newPage();
 
     try {
-      const page = await browser.newPage();
-
       await page.setContent(html, { waitUntil, timeout });
 
       if (ensureAssets) {
-        
         await page.evaluateHandle('document.fonts?.ready').catch(() => {});
         await page.evaluate(async () => {
           const imgs = Array.from(document.images);
-          await Promise.all(imgs.map(img => (img.complete ? Promise.resolve() : img.decode().catch(() => {}))));
+          await Promise.all(
+            imgs.map((img) =>
+              img.complete ? Promise.resolve() : img.decode().catch(() => {}),
+            ),
+          );
         });
       }
 
       const pdfBuffer = await page.pdf({
-        format,                 
+        format,
         printBackground: true,
-        margin,                 
+        margin,
       });
 
       res.set({
         'Content-Type': 'application/pdf',
         'Content-Disposition': `${disposition}; filename="${filename}"`,
-        'Content-Length': pdfBuffer.length,
+        'Content-Length': String(pdfBuffer.length),
       });
+
       res.send(pdfBuffer);
     } finally {
-      await browser.close();
+      await page.close().catch(() => {});
+    }
+  }
+
+  async onApplicationShutdown(): Promise<void> {
+    if (this.browser) {
+      await this.browser.close().catch(() => {});
+      this.browser = null;
     }
   }
 }
-      

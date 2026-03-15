@@ -47,30 +47,32 @@ export class ReporteExpedienteService {
     if (!expediente) throw new NotFoundException('Expediente no encontrado');
 
 
-    const patologias = await this.patologiasRepository
-      .createQueryBuilder('p')
-      .leftJoin('p.expedientes', 'e')
-      .where('e.id_expediente = :id', { id: expedienteId })
-      .orderBy('p.nombre', 'ASC')
-      .getMany();
+   const [patologias, administraciones, administracionesEspeciales] =
+    await Promise.all([
+        this.patologiasRepository
+        .createQueryBuilder('p')
+        .leftJoin('p.expedientes', 'e')
+        .where('e.id_expediente = :id', { id: expedienteId })
+        .orderBy('p.nombre', 'ASC')
+        .getMany(),
 
-    const administraciones = await this.administracionRepository
-      .createQueryBuilder('a')
-      .leftJoinAndSelect('a.administracionMedicamentos', 'am')
-      .leftJoinAndSelect('am.medicamento', 'm')
-      .leftJoinAndSelect('am.unidad', 'u')
-      .where('a.expediente = :id', { id: expedienteId })
-      .orderBy('a.turno', 'ASC')
-      .getMany();
+        this.administracionRepository
+        .createQueryBuilder('a')
+        .leftJoinAndSelect('a.administracionMedicamentos', 'am')
+        .leftJoinAndSelect('am.medicamento', 'm')
+        .leftJoinAndSelect('am.unidad', 'u')
+        .where('a.expediente = :id', { id: expedienteId })
+        .orderBy('a.turno', 'ASC')
+        .getMany(),
 
-
-    const administracionesEspeciales = await this.administracionEspecialRepository
-      .createQueryBuilder('ae')
-      .leftJoinAndSelect('ae.medicamento', 'm')
-      .leftJoinAndSelect('ae.unidad', 'u')
-      .where('ae.expediente = :id', { id: expedienteId })
-      .orderBy('ae.hora', 'ASC')
-      .getMany();
+        this.administracionEspecialRepository
+        .createQueryBuilder('ae')
+        .leftJoinAndSelect('ae.medicamento', 'm')
+        .leftJoinAndSelect('ae.unidad', 'u')
+        .where('ae.expediente = :id', { id: expedienteId })
+        .orderBy('ae.hora', 'ASC')
+        .getMany(),
+    ]);
 
 
     const html = this.generarHtmlExpediente(
