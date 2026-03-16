@@ -86,7 +86,6 @@ export class GetRegistrosDonacionUseCase {
 
         const solicitud = await this.solicitudDonacionPendienteRepository.findOne({
             where: {id},
-            relations: ['donador']
         });
 
         if (!solicitud) {
