@@ -82,38 +82,45 @@ export class GetRegistrosDonacionUseCase {
         return { data, total };
     }
 
-    async getResgistrosBySolicitudID(id: number): Promise<VerIdDeSolicitudEnExpedienteDto> {
-
+    async getResgistrosBySolicitudID(id: number): Promise<{ message: string; data: VerIdDeSolicitudEnExpedienteDto | null }> {
         const solicitud = await this.solicitudDonacionPendienteRepository.findOne({
-            where: {id},
+            where: { id },
         });
 
         if (!solicitud) {
             throw new NotFoundException('Solicitud no encontrada');
         }
 
-        if(solicitud.estado === 'pendiente'){
-            throw new NotFoundException('La solicitud aún no ha sido aprobada');
+        if (solicitud.estado === 'pendiente') {
+            return {
+            message: 'La solicitud aún está pendiente de aprobación',
+            data: null,
+            };
         }
 
-        if(solicitud.estado === 'rechazada'){
-            throw new NotFoundException('La solicitud ha sido rechazada');
+        if (solicitud.estado === 'rechazada') {
+            return {
+            message: 'La solicitud fue rechazada, no hay registro de donación asociado',
+            data: null,
+            };
         }
 
         const registros = await this.registroDonacion.findOne({
             where: { idSolicitud: id },
-        })
+        });
 
-        if(!registros){
+        if (!registros) {
             throw new NotFoundException('No se encontró un registro de donación para esta solicitud');
         }
 
-         const dto = plainToInstance(VerIdDeSolicitudEnExpedienteDto, registros, {
+        const dto = plainToInstance(VerIdDeSolicitudEnExpedienteDto, registros, {
             excludeExtraneousValues: true,
         });
 
-        return dto;
-    
+        return {
+            message: 'Registro encontrado correctamente',
+            data: dto,
+        };
     }
 
 }
