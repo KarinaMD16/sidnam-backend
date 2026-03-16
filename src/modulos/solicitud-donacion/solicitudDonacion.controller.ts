@@ -153,5 +153,10 @@ export class SolicitudDonacionController {
         throw new BadRequestException('Origen inválido');
     }
 
+    @Get('registrosBySolicitud/:id')
+    getRegistrosBySolicitud(@Param('id', ParseIntPipe) id: number) {
+        return this.getRegistrosUseCase.getResgistrosBySolicitudID(id);
+    }
+
 }
 
