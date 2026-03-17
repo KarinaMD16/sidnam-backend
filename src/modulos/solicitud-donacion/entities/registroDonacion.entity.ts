@@ -39,7 +39,7 @@ export class RegistroDonacion{
     @JoinColumn({ name: 'donador_id' })
     donador: Donador;
 
-    @Column()
+    @Column({ nullable: true })
     idSolicitud: number;
 
 }
