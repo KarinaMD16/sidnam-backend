@@ -11,6 +11,7 @@ import { DonacionDto } from './dto/createDonacionDto';
 import { EventoDto } from './dto/createEventosDto';
 import { updateEventosDto } from './dto/updateEventosDto';
 import { uploadBufferToCloudinary } from 'src/common/services/cloudinary-buffer.service';
+import { parseFechaLocal } from 'src/common/utils/parseFechaLocal';
 
 
 @Injectable()
@@ -26,6 +27,47 @@ export class PublicacionesService {
         @InjectRepository(Proyectos)
         private readonly proyectosRepository: Repository<Proyectos>,
     ){}
+
+    private getTodayInCostaRica(): Date {
+        const formatter = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'America/Costa_Rica',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        });
+
+        const parts = formatter.formatToParts(new Date());
+        const year = parts.find((part) => part.type === 'year')?.value;
+        const month = parts.find((part) => part.type === 'month')?.value;
+        const day = parts.find((part) => part.type === 'day')?.value;
+
+        return parseFechaLocal(`${year}-${month}-${day}`);
+    }
+
+    private isEventoActivoPorFecha(fecha: string | Date): boolean {
+        return parseFechaLocal(fecha) >= this.getTodayInCostaRica();
+    }
+
+    private async syncExpiredEventos(): Promise<void> {
+        const today = this.getTodayInCostaRica();
+        const eventosActivos = await this.eventosRepository.find({
+            where: { isActive: true },
+            select: ['id', 'fecha', 'isActive'],
+        });
+
+        const expirados = eventosActivos.filter((evento) => parseFechaLocal(evento.fecha) < today);
+
+        if (expirados.length === 0) {
+            return;
+        }
+
+        await this.eventosRepository.save(
+            expirados.map((evento) => ({
+                ...evento,
+                isActive: false,
+            })),
+        );
+    }
 
     //Proyectos
    async createProyecto(dto: ProyectoDto, file: Express.Multer.File): Promise<Proyectos> {
@@ -193,6 +235,7 @@ export class PublicacionesService {
   const nuevoEvento = this.eventosRepository.create({
     ...dto,
     imagenUrl: secure_url,
+    isActive: this.isEventoActivoPorFecha(dto.fecha),
   });
 
   return await this.eventosRepository.save(nuevoEvento);
@@ -212,6 +255,8 @@ export class PublicacionesService {
            (evento as any)[key] = value;
         }
     }
+
+    evento.isActive = this.isEventoActivoPorFecha(evento.fecha);
 
     await this.eventosRepository.save(evento);
 
@@ -233,9 +278,12 @@ export class PublicacionesService {
 
     async findAllEventos(page?: number, limit?: number): Promise<{ data: Eventos[]; total: number }> {
 
+        await this.syncExpiredEventos();
+
         if (!page || !limit) throw new Error('Los parámetros page y limit son requeridos');
 
         const [data, total] = await this.eventosRepository.findAndCount({
+            where: { isActive: true },
             skip: (page - 1) * limit,
             take: limit,
             order: { id: 'DESC' },
