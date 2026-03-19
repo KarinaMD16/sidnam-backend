@@ -89,7 +89,7 @@ export class EmailService {
     const html = `
       <div style="font-family: 'Poppins', Arial, sans-serif; color: #333; max-width: 600px; margin: auto; padding: 20px; border-radius: 20px; border: 1px solid #ddd;">
         <h2 style="color: #8F1047;">Restablece tu contraseña</h2>
-        <p>Hola ${user.cedula || ''},</p>
+        <p>Hola ${user.name || ''},</p>
         <p>Haz clic en el siguiente botón para restablecer tu contraseña:</p>
         <p style="text-align:center;">
           <a href="${url}" style="background-color:#8F1047;color:white;padding:10px 20px;border-radius:32px;text-decoration:none;">
