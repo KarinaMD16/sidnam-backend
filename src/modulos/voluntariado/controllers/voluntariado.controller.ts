@@ -197,4 +197,10 @@ export class VoluntariadoController {
         return this.voluntariadoService.getSolicitudesPendientesCount();
     }
 
+    @UseGuards(AuthGuard)
+    @Get('registrosBySolicitud/:id')
+    getRegistrosBySolicitud(@Param('id', ParseIntPipe) id: number) {
+        return this.getExpedientesUseCase.getResgistrosBySolicitudID(id);
+    }
+
 }

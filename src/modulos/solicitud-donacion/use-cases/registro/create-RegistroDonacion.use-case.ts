@@ -119,6 +119,7 @@ async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: 
                 anonimo: solicitud.anonimo,
                 tipoDonacion: solicitud.tipoDonacion,
                 descripcion: solicitud.descripcion,
+                idSolicitud: solicitud.id,
                 });
 
                 await manager.save(registro);

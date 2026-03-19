@@ -261,6 +261,7 @@ export class CreateExpedienteUseCase {
             observaciones: solicitud.observaciones,
             estado: 'Activo',
             cantidadHoras: solicitud.cantidadHoras,
+            idSolicitud: solicitud.id,
             horarios: solicitud.horarios.map((h) => ({
                 dia: h.dia,
                 horaInicio: h.horaInicio,

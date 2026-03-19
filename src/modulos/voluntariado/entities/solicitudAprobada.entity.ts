@@ -42,4 +42,7 @@ export class SolicitudAprobada {
   @OneToMany(() => Actividades, acti => acti.solicitud, { cascade: true })
   actividades: Actividades[];
 
+  @Column({ nullable: true })
+  idSolicitud: number;
+
 }

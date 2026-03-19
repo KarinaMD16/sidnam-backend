@@ -14,6 +14,8 @@ import { ExpedientePreviewDto } from '../../dto/expedientePreviewDto';
 import { ExpedienteAprobadoDto } from '../../dto/expedienteDto';
 import { verExpedientesByCedula } from '../../dto/verExpedientesByCedulaDto';
 import { VerExpedientesActivosDto } from '../../dto/verExpedientesActivosDto';
+import { verIDSolicitudEnExpedienteDtoVoluntariado } from '../../dto/verIDSoliciutdEnExpedienteDto';
+import { SolicitudPendiente } from '../../entities/solicitudPendiente.entity';
 
 @Injectable()
 export class GetExpedientesUseCase {
@@ -23,6 +25,9 @@ export class GetExpedientesUseCase {
            
     @InjectRepository(Voluntario)
     private readonly voluntarioRepository: Repository<Voluntario>,
+
+    @InjectRepository(SolicitudPendiente)
+    private readonly solicitudPendiente: Repository<SolicitudPendiente>
 
   ) {}
 
@@ -129,6 +134,48 @@ export class GetExpedientesUseCase {
                 total,
             };
             
+        }
+
+        async getResgistrosBySolicitudID(id: number): Promise<{ message: string; data: verIDSolicitudEnExpedienteDtoVoluntariado | null }> {
+
+                const solicitud = await this.solicitudPendiente.findOne({
+                    where: { id },
+                });
+        
+                if (!solicitud) {
+                    throw new NotFoundException('Solicitud no encontrada');
+                }
+        
+                if (solicitud.estado === 'pendiente') {
+                    return {
+                    message: 'La solicitud aún está pendiente de aprobación',
+                    data: null,
+                    };
+                }
+        
+                if (solicitud.estado === 'rechazada') {
+                    return {
+                    message: 'La solicitud fue rechazada, no hay registro de donación asociado',
+                    data: null,
+                    };
+                }
+        
+                const registros = await this.solicitudAprobada.findOne({
+                    where: { idSolicitud: id },
+                });
+        
+                if (!registros) {
+                    throw new NotFoundException('No se encontró un registro de donación para esta solicitud');
+                }
+        
+                const dto = plainToInstance(verIDSolicitudEnExpedienteDtoVoluntariado, registros, {
+                    excludeExtraneousValues: true,
+                });
+        
+                return {
+                    message: 'Registro encontrado correctamente',
+                    data: dto,
+                };
         }
     
 }

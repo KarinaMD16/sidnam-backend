@@ -6,6 +6,8 @@ import { Donador } from "../../entities/donador.entity";
 import { RegistroPreviewDto } from "../../dto/registroPreviewDto";
 import { plainToInstance } from "class-transformer";
 import { RegistroDto } from "../../dto/registroDto";
+import { Solicitud_donacion_pendiente } from "../../entities/solicitudDonacionPendiente.entity";
+import { VerIdDeSolicitudEnExpedienteDto } from "../../dto/verIdDeSolicitudEnExpedienteDto";
 
 @Injectable()
 export class GetRegistrosDonacionUseCase {
@@ -15,6 +17,9 @@ export class GetRegistrosDonacionUseCase {
 
         @InjectRepository(Donador)
         private readonly donadorRepository: Repository<Donador>,
+
+        @InjectRepository(Solicitud_donacion_pendiente)
+        private readonly solicitudDonacionPendienteRepository: Repository<Solicitud_donacion_pendiente>
 
     ) { }
 
@@ -75,6 +80,47 @@ export class GetRegistrosDonacionUseCase {
         });
 
         return { data, total };
+    }
+
+    async getResgistrosBySolicitudID(id: number): Promise<{ message: string; data: VerIdDeSolicitudEnExpedienteDto | null }> {
+        const solicitud = await this.solicitudDonacionPendienteRepository.findOne({
+            where: { id },
+        });
+
+        if (!solicitud) {
+            throw new NotFoundException('Solicitud no encontrada');
+        }
+
+        if (solicitud.estado === 'pendiente') {
+            return {
+            message: 'La solicitud aún está pendiente de aprobación',
+            data: null,
+            };
+        }
+
+        if (solicitud.estado === 'rechazada') {
+            return {
+            message: 'La solicitud fue rechazada, no hay registro de donación asociado',
+            data: null,
+            };
+        }
+
+        const registros = await this.registroDonacion.findOne({
+            where: { idSolicitud: id },
+        });
+
+        if (!registros) {
+            throw new NotFoundException('No se encontró un registro de donación para esta solicitud');
+        }
+
+        const dto = plainToInstance(VerIdDeSolicitudEnExpedienteDto, registros, {
+            excludeExtraneousValues: true,
+        });
+
+        return {
+            message: 'Registro encontrado correctamente',
+            data: dto,
+        };
     }
 
 }
