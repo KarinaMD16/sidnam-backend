@@ -120,6 +120,10 @@ export class PublicacionesService {
             throw new NotFoundException(`Proyecto con id ${id} no encontrado`);
         }
 
+        if (!proyecto.isActive) {
+            proyecto.fecha = this.getTodayInCostaRica();
+        }
+
         proyecto.isActive = !proyecto.isActive;
         await this.proyectosRepository.save(proyecto);
 
@@ -231,6 +235,10 @@ export class PublicacionesService {
 
         if (!donacion) {
             throw new NotFoundException(`Donacion con id ${id} no encontrada`);
+        }
+
+        if (!donacion.isActive) {
+            donacion.fecha = this.getTodayInCostaRica();
         }
 
         donacion.isActive = !donacion.isActive;
