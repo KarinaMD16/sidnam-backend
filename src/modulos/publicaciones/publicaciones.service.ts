@@ -131,6 +131,7 @@ export class PublicacionesService {
         if (!page || !limit) throw new Error('Los parámetros page y limit son requeridos');
 
         const [data, total] = await this.proyectosRepository.findAndCount({
+            where: { isActive: true },
             skip: (page - 1) * limit,
             take: limit,
             order: { id: 'DESC' },
@@ -224,6 +225,7 @@ export class PublicacionesService {
         if (!page || !limit) throw new Error('Los parámetros page y limit son requeridos');
 
         const [data, total] = await this.donacionesRepository.findAndCount({
+            where: { isActive: true },
             skip: (page - 1) * limit,
             take: limit,
             order: { id: 'DESC' },
