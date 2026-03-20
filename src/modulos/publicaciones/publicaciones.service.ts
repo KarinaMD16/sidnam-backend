@@ -113,6 +113,19 @@ export class PublicacionesService {
         return { message: `Proyecto con id ${id} eliminado correctamente` };
     }
 
+    async handleEstadoProyecto(id: number): Promise<{ message: string }> {
+        const proyecto = await this.proyectosRepository.findOne({ where: { id } });
+
+        if (!proyecto) {
+            throw new NotFoundException(`Proyecto con id ${id} no encontrado`);
+        }
+
+        proyecto.isActive = !proyecto.isActive;
+        await this.proyectosRepository.save(proyecto);
+
+        return { message: `Proyecto ${proyecto.isActive ? 'activado' : 'desactivado'} correctamente.` };
+    }
+
     async findAllProyectos(page?: number, limit?: number): Promise<{ data: Proyectos[]; total: number }> {
 
         if (!page || !limit) throw new Error('Los parámetros page y limit son requeridos');
@@ -191,6 +204,19 @@ export class PublicacionesService {
         await this.donacionesRepository.delete(id);
 
         return { message: `Donación con id ${id} eliminada correctamente` };
+    }
+
+    async handleEstadoDonacion(id: number): Promise<{ message: string }> {
+        const donacion = await this.donacionesRepository.findOne({ where: { id } });
+
+        if (!donacion) {
+            throw new NotFoundException(`Donacion con id ${id} no encontrada`);
+        }
+
+        donacion.isActive = !donacion.isActive;
+        await this.donacionesRepository.save(donacion);
+
+        return { message: `Donacion ${donacion.isActive ? 'activada' : 'desactivada'} correctamente.` };
     }
 
     async findAllDonacion(page?: number, limit?: number): Promise<{ data: Donacion[]; total: number }> {
@@ -274,6 +300,19 @@ export class PublicacionesService {
         await this.eventosRepository.delete(id);
 
         return { message: `Evento con id ${id} eliminado correctamente` };
+    }
+
+    async handleEstadoEvento(id: number): Promise<{ message: string }> {
+        const evento = await this.eventosRepository.findOne({ where: { id } });
+
+        if (!evento) {
+            throw new NotFoundException(`Evento con id ${id} no encontrado`);
+        }
+
+        evento.isActive = !evento.isActive;
+        await this.eventosRepository.save(evento);
+
+        return { message: `Evento ${evento.isActive ? 'activado' : 'desactivado'} correctamente.` };
     }
 
     async findAllEventos(page?: number, limit?: number): Promise<{ data: Eventos[]; total: number }> {
