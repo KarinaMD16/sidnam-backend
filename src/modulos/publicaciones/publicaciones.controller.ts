@@ -9,6 +9,7 @@ import { Donacion } from './entities/donacion.entity';
 import { updateEventosDto } from './dto/updateEventosDto';
 import { Eventos } from './entities/eventos.entity';
 import { EventoDto } from './dto/createEventosDto';
+import { HandleEstadoEventoDto } from './dto/handleEstadoEventoDto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { AuthGuard } from '../autenticacion/guard/auth.guard';
@@ -28,7 +29,16 @@ export class PublicacionesController {
     return this.publicacionesService.findAllProyectos(page, limit);
   }
 
-  @UseGuards(AuthGuard)
+  
+  @Get('getProyectosInactivos')
+  findAllProyectosInactivos(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ): Promise<{ data: Partial<Proyectos>[]; total: number }> {
+    return this.publicacionesService.findAllProyectosInactivos(page, limit);
+  }
+
+  
   @Post('createProyecto')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -51,7 +61,7 @@ export class PublicacionesController {
     return this.publicacionesService.createProyecto(dto, file);
   }
 
-  @UseGuards(AuthGuard)
+  
   @Patch('updateProyecto/:id')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -79,6 +89,12 @@ export class PublicacionesController {
     return this.publicacionesService.removeProyecto(id);
   }
 
+  
+  @Patch('handleProyecto/:id')
+  async handleProyecto(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
+    return this.publicacionesService.handleEstadoProyecto(id);
+  }
+
   @Get('getProyecto/:id')
   getProyectoById(@Param('id') id: number) {
     return this.publicacionesService.getProyectoById(id); 
@@ -94,7 +110,16 @@ export class PublicacionesController {
     return this.publicacionesService.findAllDonacion(page, limit);
   }
 
-@UseGuards(AuthGuard)
+
+  @Get('getDonacionesInactivas')
+  findAllDonacionesInactivas(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ): Promise<{ data: Partial<Donacion>[]; total: number }> {
+    return this.publicacionesService.findAllDonacionInactivas(page, limit);
+  }
+
+
   @Post('createDonacion')
 @UseInterceptors(FileInterceptor('imagen'))
 @ApiConsumes('multipart/form-data')
@@ -117,7 +142,7 @@ async createDonacion(
   return this.publicacionesService.createDonacion(dto, file);
 }
 
-  @UseGuards(AuthGuard)
+  
   @Patch('updateDonacion/:id')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -146,7 +171,13 @@ async updateDonacion(
     return this.publicacionesService.removeDonacion(id);
   }
 
-  @UseGuards(AuthGuard)
+  
+  @Patch('handleDonacion/:id')
+  async handleDonacion(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
+    return this.publicacionesService.handleEstadoDonacion(id);
+  }
+
+ 
   @Get('getDonacion/:id')
   getDonacionById(@Param('id') id: number) {
     return this.publicacionesService.getDonacionById(id); 
@@ -162,7 +193,16 @@ async updateDonacion(
     return this.publicacionesService.findAllEventos(page, limit);
   }
 
-  @UseGuards(AuthGuard)
+ 
+  @Get('getEventosInactivos')
+  findAllEventosInactivos(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ): Promise<{ data: Partial<Eventos>[]; total: number }> {
+    return this.publicacionesService.findAllEventosInactivos(page, limit);
+  }
+
+
   @Post('createEvento')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -185,7 +225,7 @@ async updateDonacion(
    return this.publicacionesService.createEvento(dto, file);
   }
 
-  @UseGuards(AuthGuard)
+ 
   @Patch('updateEvento/:id')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -214,7 +254,29 @@ async updateEventos(
     return this.publicacionesService.removeEventos(id);
   }
 
-  @UseGuards(AuthGuard)
+
+  @Patch('handleEvento/:id')
+  @ApiConsumes('application/json')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        fecha: {
+          type: 'string',
+          example: '2026-04-10',
+          description: 'Requerida para reactivar un evento inactivo.',
+        },
+      },
+    },
+  })
+   async handleEvento(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: HandleEstadoEventoDto,
+  ): Promise<{ message: string }> {
+    return this.publicacionesService.handleEstadoEvento(id, dto);
+  }
+
+  
   @Get('getEvento/:id')
   getEventoById(@Param('id') id: number) {
     return this.publicacionesService.getEventoById(id);
