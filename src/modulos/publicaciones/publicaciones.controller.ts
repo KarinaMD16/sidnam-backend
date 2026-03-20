@@ -29,6 +29,15 @@ export class PublicacionesController {
   }
 
   
+  @Get('getProyectosInactivos')
+  findAllProyectosInactivos(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ): Promise<{ data: Partial<Proyectos>[]; total: number }> {
+    return this.publicacionesService.findAllProyectosInactivos(page, limit);
+  }
+
+  
   @Post('createProyecto')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -98,6 +107,15 @@ export class PublicacionesController {
     @Query('limit', ParseIntPipe) limit: number,
   ): Promise<{ data: Donacion[]; total: number }> {
     return this.publicacionesService.findAllDonacion(page, limit);
+  }
+
+
+  @Get('getDonacionesInactivas')
+  findAllDonacionesInactivas(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ): Promise<{ data: Partial<Donacion>[]; total: number }> {
+    return this.publicacionesService.findAllDonacionInactivas(page, limit);
   }
 
 
@@ -172,6 +190,15 @@ async updateDonacion(
     @Query('limit', ParseIntPipe) limit: number,
   ): Promise<{ data: Eventos[]; total: number }> {
     return this.publicacionesService.findAllEventos(page, limit);
+  }
+
+ 
+  @Get('getEventosInactivos')
+  findAllEventosInactivos(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ): Promise<{ data: Partial<Eventos>[]; total: number }> {
+    return this.publicacionesService.findAllEventosInactivos(page, limit);
   }
 
 

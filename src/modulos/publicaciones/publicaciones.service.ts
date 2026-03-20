@@ -145,6 +145,25 @@ export class PublicacionesService {
         return { data, total };
     }
 
+    async findAllProyectosInactivos(page?: number, limit?: number): Promise<{ data: Partial<Proyectos>[]; total: number }> {
+
+        if (!page || !limit) throw new Error('Los parámetros page y limit son requeridos');
+
+        const [data, total] = await this.proyectosRepository.findAndCount({
+            where: { isActive: false },
+            skip: (page - 1) * limit,
+            take: limit,
+            order: { id: 'DESC' },
+            select: ['id', 'Titulo', 'fecha'],
+        });
+
+        if ((page - 1) * limit >= total) {
+            return { data: [], total };
+        }
+
+        return { data, total };
+    }
+
     async getProyectoById(id: number): Promise<Partial<Proyectos>> {
 
       const proyecto = await this.proyectosRepository.findOne({
@@ -234,6 +253,25 @@ export class PublicacionesService {
 
         if ((page - 1) * limit >= total) {
             return { data: [], total }; 
+        }
+
+        return { data, total };
+    }
+
+    async findAllDonacionInactivas(page?: number, limit?: number): Promise<{ data: Partial<Donacion>[]; total: number }> {
+
+        if (!page || !limit) throw new Error('Los parámetros page y limit son requeridos');
+
+        const [data, total] = await this.donacionesRepository.findAndCount({
+            where: { isActive: false },
+            skip: (page - 1) * limit,
+            take: limit,
+            order: { id: 'DESC' },
+            select: ['id', 'Titulo', 'fecha'],
+        });
+
+        if ((page - 1) * limit >= total) {
+            return { data: [], total };
         }
 
         return { data, total };
@@ -333,6 +371,27 @@ export class PublicacionesService {
 
         if ((page - 1) * limit >= total) {
             return { data: [], total }; 
+        }
+
+        return { data, total };
+    }
+
+    async findAllEventosInactivos(page?: number, limit?: number): Promise<{ data: Partial<Eventos>[]; total: number }> {
+
+        await this.syncExpiredEventos();
+
+        if (!page || !limit) throw new Error('Los parámetros page y limit son requeridos');
+
+        const [data, total] = await this.eventosRepository.findAndCount({
+            where: { isActive: false },
+            skip: (page - 1) * limit,
+            take: limit,
+            order: { id: 'DESC' },
+            select: ['id', 'Titulo', 'fecha'],
+        });
+
+        if ((page - 1) * limit >= total) {
+            return { data: [], total };
         }
 
         return { data, total };
