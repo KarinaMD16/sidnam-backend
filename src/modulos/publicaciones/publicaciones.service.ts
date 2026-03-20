@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Donacion } from './entities/donacion.entity';
 import { Repository } from 'typeorm';
@@ -10,6 +10,7 @@ import { updateProyectoDto } from './dto/updateProyectoDto';
 import { DonacionDto } from './dto/createDonacionDto';
 import { EventoDto } from './dto/createEventosDto';
 import { updateEventosDto } from './dto/updateEventosDto';
+import { HandleEstadoEventoDto } from './dto/handleEstadoEventoDto';
 import { uploadBufferToCloudinary } from 'src/common/services/cloudinary-buffer.service';
 import { parseFechaLocal } from 'src/common/utils/parseFechaLocal';
 
@@ -350,14 +351,30 @@ export class PublicacionesService {
         return { message: `Evento con id ${id} eliminado correctamente` };
     }
 
-    async handleEstadoEvento(id: number): Promise<{ message: string }> {
+    async handleEstadoEvento(id: number, dto?: HandleEstadoEventoDto): Promise<{ message: string }> {
         const evento = await this.eventosRepository.findOne({ where: { id } });
 
         if (!evento) {
             throw new NotFoundException(`Evento con id ${id} no encontrado`);
         }
 
-        evento.isActive = !evento.isActive;
+        if (!evento.isActive) {
+            if (!dto?.fecha) {
+                throw new BadRequestException('Debes enviar una nueva fecha para reactivar el evento.');
+            }
+
+            const nuevaFecha = parseFechaLocal(dto.fecha);
+
+            if (nuevaFecha < this.getTodayInCostaRica()) {
+                throw new BadRequestException('La nueva fecha del evento no puede ser anterior a hoy.');
+            }
+
+            evento.fecha = nuevaFecha;
+            evento.isActive = true;
+        } else {
+            evento.isActive = false;
+        }
+
         await this.eventosRepository.save(evento);
 
         return { message: `Evento ${evento.isActive ? 'activado' : 'desactivado'} correctamente.` };

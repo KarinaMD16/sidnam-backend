@@ -9,6 +9,7 @@ import { Donacion } from './entities/donacion.entity';
 import { updateEventosDto } from './dto/updateEventosDto';
 import { Eventos } from './entities/eventos.entity';
 import { EventoDto } from './dto/createEventosDto';
+import { HandleEstadoEventoDto } from './dto/handleEstadoEventoDto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { AuthGuard } from '../autenticacion/guard/auth.guard';
@@ -255,8 +256,24 @@ async updateEventos(
 
 
   @Patch('handleEvento/:id')
-   async handleEvento(@Param('id', ParseIntPipe) id: number): Promise<{ message: string }> {
-    return this.publicacionesService.handleEstadoEvento(id);
+  @ApiConsumes('application/json')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        fecha: {
+          type: 'string',
+          example: '2026-04-10',
+          description: 'Requerida para reactivar un evento inactivo.',
+        },
+      },
+    },
+  })
+   async handleEvento(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: HandleEstadoEventoDto,
+  ): Promise<{ message: string }> {
+    return this.publicacionesService.handleEstadoEvento(id, dto);
   }
 
   
