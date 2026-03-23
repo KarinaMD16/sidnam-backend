@@ -9,6 +9,7 @@ import { Administraciones } from '../residentes/entities/administraciones.entity
 import { AdministracionesEspeciales } from '../residentes/entities/administracionEspecial.entity';
 import { capitalize } from 'src/common/utils/capitalize';
 import { buildStandardPdfHtml, escapePdfHtml } from 'src/common/utils/pdfReportTemplate';
+import { normalize } from 'src/common/utils/normalize';
 
 @Injectable()
 export class ReporteExpedienteService {
@@ -73,13 +74,35 @@ export class ReporteExpedienteService {
       administracionesEspeciales,
     );
 
+    const nombreArchivo = this.buildFilename(expediente);
 
     await this.pdfHtmlService.generarDesdeHtml(html, res, {
-        filename: `Expediente_${expediente.residente.nombre}.pdf`,
+        filename: nombreArchivo,
         disposition: 'attachment',
         ensureAssets: false,
         waitUntil: 'domcontentloaded',
     });
+  }
+
+  private buildFilename(expediente: Expediente_Residente): string {
+    const nombreCompleto = [
+      expediente.residente.nombre,
+      expediente.residente.apellido1,
+      expediente.residente.apellido2,
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    const normalizedName = normalize(nombreCompleto)
+      .split(' ')
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join('_')
+      .replace(/[^A-Za-z0-9_]/g, '');
+
+    return normalizedName.length > 0
+      ? `Expediente_${normalizedName}.pdf`
+      : 'Expediente_Residente.pdf';
   }
 
   private generarHtmlExpediente(
@@ -90,6 +113,69 @@ export class ReporteExpedienteService {
   ): string {
     const residente = expediente.residente;
     const fechaHoy = new Date().toLocaleDateString('es-CR');
+    const patologiasHtml = patologias.length > 0
+      ? patologias.map((p, i) => `<tr>
+          <td>${i + 1}</td>
+          <td>${escapePdfHtml(capitalize(p.nombre))}</td>
+        </tr>`).join('')
+      : `<tr><td colspan="2">No hay patologías asociadas a este residente</td></tr>`;
+
+    const administracionesHtml = administraciones.length > 0
+      ? administraciones.map((adm) => `
+          <div class="section">
+            <div class="meta">Turno: <strong>${escapePdfHtml(adm.turno)}</strong></div>
+            <div class="turnos">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Medicamento</th>
+                    <th>Cantidad</th>
+                    <th>Unidad</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${adm.administracionMedicamentos.length > 0
+                    ? adm.administracionMedicamentos.map((m, j) => `
+                        <tr>
+                          <td>${j + 1}</td>
+                          <td>${escapePdfHtml(capitalize(m.medicamento.nombre))}</td>
+                          <td>${escapePdfHtml(m.cantidad)}</td>
+                          <td>${escapePdfHtml(m.unidad.abreviatura)}</td>
+                        </tr>`).join('')
+                    : `<tr><td colspan="4">No hay medicamentos asociados en este turno</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </div>`)
+        .join('')
+      : `
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Medicamento</th>
+              <th>Cantidad</th>
+              <th>Unidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4">No hay medicamentos asociados a este residente</td></tr>
+          </tbody>
+        </table>
+      `;
+
+    const administracionesEspecialesHtml = administracionesEspeciales.length > 0
+      ? administracionesEspeciales.map((ae, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${escapePdfHtml(ae.hora)}</td>
+            <td>${escapePdfHtml(capitalize(ae.medicamento.nombre))}</td>
+            <td>${escapePdfHtml(ae.cantidad)}</td>
+            <td>${escapePdfHtml(ae.unidad.abreviatura)}</td>
+          </tr>`).join('')
+      : `<tr><td colspan="5">No hay medicamentos especiales asociados a este residente</td></tr>`;
+
     return buildStandardPdfHtml({
       title: 'Expediente de residente',
       metaLines: [`Fecha de reporte: <strong>${escapePdfHtml(fechaHoy)}</strong>`],
@@ -150,41 +236,14 @@ export class ReporteExpedienteService {
                 </tr>
               </thead>
               <tbody>
-                ${patologias.map((p, i) => `<tr>
-                  <td>${i + 1}</td>
-                  <td>${escapePdfHtml(capitalize(p.nombre))}</td>
-                </tr>`).join('')}
+                ${patologiasHtml}
               </tbody>
             </table>
           </div>
 
           <div class="section">
             <h3>Administraciones</h3>
-            ${administraciones.map((adm) => `
-              <div class="section">
-                <div class="meta">Turno: <strong>${escapePdfHtml(adm.turno)}</strong></div>
-                <div class="turnos">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Medicamento</th>
-                        <th>Cantidad</th>
-                        <th>Unidad</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${adm.administracionMedicamentos.map((m, j) => `
-                        <tr>
-                          <td>${j + 1}</td>
-                          <td>${escapePdfHtml(capitalize(m.medicamento.nombre))}</td>
-                          <td>${escapePdfHtml(m.cantidad)}</td>
-                          <td>${escapePdfHtml(m.unidad.abreviatura)}</td>
-                        </tr>`).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              </div>`).join('')}
+            ${administracionesHtml}
           </div>
 
           <div class="section">
@@ -200,14 +259,7 @@ export class ReporteExpedienteService {
                 </tr>
               </thead>
               <tbody>
-                ${administracionesEspeciales.map((ae, i) => `
-                  <tr>
-                    <td>${i + 1}</td>
-                    <td>${escapePdfHtml(ae.hora)}</td>
-                    <td>${escapePdfHtml(capitalize(ae.medicamento.nombre))}</td>
-                    <td>${escapePdfHtml(ae.cantidad)}</td>
-                    <td>${escapePdfHtml(ae.unidad.abreviatura)}</td>
-                  </tr>`).join('')}
+                ${administracionesEspecialesHtml}
               </tbody>
             </table>
           </div>
