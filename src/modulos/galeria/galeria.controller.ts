@@ -6,6 +6,7 @@ import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { UpdateCategoriaImagenDto } from './dto/updateCategoriaImagenDto';
 import { UpdateCategoriaDto } from './dto/updateCategoriaDto';
 import { AuthGuard } from '../autenticacion/guard/auth.guard';
+import { assertValidImageUpload } from 'src/common/utils/imageUploadValidation';
 
 @Controller('galeria')
 export class GaleriaController {
@@ -38,7 +39,6 @@ export class GaleriaController {
 
 
     //Imagenes
-
     @UseGuards(AuthGuard)
     @Post('createImagen')
     @UseInterceptors(FileInterceptor('imagen'))
@@ -48,7 +48,7 @@ export class GaleriaController {
     @UploadedFile() file: Express.Multer.File,
     @Body('categoriaId', ParseIntPipe) categoriaId: number,
     ) {
-    if (!file) throw new BadRequestException('Debes subir un archivo en el campo "imagen"');
+    assertValidImageUpload(file);
     return this.galeriaService.createImagen(file, categoriaId);
     }
 
