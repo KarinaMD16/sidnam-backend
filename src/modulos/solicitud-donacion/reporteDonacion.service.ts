@@ -5,6 +5,7 @@ import { Response as ExpressResponse } from 'express';
 import { PdfHtmlService } from 'src/common/services/pdf-html.service';
 import { RegistroDonacion } from '../solicitud-donacion/entities/registroDonacion.entity';
 import { ReporteDonacionesMensualDto } from '../solicitud-donacion/dto/reporteDonacionMensualDto';
+import { buildStandardPdfHtml, escapePdfHtml } from 'src/common/utils/pdfReportTemplate';
 
 @Injectable()
 export class ReporteDonacionesService {
@@ -89,70 +90,13 @@ export class ReporteDonacionesService {
       `;
     }).join('');
 
-    return `
-    <html>
-      <head>
-        <meta charset="utf-8"/>
-        <style>
-          :root {
-            --accent: #A7074D;
-            --text: #111;
-            --muted: #555;
-            --border: #d5d5d5;
-            --bg-alt: #f7f7f7;
-          }
-          * { box-sizing: border-box; }
-          body {
-            font-family: Arial, Helvetica, sans-serif;
-            color: var(--text);
-            padding: 24px;
-            font-size: 12px;
-            line-height: 1.35;
-          }
-          h1, h3 { margin: 0; }
-          h1 { font-size: 22px; }
-          h3 { font-size: 14px; margin-bottom: 8px; }
-
-          .heading {
-            display: grid;
-            grid-template-columns: 96px 1fr;
-            gap: 16px; align-items: center;
-            margin-bottom: 6px;
-          }
-          .logo{width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: none; display: block;}
-          .meta { color: var(--muted); margin-top: 4px; }
-
-          .two-col { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
-          @media print { .two-col { grid-template-columns: 1fr 1fr; } }
-          .box { border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
-
-          table { width: 100%; border-collapse: collapse; }
-          th, td { border: 1px solid var(--border); padding: 6px 8px; vertical-align: top; }
-          th { background: var(--accent); color: #fff; text-align: left; }
-          tbody tr:nth-child(even) { background: var(--bg-alt); }
-          .right { text-align: right; }
-          .center { text-align: center; }
-
-          .section-title { margin-top: 18px; margin-bottom: 8px; font-size: 14px; }
-          tr { page-break-inside: avoid; }
-          @page { margin: 40px 30px; }
-        </style>
-      </head>
-      <body>
-        <!-- Encabezado -->
-        <div class="heading">
-          <img class="logo" src="https://i.ibb.co/HDfRP6fX/1749848069832.png" alt="logo"/>
-          <div>
-            <h1>Reporte mensual de donaciones</h1>
-            <div class="meta">
-              Mes: <strong>${mesNombre}</strong> &nbsp;|&nbsp;
-              Corte por: <strong>Fecha de aprobación</strong>
-            </div>
-          </div>
-        </div>
-
-        <!-- Resumen + Aprobadas por usuario -->
-        <div class="two-col">
+    return buildStandardPdfHtml({
+      title: 'Reporte mensual de donaciones',
+      metaLines: [
+        `Mes: <strong>${escapePdfHtml(mesNombre)}</strong> | Corte por: <strong>Fecha de aprobación</strong>`,
+      ],
+      bodyHtml: `
+        <div class="two-col section">
           <div class="box">
             <h3>Resumen</h3>
             <table>
@@ -178,28 +122,28 @@ export class ReporteDonacionesService {
           </div>
         </div>
 
-        <!-- Detalle -->
-        <div class="section-title">Detalle</div>
-        <table>
-          <thead>
-            <tr>
-              <th>Cédula</th>
-              <th>Donador</th>
-              <th>Tipo</th>
-              <th>Anón.</th>
-              <th>Aprob./Creada en</th>
-              <th>Aprob./Creada por</th>
-              <th>Recibida</th>
-              <th>Recibida en</th>
-              <th>Descripción</th>
-              <th>Observaciones</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </body>
-    </html>
-    `;
+        <div class="section">
+          <div class="section-title">Detalle</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Cédula</th>
+                <th>Donador</th>
+                <th>Tipo</th>
+                <th>Anón.</th>
+                <th>Aprob./Creada en</th>
+                <th>Aprob./Creada por</th>
+                <th>Recibida</th>
+                <th>Recibida en</th>
+                <th>Descripción</th>
+                <th>Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `,
+    });
   }
 
  

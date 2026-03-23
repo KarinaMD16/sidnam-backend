@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Response as ExpressResponse } from 'express';
 import { PdfHtmlService } from 'src/common/services/pdf-html.service';
 import { EntradaMedicamento } from '../entities/entradaMedicamento.entity';
+import { buildStandardPdfHtml, capitalizePdfText, escapePdfHtml } from 'src/common/utils/pdfReportTemplate';
 
 @Injectable()
 export class ReporteEntradaMedicamentoService {
@@ -79,13 +80,8 @@ export class ReporteEntradaMedicamentoService {
   }
 
   // helpers
-  private esc(s: string) {
-    return String(s)
-      .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
-      .replaceAll('"','&quot;').replaceAll("'",'&#39;');
-  }
   private capitalize(s: string) {
-    return s.charAt(0).toUpperCase() + s.slice(1);
+    return capitalizePdfText(s);
   }
   private buildHtmlTabla(params: {
     titulo: string; anio: number; mes: number;
@@ -94,44 +90,21 @@ export class ReporteEntradaMedicamentoService {
     const { titulo, anio, mes, columnas, filas, totalRegistros } = params;
     const mesNombre = new Date(anio, mes - 1).toLocaleString('es-CR', { month: 'long', year: 'numeric' });
 
-    const head = columnas.map(c => `<th>${this.esc(c)}</th>`).join('');
-    const body = filas.map(r => `<tr>${r.map(v => `<td>${this.esc(v)}</td>`).join('')}</tr>`).join('');
+    const head = columnas.map(c => `<th>${escapePdfHtml(c)}</th>`).join('');
+    const body = filas.map(r => `<tr>${r.map(v => `<td>${escapePdfHtml(v)}</td>`).join('')}</tr>`).join('');
 
-    return `
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8"/>
-<style>
-  :root { --accent:#A7074D; --text:#111; --muted:#555; --border:#d5d5d5; --bg-alt:#f7f7f7; }
-  body{font-family:Arial,Helvetica,sans-serif;font-size:12px;margin:24px;color:var(--text)}
-  h1{margin:0 0 8px;font-size:28px}
-  .heading{display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:center;margin-bottom:6px}
-  .logo{width:96px;height:96px;border-radius:50%;object-fit:cover;border:none;display:block}
-  .meta{margin:0 0 12px;color:var(--muted)}
-  table{width:100%;border-collapse:collapse;margin-top:10px}
-  th,td{border:1px solid var(--border);padding:8px 10px;vertical-align:top}
-  th{background:var(--accent);color:#fff;text-align:left}
-  tbody tr:nth-child(even){background:var(--bg-alt)}
-  @page { margin: 40px 30px; }
-</style>
-</head>
-<body>
-  <div class="heading">
-    <img class="logo" src="https://i.ibb.co/HDfRP6fX/1749848069832.png" alt="logo"/>
-    <div>
-      <h1>${this.esc(titulo)}</h1>
-      <div class="meta">Mes: <strong>${this.esc(this.capitalize(mesNombre))}</strong></div>
-    </div>
-  </div>
-
-  <div style="margin:8px 0 14px 0;"><strong>Total registros:</strong> ${totalRegistros}</div>
-
-  <table>
-    <thead><tr>${head}</tr></thead>
-    <tbody>${body}</tbody>
-  </table>
-</body>
-</html>`.trim();
+    return buildStandardPdfHtml({
+      title: titulo,
+      metaLines: [
+        `Mes: <strong>${escapePdfHtml(this.capitalize(mesNombre))}</strong>`,
+        `Total registros: <strong>${totalRegistros}</strong>`,
+      ],
+      bodyHtml: `
+        <table>
+          <thead><tr>${head}</tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+      `,
+    });
   }
 }
