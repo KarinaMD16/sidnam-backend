@@ -134,6 +134,7 @@ dotenv.config();
       ],
       synchronize: true,
       dropSchema: false,
+      timezone: '-06:00',
     }),
     GaleriaModule,
     GestionUsuarioModule,
