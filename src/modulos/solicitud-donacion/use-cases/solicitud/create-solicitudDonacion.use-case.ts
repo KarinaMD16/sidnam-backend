@@ -4,6 +4,8 @@ import { Repository } from "typeorm";
 import { Solicitud_donacion_pendiente } from "../../entities/solicitudDonacionPendiente.entity";
 import { SolicitudDonacionGateway } from "../../solicitudDonacion.gateway";
 import { CrearSolicitudPendienteDto } from "../../dto/crearSolicitudPendienteDto";
+import { SolicitudDonacionPendienteResponse } from "../../types/solicitud-donacion-response.type";
+import { formatDateToCostaRica } from "src/common/utils/format-date-cr";
 
 @Injectable()
 export class CreateSolicitudDonacionUseCase {
@@ -18,7 +20,7 @@ export class CreateSolicitudDonacionUseCase {
     
       ) {}
 
-      async crearSolicitudDonacionPendiente(solicitud: CrearSolicitudPendienteDto): Promise<Solicitud_donacion_pendiente> {
+      async crearSolicitudDonacionPendiente(solicitud: CrearSolicitudPendienteDto): Promise<SolicitudDonacionPendienteResponse> {
       
                const crearSolicitud = this.solicitudPendiente.create({
                       cedula: solicitud.cedula,
@@ -39,6 +41,9 @@ export class CreateSolicitudDonacionUseCase {
                const total = await this.solicitudPendiente.count({where: {estado: 'pendiente'}})
                this.solicitudDonacionGateway.emitSolicitudesPendientesCount(total)
       
-               return solicitudPendiente;
+               return {
+                 ...solicitudPendiente,
+                 creadoEn: formatDateToCostaRica(solicitudPendiente.creadoEn),
+               };
           }
 }
