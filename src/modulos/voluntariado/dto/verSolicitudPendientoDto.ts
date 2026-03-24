@@ -3,6 +3,7 @@ import { IsArray, IsOptional, ValidateNested } from 'class-validator';
 import { HorarioPendienteDto } from './horarioPendienteDto';
 import { Sexo } from 'src/common/enums/rol.enum';
 import { ContactoEmergenciaDto } from './verContactoEmergenciaDto';
+import { formatDateCR } from 'src/common/helper/Intl.DateTimeFormat';
 
 export class verSolicitud{
   
@@ -53,16 +54,7 @@ export class verSolicitud{
   horarios?: HorarioPendienteDto[];
 
   @Expose()
-  @Transform(({ value }) => {
-    if (!value) return value;
-    // value es un objeto Date
-    const fecha = new Date(value);
-    // Formato: dd/mm/yyyy
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const anio = fecha.getFullYear();
-    return `${dia}/${mes}/${anio}`;
-  })
+  @Transform(({ value }) => (value ? formatDateCR(value) : value))
   creadoEn: string;
 
   @Expose()
