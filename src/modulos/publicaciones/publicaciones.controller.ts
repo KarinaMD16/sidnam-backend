@@ -13,6 +13,7 @@ import { HandleEstadoEventoDto } from './dto/handleEstadoEventoDto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { AuthGuard } from '../autenticacion/guard/auth.guard';
+import { assertValidImageUpload } from 'src/common/utils/imageUploadValidation';
 
 
 @Controller('publicaciones')
@@ -57,7 +58,7 @@ export class PublicacionesController {
   @UploadedFile() file: Express.Multer.File,
   @Body() dto: ProyectoDto,
    ) {
-    if (!file) throw new BadRequestException('Debes subir una imagen en el campo "imagen"');
+    assertValidImageUpload(file);
     return this.publicacionesService.createProyecto(dto, file);
   }
 
@@ -80,6 +81,7 @@ export class PublicacionesController {
  @Body() updateProyectoDto: updateProyectoDto,
   @UploadedFile() file?: Express.Multer.File,
 ) {
+    assertValidImageUpload(file, { required: false });
     return this.publicacionesService.updateProyecto(id, updateProyectoDto, file);
   }
 
@@ -138,7 +140,7 @@ async createDonacion(
   @UploadedFile() file: Express.Multer.File,
   @Body() dto: DonacionDto,
 ) {
-  if (!file) throw new BadRequestException('Debes subir una imagen en el campo "imagen"');
+  assertValidImageUpload(file);
   return this.publicacionesService.createDonacion(dto, file);
 }
 
@@ -162,6 +164,7 @@ async updateDonacion(
   @Body() updateDonacionDto: updateDonacionDto,
   @UploadedFile() file?: Express.Multer.File,
   ){
+    assertValidImageUpload(file, { required: false });
     return this.publicacionesService.updateDonacion(id, updateDonacionDto, file);
   }
 
@@ -221,7 +224,7 @@ async updateDonacion(
   @UploadedFile() file: Express.Multer.File,
   @Body() dto: EventoDto,
   ) {
-   if (!file) throw new BadRequestException('Debes subir una imagen en el campo "imagen"');
+   assertValidImageUpload(file);
    return this.publicacionesService.createEvento(dto, file);
   }
 
@@ -245,6 +248,7 @@ async updateEventos(
   @Body() updateEventos: updateEventosDto,
   @UploadedFile() file?: Express.Multer.File,
 ) {
+    assertValidImageUpload(file, { required: false });
     return this.publicacionesService.updateEventos(id, updateEventos, file);
   }
 

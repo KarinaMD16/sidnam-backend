@@ -7,6 +7,7 @@ import { UpdateUsuarioDto } from './dto/updateUsuarioDto';
 import { UpdateRolDto } from './dto/updateRolDto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { assertValidImageUpload } from 'src/common/utils/imageUploadValidation';
 
 
 
@@ -134,7 +135,7 @@ export class GestionUsuarioController {
     @UploadedFile() file: Express.Multer.File,
     @Body('usuarioId', ParseIntPipe) usuarioId: number,
     ) {
-    if (!file) throw new BadRequestException('Debes subir un archivo en el campo "imagen"');
+    assertValidImageUpload(file);
     return this.userService.createImagenUsuario(file, usuarioId);
     }
 
