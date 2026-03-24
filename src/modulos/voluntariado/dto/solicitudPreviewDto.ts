@@ -1,4 +1,5 @@
 import { Expose, Transform } from 'class-transformer';
+import { formatDateCR } from 'src/common/helper/Intl.DateTimeFormat';
 
 export class SolicitudPreviewDto {
   @Expose()
@@ -18,10 +19,6 @@ export class SolicitudPreviewDto {
   estado: string;
 
   @Expose()
-  @Transform(({ value }) => {
-    if (!value) return null;
-    const date = new Date(value);
-    return isNaN(date.getTime()) ? null : date.toLocaleDateString('es-CR');
-  })
-  creadoEn: string; 
+    @Transform(({ value }) => (value ? formatDateCR(value) : value))
+    creadoEn: string;
 }
