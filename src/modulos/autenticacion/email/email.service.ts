@@ -103,78 +103,143 @@ export class EmailService {
   } = params;
 
   const logoBase64 = this.getLogoBase64();
+  const isAccepted = estado === 'Aceptada';
 
-  // Diseño minimalista y corporativo, paleta: #A7074D, #DBBA6B, #1A1924, #FDF6F9, #FFF8E8
+  const accent = isAccepted ? '#1F7A5A' : '#B42318';
+  const softAccent = isAccepted ? '#EAF7F1' : '#FEF3F2';
+  const badgeText = isAccepted ? 'Aprobada' : 'No aprobada';
+  const indicator = isAccepted ? '●' : '●';
+
   return `
-  <div style="margin:0; padding:32px; background:#FDF6F9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; color:#1A1924;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:720px; margin:0 auto;">
-      <!-- Top bar -->
+  <div style="margin:0; padding:0; background:#F5F1EB;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F5F1EB; margin:0; padding:32px 16px; width:100%;">
       <tr>
-        <td style="padding:12px 0;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <td align="center">
+
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:640px;">
+            
+            <!-- Marca -->
             <tr>
-              <td style="vertical-align:middle;">
-                ${logoBase64 ? `<img src="${logoBase64}" alt="Hogar San Blas" style="height:44px; display:block;" />` : `<div style="font-weight:700; color:#A7074D; font-size:18px;">Hogar de Ancianos San Blas</div>`}
-              </td>
-              <td style="text-align:right; vertical-align:middle; font-size:13px; color:#6b6b6b;">
-                <span style="background:#FFF8E8; color:#1A1924; padding:6px 10px; border-radius:999px; border:1px solid #DBBA6B; font-weight:600;">${subtitulo}</span>
+              <td style="padding:0 0 18px 0;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td align="left" style="vertical-align:middle;">
+                      ${
+                        logoBase64
+                          ? `<img src="${logoBase64}" alt="Hogar de Ancianos San Blas" style="display:block; max-height:48px; width:auto; border:0;" />`
+                          : `<div style="font-family: Georgia, 'Times New Roman', serif; font-size:22px; line-height:1.2; color:#1E1B18; font-weight:700;">Hogar de Ancianos San Blas</div>`
+                      }
+                    </td>
+                    <td align="right" style="vertical-align:middle;">
+                      <span style="display:inline-block; font-family:Arial, Helvetica, sans-serif; font-size:12px; line-height:1; color:${accent}; background:${softAccent}; border:1px solid ${accent}; border-radius:999px; padding:8px 12px;">
+                        ${indicator}&nbsp;&nbsp;${badgeText}
+                      </span>
+                    </td>
+                  </tr>
+                </table>
               </td>
             </tr>
-          </table>
-        </td>
-      </tr>
 
-      <!-- Main card -->
-      <tr>
-        <td>
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:14px; overflow:hidden; border:1px solid rgba(26,25,36,0.06);">
+            <!-- Tarjeta principal -->
             <tr>
-              <!-- Left column: colored stripe + badge -->
-              <td width="120" style="background:linear-gradient(180deg, ${colorEstado} 0%, rgba(0,0,0,0.02) 100%); vertical-align:top; padding:22px; text-align:center;">
-                <div style="width:72px; height:72px; margin:0 auto 12px auto; border-radius:50%; background:#ffffff; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(0,0,0,0.06);">
-                  <span style="font-size:28px; font-weight:700; color:${colorEstado};">${estado === 'Aceptada' ? '✓' : '✕'}</span>
-                </div>
-                <div style="font-size:13px; color:#ffffff; font-weight:700;">${estado}</div>
-                <div style="font-size:12px; color:rgba(255,255,255,0.9); margin-top:6px;">${tipoProceso}</div>
-              </td>
+              <td style="background:#FFFFFF; border:1px solid #E7DED2; border-radius:24px; overflow:hidden;">
 
-              <!-- Right column: content -->
-              <td style="padding:28px;">
-                <h1 style="margin:0 0 8px 0; font-size:20px; color:#1A1924; font-weight:700;">${titulo}</h1>
-                <p style="margin:0 0 18px 0; font-size:14px; color:#6b6b6b;">Estimado(a) <strong style="color:#1A1924;">${nombre}</strong>,</p>
+                <!-- Línea superior -->
+                <div style="height:6px; line-height:6px; font-size:0; background:${accent};">&nbsp;</div>
 
-                <p style="margin:0 0 16px 0; font-size:15px; line-height:1.6; color:#333;">${mensajePrincipal}</p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  
+                  <!-- Encabezado -->
+                  <tr>
+                    <td style="padding:32px 32px 12px 32px;">
+                      <div style="font-family:Arial, Helvetica, sans-serif; font-size:12px; letter-spacing:1.2px; text-transform:uppercase; color:#7A6F63; margin:0 0 12px 0;">
+                        ${tipoProceso} · Notificación institucional
+                      </div>
 
-                ${mensajeSecundario ? `<p style="margin:0 0 18px 0; font-size:14px; line-height:1.6; color:#555;">${mensajeSecundario}</p>` : ''}
+                      <h1 style="margin:0; font-family:Georgia, 'Times New Roman', serif; font-size:31px; line-height:1.2; color:#1E1B18; font-weight:700;">
+                        ${titulo}
+                      </h1>
+                    </td>
+                  </tr>
 
-                <!-- CTA destacado -->
-                <div style="margin-top:18px;">
-                  <a href="#" style="display:inline-block; background:${colorEstado === '#c52238' ? '#c52238' : '#A7074D'}; color:#ffffff; text-decoration:none; padding:12px 18px; border-radius:10px; font-weight:700; font-size:14px; box-shadow:0 6px 18px rgba(167,7,77,0.18);">Ver detalles</a>
-                </div>
+                  <!-- Saludo y subtítulo -->
+                  <tr>
+                    <td style="padding:0 32px 8px 32px;">
+                      <p style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:16px; line-height:1.7; color:#332E29;">
+                        Estimado(a) <strong>${nombre}</strong>,
+                      </p>
+                    </td>
+                  </tr>
 
-                <!-- Subtle divider -->
-                <div style="height:1px; background:linear-gradient(90deg, rgba(26,25,36,0.04), rgba(26,25,36,0.02)); margin:20px 0;"></div>
+                  <tr>
+                    <td style="padding:0 32px 24px 32px;">
+                      <p style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:1.7; color:#7A6F63;">
+                        ${subtitulo}
+                      </p>
+                    </td>
+                  </tr>
 
-                <!-- Small print and institutional note -->
-                <p style="margin:0; font-size:12px; color:#8a8a8a;">Si necesita asistencia adicional, responda a este correo o visite nuestras instalaciones para coordinar la asignación de actividades.</p>
+                  <!-- Bloque destacado -->
+                  <tr>
+                    <td style="padding:0 32px 24px 32px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAF7F2; border:1px solid #EEE5DA; border-radius:18px;">
+                        <tr>
+                          <td style="padding:22px 22px 22px 22px;">
+                            <p style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:16px; line-height:1.8; color:#2C2621;">
+                              ${mensajePrincipal}
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
 
-                <div style="margin-top:12px; padding:12px; background:#FFF8E8; border-radius:8px; border:1px solid #DBBA6B;">
-                  <p style="margin:0; font-size:13px; color:#1A1924;">Este mensaje ha sido emitido por el <strong>Hogar de Ancianos San Blas</strong> como parte del seguimiento institucional.</p>
-                </div>
+                  ${
+                    mensajeSecundario
+                      ? `
+                  <tr>
+                    <td style="padding:0 32px 28px 32px;">
+                      <p style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:15px; line-height:1.8; color:#4F463E;">
+                        ${mensajeSecundario}
+                      </p>
+                    </td>
+                  </tr>
+                  `
+                      : ''
+                  }
+
+                  <!-- Nota institucional -->
+                  <tr>
+                    <td style="padding:0 32px 32px 32px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #EEE5DA;">
+                        <tr>
+                          <td style="padding-top:20px;">
+                            <p style="margin:0 0 10px 0; font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:1.7; color:#7A6F63;">
+                              Este mensaje ha sido emitido por el <strong style="color:#332E29;">Hogar de Ancianos San Blas</strong> como parte del seguimiento administrativo correspondiente.
+                            </p>
+                            <p style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:1.7; color:#7A6F63;">
+                              Si requiere más información, puede responder a este correo o comunicarse con la institución por los medios oficiales.
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                </table>
               </td>
             </tr>
-          </table>
-        </td>
-      </tr>
 
-      <!-- Footer -->
-      <tr>
-        <td style="padding:18px 0; text-align:center; color:#9b9b9b; font-size:12px;">
-          <div style="display:flex; justify-content:center; gap:12px; align-items:center; flex-wrap:wrap;">
-            <span>© Hogar de Ancianos San Blas</span>
-            <span style="color:#DBBA6B;">•</span>
-            <span>Correo generado automáticamente</span>
-          </div>
+            <!-- Footer -->
+            <tr>
+              <td align="center" style="padding:18px 12px 0 12px;">
+                <p style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:12px; line-height:1.6; color:#8A7F73;">
+                  © Hogar de Ancianos San Blas · Correo generado automáticamente
+                </p>
+              </td>
+            </tr>
+
+          </table>
         </td>
       </tr>
     </table>
