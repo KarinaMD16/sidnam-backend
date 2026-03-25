@@ -81,7 +81,7 @@ export class EmailService {
     }
   }
 
- private buildInstitutionalTemplate(params: {
+private buildInstitutionalTemplate(params: {
   nombre: string;
   titulo: string;
   subtitulo: string;
@@ -99,26 +99,37 @@ export class EmailService {
     mensajeSecundario,
     tipoProceso,
     estado,
-    colorEstado,
   } = params;
 
   const logoBase64 = this.getLogoBase64();
   const isAccepted = estado === 'Aceptada';
 
-  const accent = isAccepted ? '#1F7A5A' : '#B42318';
-  const softAccent = isAccepted ? '#EAF7F1' : '#FEF3F2';
+  // Paleta institucional
+  const brandPrimary = '#A7074D';
+  const brandAccent = '#DBBA6B';
+  const background = '#F8F4EF';
+  const cardBackground = '#FFFFFF';
+  const softGold = '#F6E7BE';
+  const softRose = '#F8D7E6';
+  const border = '#E9DED2';
+  const textPrimary = '#241915';
+  const textSecondary = '#6B5A52';
+
+  // Estados usando la misma identidad
+  const stateBg = isAccepted ? '#F7EAF1' : '#FFF4F7';
+  const stateBorder = isAccepted ? '#D88AAF' : '#E7A8C3';
+  const stateText = brandPrimary;
   const badgeText = isAccepted ? 'Aprobada' : 'No aprobada';
-  const indicator = isAccepted ? '●' : '●';
 
   return `
-  <div style="margin:0; padding:0; background:#F5F1EB;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F5F1EB; margin:0; padding:32px 16px; width:100%;">
+  <div style="margin:0; padding:0; background:${background};">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${background}; margin:0; padding:36px 16px; width:100%;">
       <tr>
         <td align="center">
 
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:640px;">
-            
-            <!-- Marca -->
+
+            <!-- Header de marca -->
             <tr>
               <td style="padding:0 0 18px 0;">
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -126,13 +137,24 @@ export class EmailService {
                     <td align="left" style="vertical-align:middle;">
                       ${
                         logoBase64
-                          ? `<img src="${logoBase64}" alt="Hogar de Ancianos San Blas" style="display:block; max-height:48px; width:auto; border:0;" />`
-                          : `<div style="font-family: Georgia, 'Times New Roman', serif; font-size:22px; line-height:1.2; color:#1E1B18; font-weight:700;">Hogar de Ancianos San Blas</div>`
+                          ? `<img src="${logoBase64}" alt="Hogar de Ancianos San Blas" style="display:block; max-height:52px; width:auto; border:0;" />`
+                          : `<div style="font-family: Georgia, 'Times New Roman', serif; font-size:24px; line-height:1.2; color:${brandPrimary}; font-weight:700;">Hogar de Ancianos San Blas</div>`
                       }
                     </td>
                     <td align="right" style="vertical-align:middle;">
-                      <span style="display:inline-block; font-family:Arial, Helvetica, sans-serif; font-size:12px; line-height:1; color:${accent}; background:${softAccent}; border:1px solid ${accent}; border-radius:999px; padding:8px 12px;">
-                        ${indicator}&nbsp;&nbsp;${badgeText}
+                      <span style="
+                        display:inline-block;
+                        font-family:Arial, Helvetica, sans-serif;
+                        font-size:12px;
+                        line-height:1;
+                        color:${stateText};
+                        background:${stateBg};
+                        border:1px solid ${stateBorder};
+                        border-radius:999px;
+                        padding:9px 14px;
+                        font-weight:600;
+                      ">
+                        ${badgeText}
                       </span>
                     </td>
                   </tr>
@@ -140,40 +162,87 @@ export class EmailService {
               </td>
             </tr>
 
-            <!-- Tarjeta principal -->
+            <!-- Card principal -->
             <tr>
-              <td style="background:#FFFFFF; border:1px solid #E7DED2; border-radius:24px; overflow:hidden;">
+              <td style="
+                background:${cardBackground};
+                border:1px solid ${border};
+                border-radius:24px;
+                overflow:hidden;
+                box-shadow:0 8px 24px rgba(167, 7, 77, 0.06);
+              ">
 
-                <!-- Línea superior -->
-                <div style="height:6px; line-height:6px; font-size:0; background:${accent};">&nbsp;</div>
+                <!-- Franja superior institucional -->
+                <div style="height:8px; line-height:8px; font-size:0; background:linear-gradient(90deg, ${brandPrimary} 0%, ${brandPrimary} 70%, ${brandAccent} 100%);">
+                  &nbsp;
+                </div>
 
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-                  
+
                   <!-- Encabezado -->
                   <tr>
-                    <td style="padding:32px 32px 12px 32px;">
-                      <div style="font-family:Arial, Helvetica, sans-serif; font-size:12px; letter-spacing:1.2px; text-transform:uppercase; color:#7A6F63; margin:0 0 12px 0;">
-                        ${tipoProceso} · Notificación institucional
+                    <td style="padding:34px 34px 12px 34px;">
+                      <div style="
+                        font-family:Arial, Helvetica, sans-serif;
+                        font-size:12px;
+                        letter-spacing:1.2px;
+                        text-transform:uppercase;
+                        color:${brandPrimary};
+                        font-weight:700;
+                        margin:0 0 14px 0;
+                      ">
+                        ${tipoProceso} · Comunicación oficial
                       </div>
 
-                      <h1 style="margin:0; font-family:Georgia, 'Times New Roman', serif; font-size:31px; line-height:1.2; color:#1E1B18; font-weight:700;">
+                      <h1 style="
+                        margin:0;
+                        font-family:Georgia, 'Times New Roman', serif;
+                        font-size:32px;
+                        line-height:1.18;
+                        color:${textPrimary};
+                        font-weight:700;
+                      ">
                         ${titulo}
                       </h1>
                     </td>
                   </tr>
 
-                  <!-- Saludo y subtítulo -->
+                  <!-- Línea/acento -->
                   <tr>
-                    <td style="padding:0 32px 8px 32px;">
-                      <p style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:16px; line-height:1.7; color:#332E29;">
+                    <td style="padding:0 34px 22px 34px;">
+                      <div style="
+                        width:72px;
+                        height:4px;
+                        background:${brandAccent};
+                        border-radius:999px;
+                      "></div>
+                    </td>
+                  </tr>
+
+                  <!-- Saludo -->
+                  <tr>
+                    <td style="padding:0 34px 8px 34px;">
+                      <p style="
+                        margin:0;
+                        font-family:Arial, Helvetica, sans-serif;
+                        font-size:16px;
+                        line-height:1.8;
+                        color:${textPrimary};
+                      ">
                         Estimado(a) <strong>${nombre}</strong>,
                       </p>
                     </td>
                   </tr>
 
                   <tr>
-                    <td style="padding:0 32px 24px 32px;">
-                      <p style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:1.7; color:#7A6F63;">
+                    <td style="padding:0 34px 24px 34px;">
+                      <p style="
+                        margin:0;
+                        font-family:Arial, Helvetica, sans-serif;
+                        font-size:14px;
+                        line-height:1.8;
+                        color:${textSecondary};
+                      ">
                         ${subtitulo}
                       </p>
                     </td>
@@ -181,11 +250,21 @@ export class EmailService {
 
                   <!-- Bloque destacado -->
                   <tr>
-                    <td style="padding:0 32px 24px 32px;">
-                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAF7F2; border:1px solid #EEE5DA; border-radius:18px;">
+                    <td style="padding:0 34px 24px 34px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
+                        background:linear-gradient(180deg, #FFFDF8 0%, #FFF9EF 100%);
+                        border:1px solid #F0DFC0;
+                        border-radius:18px;
+                      ">
                         <tr>
-                          <td style="padding:22px 22px 22px 22px;">
-                            <p style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:16px; line-height:1.8; color:#2C2621;">
+                          <td style="padding:24px;">
+                            <p style="
+                              margin:0;
+                              font-family:Arial, Helvetica, sans-serif;
+                              font-size:16px;
+                              line-height:1.85;
+                              color:${textPrimary};
+                            ">
                               ${mensajePrincipal}
                             </p>
                           </td>
@@ -198,8 +277,14 @@ export class EmailService {
                     mensajeSecundario
                       ? `
                   <tr>
-                    <td style="padding:0 32px 28px 32px;">
-                      <p style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:15px; line-height:1.8; color:#4F463E;">
+                    <td style="padding:0 34px 28px 34px;">
+                      <p style="
+                        margin:0;
+                        font-family:Arial, Helvetica, sans-serif;
+                        font-size:15px;
+                        line-height:1.8;
+                        color:${textSecondary};
+                      ">
                         ${mensajeSecundario}
                       </p>
                     </td>
@@ -208,17 +293,32 @@ export class EmailService {
                       : ''
                   }
 
-                  <!-- Nota institucional -->
+                  <!-- Cierre -->
                   <tr>
-                    <td style="padding:0 32px 32px 32px;">
-                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #EEE5DA;">
+                    <td style="padding:0 34px 32px 34px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${border};">
                         <tr>
-                          <td style="padding-top:20px;">
-                            <p style="margin:0 0 10px 0; font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:1.7; color:#7A6F63;">
-                              Este mensaje ha sido emitido por el <strong style="color:#332E29;">Hogar de Ancianos San Blas</strong> como parte del seguimiento administrativo correspondiente.
+                          <td style="padding-top:22px;">
+                            <p style="
+                              margin:0 0 10px 0;
+                              font-family:Arial, Helvetica, sans-serif;
+                              font-size:13px;
+                              line-height:1.75;
+                              color:${textSecondary};
+                            ">
+                              Este mensaje fue emitido por el
+                              <strong style="color:${brandPrimary};">Hogar de Ancianos San Blas</strong>
+                              como parte del seguimiento administrativo correspondiente.
                             </p>
-                            <p style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:1.7; color:#7A6F63;">
-                              Si requiere más información, puede responder a este correo o comunicarse con la institución por los medios oficiales.
+
+                            <p style="
+                              margin:0;
+                              font-family:Arial, Helvetica, sans-serif;
+                              font-size:13px;
+                              line-height:1.75;
+                              color:${textSecondary};
+                            ">
+                              Ante cualquier consulta, puede responder a este correo o comunicarse mediante los canales oficiales de la institución.
                             </p>
                           </td>
                         </tr>
@@ -233,7 +333,13 @@ export class EmailService {
             <!-- Footer -->
             <tr>
               <td align="center" style="padding:18px 12px 0 12px;">
-                <p style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:12px; line-height:1.6; color:#8A7F73;">
+                <p style="
+                  margin:0;
+                  font-family:Arial, Helvetica, sans-serif;
+                  font-size:12px;
+                  line-height:1.6;
+                  color:${textSecondary};
+                ">
                   © Hogar de Ancianos San Blas · Correo generado automáticamente
                 </p>
               </td>
