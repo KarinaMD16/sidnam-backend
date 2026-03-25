@@ -82,110 +82,75 @@ export class EmailService {
   }
 
   private buildInstitutionalTemplate(params: {
-    nombre: string;
-    titulo: string;
-    subtitulo: string;
-    mensajePrincipal: string;
-    mensajeSecundario?: string;
-    tipoProceso: 'Voluntariado' | 'Donación';
-    estado: 'Aceptada' | 'Rechazada';
-    colorEstado: string;
-  }): string {
-    const {
-      nombre,
-      titulo,
-      subtitulo,
-      mensajePrincipal,
-      mensajeSecundario,
-      tipoProceso,
-      estado,
-      colorEstado,
-    } = params;
+  nombre: string;
+  titulo: string;
+  subtitulo: string;
+  mensajePrincipal: string;
+  mensajeSecundario?: string;
+  tipoProceso: 'Voluntariado' | 'Donación';
+  estado: 'Aceptada' | 'Rechazada';
+  colorEstado: string;
+}): string {
+  const {
+    nombre,
+    titulo,
+    subtitulo,
+    mensajePrincipal,
+    mensajeSecundario,
+    tipoProceso,
+    estado,
+    colorEstado,
+  } = params;
 
-    const logoBase64 = this.getLogoBase64();
+  const logoBase64 = this.getLogoBase64();
 
-    return `
-      <div style="margin:0; padding:32px 16px; background-color:#f6f3ee;">
-        <div style="max-width:640px; margin:0 auto; background:#ffffff; border:1px solid #e6dcc8; border-radius:24px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,0.08);">
-          
-          <div style="background:linear-gradient(135deg, #a10d5e 0%, #7d0e49 100%); padding:32px 24px; text-align:center;">
-            ${
-              logoBase64
-                ? `<img src="${logoBase64}" alt="Hogar de Ancianos San Blas" style="width:110px; max-width:100%; height:auto; display:block; margin:0 auto 16px auto;" />`
-                : ''
-            }
-            <div style="font-family: Arial, sans-serif; color:#f3d27a; font-size:13px; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">
-              Hogar de Ancianos San Blas
-            </div>
-            <div style="font-family: Arial, sans-serif; color:#ffffff; font-size:24px; font-weight:bold; margin-top:10px; line-height:1.3;">
-              ${titulo}
-            </div>
-            <div style="font-family: Arial, sans-serif; color:#f9e7bf; font-size:14px; margin-top:8px; line-height:1.5;">
-              ${subtitulo}
-            </div>
-          </div>
+  return `
+    <div style="margin:0; padding:0; background-color:#ffffff; font-family: Arial, sans-serif; color:#2f2f2f;">
+      <!-- Header -->
+      <div style="background:linear-gradient(135deg, #a10d5e 0%, #7d0e49 100%); padding:32px; text-align:center;">
+        ${
+          logoBase64
+            ? `<img src="${logoBase64}" alt="Logo Hogar San Blas" style="width:100px; margin-bottom:16px;" />`
+            : ''
+        }
+        <h1 style="margin:0; font-size:22px; color:#ffffff;">${titulo}</h1>
+        <p style="margin:8px 0 0 0; font-size:14px; color:#f3d27a;">${subtitulo}</p>
+      </div>
 
-          <div style="padding:32px 28px 20px 28px; font-family: Arial, sans-serif; color:#2f2f2f;">
-            <p style="margin:0 0 16px 0; font-size:16px; line-height:1.7;">
-              Estimado(a) <strong>${nombre}</strong>,
-            </p>
+      <!-- Body -->
+      <div style="max-width:640px; margin:0 auto; padding:32px; background-color:#fafafa;">
+        <p style="font-size:16px;">Estimado(a) <strong>${nombre}</strong>,</p>
 
-            <div style="margin:0 0 24px 0; padding:16px 18px; border-left:5px solid ${colorEstado}; background:#faf7f2; border-radius:12px;">
-              <p style="margin:0; font-size:15px; line-height:1.7; color:#3f3f3f;">
-                <strong>Estado de la solicitud:</strong>
-                <span style="color:${colorEstado}; font-weight:bold;">${estado}</span>
-              </p>
-              <p style="margin:8px 0 0 0; font-size:15px; line-height:1.7; color:#3f3f3f;">
-                <strong>Tipo de proceso:</strong> ${tipoProceso}
-              </p>
-            </div>
+        <div style="margin:24px 0; padding:16px; border-left:5px solid ${colorEstado}; background:#fff; border-radius:12px;">
+          <p style="margin:0; font-size:15px;"><strong>Estado:</strong> <span style="color:${colorEstado}; font-weight:bold;">${estado}</span></p>
+          <p style="margin:8px 0 0 0; font-size:15px;"><strong>Proceso:</strong> ${tipoProceso}</p>
+        </div>
 
-            <p style="margin:0 0 16px 0; font-size:15px; line-height:1.8;">
-              ${mensajePrincipal}
-            </p>
+        <p style="font-size:15px; line-height:1.6;">${mensajePrincipal}</p>
 
-            ${
-              mensajeSecundario
-                ? `<p style="margin:0 0 16px 0; font-size:15px; line-height:1.8; color:#4a4a4a;">
-                    ${mensajeSecundario}
-                  </p>`
-                : ''
-            }
+        ${
+          mensajeSecundario
+            ? `<p style="font-size:15px; line-height:1.6; color:#444;">${mensajeSecundario}</p>`
+            : ''
+        }
 
-            <p style="margin:0 0 16px 0; font-size:15px; line-height:1.8;">
-              Este mensaje ha sido enviado por el <strong>Hogar de Ancianos San Blas, Nicoya, Guanacaste</strong>,
-              como parte del seguimiento institucional de su solicitud.
-            </p>
-
-            <div style="margin-top:28px; padding:18px; background:#fff8e8; border:1px solid #efd99a; border-radius:14px;">
-              <p style="margin:0; font-size:14px; line-height:1.7; color:#5a4a1a;">
-                Para cualquier consulta adicional, puede responder a este correo o comunicarse por los canales oficiales del Hogar de Ancianos San Blas.
-              </p>
-            </div>
-          </div>
-
-          <div style="padding:20px 28px 30px 28px; font-family: Arial, sans-serif; color:#2f2f2f;">
-            <p style="margin:0 0 8px 0; font-size:15px;">Atentamente,</p>
-            <p style="margin:0; font-size:15px; font-weight:bold; color:#a10d5e;">
-              Administración
-            </p>
-            <p style="margin:4px 0 0 0; font-size:14px; color:#555;">
-              Hogar de Ancianos San Blas
-            </p>
-            <p style="margin:4px 0 0 0; font-size:14px; color:#555;">
-              Nicoya, Guanacaste, Costa Rica
-            </p>
-          </div>
-
-          <div style="background:#f4ecdb; padding:14px 20px; text-align:center; border-top:1px solid #e6dcc8;">
-            <p style="margin:0; font-family: Arial, sans-serif; font-size:12px; line-height:1.6; color:#6a665f;">
-              Este es un correo informativo generado por el sistema institucional del Hogar de Ancianos San Blas.
-            </p>
-          </div>
+        <div style="margin-top:24px; padding:16px; background:#fff8e8; border:1px solid #efd99a; border-radius:12px;">
+          <p style="margin:0; font-size:14px; color:#5a4a1a;">
+            Este mensaje ha sido emitido por el <strong>Hogar de Ancianos San Blas</strong> como parte del seguimiento institucional.
+          </p>
         </div>
       </div>
-    `;
-  }
+
+      <!-- Footer -->
+      <div style="background-color:#000; padding:16px; text-align:center;">
+        <p style="margin:0; font-size:12px; color:#ffffff;">
+          © Hogar de Ancianos San Blas - Correo generado automáticamente.
+        </p>
+      </div>
+    </div>
+  `;
+}
+
 
   // 🔐 Enlace de restablecimiento de contraseña
   public async sendResetPasswordLink(email: string): Promise<void> {
