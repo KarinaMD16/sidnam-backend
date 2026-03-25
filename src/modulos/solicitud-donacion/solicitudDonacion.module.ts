@@ -15,6 +15,7 @@ import { GetRegistrosDonacionUseCase } from "./use-cases/registro/get-RegistroDo
 import { UpdateRegistroDonacionUseCase } from "./use-cases/registro/update-RegistroDonacion.use-case";
 import { ReporteDonacionesService } from "./reporteDonacion.service";
 import { PdfHtmlService } from "src/common/services/pdf-html.service";
+import { VoluntariadoModule } from "../voluntariado/voluntariado.module";
 
 
 
@@ -23,6 +24,7 @@ import { PdfHtmlService } from "src/common/services/pdf-html.service";
         TypeOrmModule.forFeature([RegistroDonacion, Solicitud_donacion_pendiente, Donador,]),
         AutenticacionModule,
         GestionUsuarioModule,
+        VoluntariadoModule
     ],
     providers: [SolicitudDonacionService, SolicitudDonacionGateway, CreateSolicitudDonacionUseCase, GetSolicitudesDonacionUseCase, CreateRegistroDonacionUseCase, GetRegistrosDonacionUseCase, UpdateRegistroDonacionUseCase, ReporteDonacionesService, PdfHtmlService],
     controllers: [SolicitudDonacionController],

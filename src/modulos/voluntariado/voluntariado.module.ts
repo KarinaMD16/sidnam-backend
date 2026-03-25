@@ -31,6 +31,7 @@ import { DeleteExpediente } from './use-cases/expediente/delete-expediente.use-c
   AutenticacionModule,
   GestionUsuarioModule],
   providers: [VoluntariadoService, VoluntariadoGateway, UpdateExpedienteUseCase, CreateExpedienteUseCase, CreateSolicitudUseCase, GetExpedientesUseCase, GetSolicitudesUseCase, PdfHtmlService, ReporteService, DeleteExpediente],
-  controllers: [VoluntariadoController]
+  controllers: [VoluntariadoController],
+  exports: [VoluntariadoGateway],
 })
 export class VoluntariadoModule {}
