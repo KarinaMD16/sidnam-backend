@@ -189,16 +189,23 @@ async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: 
             const ultimaSolicitudPendiente = await this.solicitudPendiente.findOne({
                 where: { estado: 'pendiente' },
                 order: { id: 'DESC' },
-            }); 
+            });
 
-            if(!ultimaSolicitudPendiente){
-                this.voluntariadoGateway.emitirNomasSolicitudesPendientes();
+            if (!ultimaSolicitudPendiente) {
+                this.voluntariadoGateway.emitirNomasSolicitudesPendientes('donacion');
                 return;
             }
 
             this.voluntariadoGateway.emitSolicitudesPendientesCount(
                 totalPendientes,
-                ultimaSolicitudPendiente,
+                {
+                id: ultimaSolicitudPendiente.id,
+                nombre: ultimaSolicitudPendiente.nombre,
+                apellido1: ultimaSolicitudPendiente.apellido1,
+                apellido2: ultimaSolicitudPendiente.apellido2,
+                email: ultimaSolicitudPendiente.email,
+                tipo: 'donacion',
+                },
             );
         }
 }
