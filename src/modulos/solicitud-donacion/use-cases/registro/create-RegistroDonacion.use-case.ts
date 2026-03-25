@@ -73,10 +73,10 @@ async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: 
     
             if (estado === 'aprobada') {
                 await this.crearSolicitudDonacionOficial(solicitud, usuario);
+                 solicitud.estado = estado;
+                await this.solicitudPendiente.save(solicitud);
                 const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
                 await this.emitirTotalSolicitudesPendientes(totalPendientes);
-                solicitud.estado = estado;
-                await this.solicitudPendiente.save(solicitud);
                 return {message: 'Esta solicitud ha sido aceptada'};
             }
     
