@@ -126,226 +126,207 @@ private buildInstitutionalTemplate(params: {
   const badgeText = isAccepted ? 'Aprobada' : 'No aprobada';
 
   return `
-<div style="margin:0; padding:0; background:${background};">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${background}; margin:0; padding:36px 16px; width:100%;">
-    <tr>
-      <td align="center">
-
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:640px;">
-
-          <!-- Card principal -->
-          <tr>
-            <td style="
-              background:${cardBackground};
-              border:1px solid ${border};
-              border-radius:24px;
-              overflow:hidden;
-              box-shadow:0 8px 24px rgba(167, 7, 77, 0.06);
-            ">
-
-              <!-- Franja superior -->
-              <div style="height:8px; line-height:8px; font-size:0; background:linear-gradient(90deg, ${brandPrimary} 0%, ${brandPrimary} 70%, ${brandAccent} 100%);">
-                &nbsp;
-              </div>
-
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-
-                <!-- Encabezado con logo -->
-                <tr>
-                  <td style="padding:28px 34px 12px 34px;">
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-
-                        <!-- Texto -->
-                        <td align="left" style="vertical-align:top; padding-right:12px;">
-                          <div style="
-                            font-family:Arial, Helvetica, sans-serif;
-                            font-size:12px;
-                            letter-spacing:1.2px;
-                            text-transform:uppercase;
-                            color:${brandPrimary};
-                            font-weight:700;
-                            margin:0 0 14px 0;
-                          ">
-                            ${tipoProceso} · Comunicación oficial
-                          </div>
-
-                          <h1 style="
-                            margin:0;
-                            font-family:Georgia, 'Times New Roman', serif;
-                            font-size:30px;
-                            line-height:1.2;
-                            color:${textPrimary};
-                            font-weight:700;
-                          ">
-                            ${titulo}
-                          </h1>
-                        </td>
-
-                        <!-- Logo -->
-                        <td align="right" style="vertical-align:top; width:100px;">
-                          <img
-                            src="${logoUrl}"
-                            alt="Hogar de Ancianos San Blas"
-                            width="90"
-                            style="
-                              display:block;
-                              width:90px;
-                              max-width:90px;
-                              height:auto;
-                              border:0;
-                            "
-                          />
-                        </td>
-
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- Línea -->
-                <tr>
-                  <td style="padding:0 34px 22px 34px;">
-                    <div style="
-                      width:72px;
-                      height:4px;
-                      background:${brandAccent};
-                      border-radius:999px;
-                    "></div>
-                  </td>
-                </tr>
-
-                <!-- Saludo -->
-                <tr>
-                  <td style="padding:0 34px 8px 34px;">
-                    <p style="
-                      margin:0;
-                      font-family:Arial, Helvetica, sans-serif;
-                      font-size:16px;
-                      line-height:1.8;
-                      color:${textPrimary};
-                    ">
-                      Estimado(a) <strong>${nombre}</strong>,
-                    </p>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td style="padding:0 34px 24px 34px;">
-                    <p style="
-                      margin:0;
-                      font-family:Arial, Helvetica, sans-serif;
-                      font-size:14px;
-                      line-height:1.8;
-                      color:${textSecondary};
-                    ">
-                      ${subtitulo}
-                    </p>
-                  </td>
-                </tr>
-
-                <!-- Bloque -->
-                <tr>
-                  <td style="padding:0 34px 24px 34px;">
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
-                      background:linear-gradient(180deg, #FFFDF8 0%, #FFF9EF 100%);
-                      border:1px solid #F0DFC0;
-                      border-radius:18px;
-                    ">
-                      <tr>
-                        <td style="padding:24px;">
-                          <p style="
-                            margin:0;
-                            font-family:Arial, Helvetica, sans-serif;
-                            font-size:16px;
-                            line-height:1.85;
-                            color:${textPrimary};
-                          ">
-                            ${mensajePrincipal}
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                ${
-                  mensajeSecundario
-                    ? `
-                <tr>
-                  <td style="padding:0 34px 28px 34px;">
-                    <p style="
-                      margin:0;
-                      font-family:Arial, Helvetica, sans-serif;
-                      font-size:15px;
-                      line-height:1.8;
-                      color:${textSecondary};
-                    ">
-                      ${mensajeSecundario}
-                    </p>
-                  </td>
-                </tr>
-                `
-                    : ''
-                }
-
-                <!-- Cierre -->
-                <tr>
-                  <td style="padding:0 34px 32px 34px;">
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${border};">
-                      <tr>
-                        <td style="padding-top:22px;">
-                          <p style="
-                            margin:0 0 10px 0;
-                            font-family:Arial, Helvetica, sans-serif;
-                            font-size:13px;
-                            line-height:1.75;
-                            color:${textSecondary};
-                          ">
-                            Este mensaje fue emitido por el
-                            <strong style="color:${brandPrimary};">Hogar de Ancianos San Blas</strong>
-                            como parte del seguimiento administrativo correspondiente.
-                          </p>
-
-                          <p style="
-                            margin:0;
-                            font-family:Arial, Helvetica, sans-serif;
-                            font-size:13px;
-                            line-height:1.75;
-                            color:${textSecondary};
-                          ">
-                            Ante cualquier consulta, puede responder a este correo o comunicarse mediante los canales oficiales de la institución.
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-              </table>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td align="center" style="padding:18px 12px 0 12px;">
-              <p style="
-                margin:0;
-                font-family:Arial, Helvetica, sans-serif;
-                font-size:12px;
-                line-height:1.6;
-                color:${textSecondary};
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light only">
+</head>
+<body style="margin:0; padding:0; background-color:${background}; color:${textPrimary};">
+  <div style="margin:0; padding:0; background-color:${background}; color:${textPrimary};">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${background}; margin:0; padding:36px 16px; width:100%;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:640px;">
+            <tr>
+              <td style="
+                background-color:${cardBackground};
+                border:1px solid ${border};
+                border-radius:24px;
+                overflow:hidden;
               ">
-                © Hogar de Ancianos San Blas · Correo generado automáticamente
-              </p>
-            </td>
-          </tr>
+                <div style="height:8px; line-height:8px; font-size:0; background-color:${brandPrimary};">
+                  &nbsp;
+                </div>
 
-        </table>
-      </td>
-    </tr>
-  </table>
-</div>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="padding:28px 34px 12px 34px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td align="left" style="vertical-align:top; padding-right:12px;">
+                            <div style="
+                              font-family:Arial, Helvetica, sans-serif;
+                              font-size:12px;
+                              letter-spacing:1.2px;
+                              text-transform:uppercase;
+                              color:${brandPrimary};
+                              font-weight:700;
+                              margin:0 0 14px 0;
+                            ">
+                              ${tipoProceso} · Comunicación oficial
+                            </div>
+
+                            <h1 style="
+                              margin:0;
+                              font-family:Georgia, 'Times New Roman', serif;
+                              font-size:30px;
+                              line-height:1.2;
+                              color:${textPrimary};
+                              font-weight:700;
+                            ">
+                              ${titulo}
+                            </h1>
+                          </td>
+
+                          <td align="right" style="vertical-align:top; width:100px;">
+                            <img
+                              src="${logoUrl}"
+                              alt="Hogar de Ancianos San Blas"
+                              width="90"
+                              style="display:block; width:90px; max-width:90px; height:auto; border:0;"
+                            />
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding:0 34px 22px 34px;">
+                      <div style="width:72px; height:4px; background-color:${brandAccent}; border-radius:999px;"></div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding:0 34px 8px 34px;">
+                      <p style="
+                        margin:0;
+                        font-family:Arial, Helvetica, sans-serif;
+                        font-size:16px;
+                        line-height:1.8;
+                        color:${textPrimary};
+                      ">
+                        Estimado(a) <strong>${nombre}</strong>,
+                      </p>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding:0 34px 24px 34px;">
+                      <p style="
+                        margin:0;
+                        font-family:Arial, Helvetica, sans-serif;
+                        font-size:14px;
+                        line-height:1.8;
+                        color:${textSecondary};
+                      ">
+                        ${subtitulo}
+                      </p>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding:0 34px 24px 34px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
+                        background-color:#FFF9EF;
+                        border:1px solid #F0DFC0;
+                        border-radius:18px;
+                      ">
+                        <tr>
+                          <td style="padding:24px;">
+                            <p style="
+                              margin:0;
+                              font-family:Arial, Helvetica, sans-serif;
+                              font-size:16px;
+                              line-height:1.85;
+                              color:${textPrimary};
+                            ">
+                              ${mensajePrincipal}
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  ${
+                    mensajeSecundario
+                      ? `
+                  <tr>
+                    <td style="padding:0 34px 28px 34px;">
+                      <p style="
+                        margin:0;
+                        font-family:Arial, Helvetica, sans-serif;
+                        font-size:15px;
+                        line-height:1.8;
+                        color:${textSecondary};
+                      ">
+                        ${mensajeSecundario}
+                      </p>
+                    </td>
+                  </tr>
+                  `
+                      : ''
+                  }
+
+                  <tr>
+                    <td style="padding:0 34px 32px 34px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${border};">
+                        <tr>
+                          <td style="padding-top:22px;">
+                            <p style="
+                              margin:0 0 10px 0;
+                              font-family:Arial, Helvetica, sans-serif;
+                              font-size:13px;
+                              line-height:1.75;
+                              color:${textSecondary};
+                            ">
+                              Este mensaje fue emitido por el
+                              <strong style="color:${brandPrimary};">Hogar de Ancianos San Blas</strong>
+                              como parte del seguimiento administrativo correspondiente.
+                            </p>
+
+                            <p style="
+                              margin:0;
+                              font-family:Arial, Helvetica, sans-serif;
+                              font-size:13px;
+                              line-height:1.75;
+                              color:${textSecondary};
+                            ">
+                              Ante cualquier consulta, puede responder a este correo o comunicarse mediante los canales oficiales de la institución.
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="padding:18px 12px 0 12px;">
+                <p style="
+                  margin:0;
+                  font-family:Arial, Helvetica, sans-serif;
+                  font-size:12px;
+                  line-height:1.6;
+                  color:${textSecondary};
+                ">
+                  © Hogar de Ancianos San Blas · Correo generado automáticamente
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
 `;
 }
 
