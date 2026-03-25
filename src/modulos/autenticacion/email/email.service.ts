@@ -81,7 +81,7 @@ export class EmailService {
     }
   }
 
-  private buildInstitutionalTemplate(params: {
+ private buildInstitutionalTemplate(params: {
   nombre: string;
   titulo: string;
   subtitulo: string;
@@ -104,73 +104,83 @@ export class EmailService {
 
   const logoBase64 = this.getLogoBase64();
 
-  // Paleta usada: #A7074D (primario), #DBBA6B (acento), #1A1924 (texto), #FDF6F9 (fondo), #FFF8E8 (callout)
+  // Diseño minimalista y corporativo, paleta: #A7074D, #DBBA6B, #1A1924, #FDF6F9, #FFF8E8
   return `
-    <div style="margin:0; padding:24px; background-color:#FDF6F9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; color:#1A1924;">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:680px; margin:0 auto;">
-        <tr>
-          <td style="padding:18px 0; text-align:left;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-              <tr>
-                <td style="vertical-align:middle;">
-                  ${logoBase64 ? `<img src="${logoBase64}" alt="Hogar San Blas" style="height:40px; display:block;" />` : `<div style="font-weight:700; color:#DBBA6B; font-size:18px;">Hogar de Ancianos San Blas</div>`}
-                </td>
-                <td style="text-align:right; vertical-align:middle; font-size:13px; color:#DBBA6B;">
-                  ${subtitulo}
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
+  <div style="margin:0; padding:32px; background:#FDF6F9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; color:#1A1924;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:720px; margin:0 auto;">
+      <!-- Top bar -->
+      <tr>
+        <td style="padding:12px 0;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="vertical-align:middle;">
+                ${logoBase64 ? `<img src="${logoBase64}" alt="Hogar San Blas" style="height:44px; display:block;" />` : `<div style="font-weight:700; color:#A7074D; font-size:18px;">Hogar de Ancianos San Blas</div>`}
+              </td>
+              <td style="text-align:right; vertical-align:middle; font-size:13px; color:#6b6b6b;">
+                <span style="background:#FFF8E8; color:#1A1924; padding:6px 10px; border-radius:999px; border:1px solid #DBBA6B; font-weight:600;">${subtitulo}</span>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
 
-        <tr>
-          <td>
-            <div style="background:#ffffff; border-radius:12px; padding:28px; box-shadow:0 6px 18px rgba(0,0,0,0.06);">
-              <h2 style="margin:0 0 8px 0; font-size:20px; color:#1A1924; font-weight:600;">${titulo}</h2>
-              <p style="margin:0 0 18px 0; font-size:14px; color:#6b6b6b;">Estimado(a) <strong style="color:#1A1924;">${nombre}</strong></p>
-
-              <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
-                <div style="min-width:8px; height:8px; border-radius:50%; background:${colorEstado}; box-shadow:0 0 0 4px rgba(0,0,0,0.02);"></div>
-                <div style="font-size:14px; color:#1A1924;">
-                  <strong>Estado:</strong> <span style="color:${colorEstado}; font-weight:600;">${estado}</span>
-                  <span style="color:#9a9a9a; margin-left:10px;">• Proceso: ${tipoProceso}</span>
+      <!-- Main card -->
+      <tr>
+        <td>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:14px; overflow:hidden; border:1px solid rgba(26,25,36,0.06);">
+            <tr>
+              <!-- Left column: colored stripe + badge -->
+              <td width="120" style="background:linear-gradient(180deg, ${colorEstado} 0%, rgba(0,0,0,0.02) 100%); vertical-align:top; padding:22px; text-align:center;">
+                <div style="width:72px; height:72px; margin:0 auto 12px auto; border-radius:50%; background:#ffffff; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(0,0,0,0.06);">
+                  <span style="font-size:28px; font-weight:700; color:${colorEstado};">${estado === 'Aceptada' ? '✓' : '✕'}</span>
                 </div>
-              </div>
+                <div style="font-size:13px; color:#ffffff; font-weight:700;">${estado}</div>
+                <div style="font-size:12px; color:rgba(255,255,255,0.9); margin-top:6px;">${tipoProceso}</div>
+              </td>
 
-              <p style="font-size:15px; line-height:1.6; color:#333; margin:0 0 16px 0;">${mensajePrincipal}</p>
+              <!-- Right column: content -->
+              <td style="padding:28px;">
+                <h1 style="margin:0 0 8px 0; font-size:20px; color:#1A1924; font-weight:700;">${titulo}</h1>
+                <p style="margin:0 0 18px 0; font-size:14px; color:#6b6b6b;">Estimado(a) <strong style="color:#1A1924;">${nombre}</strong>,</p>
 
-              ${mensajeSecundario ? `<p style="font-size:14px; line-height:1.6; color:#555; margin:0 0 18px 0;">${mensajeSecundario}</p>` : ''}
+                <p style="margin:0 0 16px 0; font-size:15px; line-height:1.6; color:#333;">${mensajePrincipal}</p>
 
-              <!-- Acción recomendada (si aplica) -->
-              <div style="text-align:left; margin-top:6px;">
-                <a href="#" style="display:inline-block; background:#A7074D; color:#ffffff; text-decoration:none; padding:10px 18px; border-radius:8px; font-weight:600; font-size:14px;">Ver detalles</a>
-              </div>
+                ${mensajeSecundario ? `<p style="margin:0 0 18px 0; font-size:14px; line-height:1.6; color:#555;">${mensajeSecundario}</p>` : ''}
 
-              <!-- Nota institucional -->
-              <div style="margin-top:20px; padding:14px; background:#FFF8E8; border-radius:8px; border:1px solid #DBBA6B;">
-                <p style="margin:0; font-size:13px; color:#1A1924;">
-                  Este mensaje ha sido emitido por el <strong>Hogar de Ancianos San Blas</strong> como parte del seguimiento institucional.
-                </p>
-              </div>
-            </div>
-          </td>
-        </tr>
+                <!-- CTA destacado -->
+                <div style="margin-top:18px;">
+                  <a href="#" style="display:inline-block; background:${colorEstado === '#c52238' ? '#c52238' : '#A7074D'}; color:#ffffff; text-decoration:none; padding:12px 18px; border-radius:10px; font-weight:700; font-size:14px; box-shadow:0 6px 18px rgba(167,7,77,0.18);">Ver detalles</a>
+                </div>
 
-        <tr>
-          <td style="padding:18px 0; text-align:center; font-size:12px; color:#9b9b9b;">
-            <div style="max-width:680px; margin:0 auto;">
-              <p style="margin:0;">© Hogar de Ancianos San Blas - Correo generado automáticamente.</p>
-            </div>
-          </td>
-        </tr>
-      </table>
-    </div>
+                <!-- Subtle divider -->
+                <div style="height:1px; background:linear-gradient(90deg, rgba(26,25,36,0.04), rgba(26,25,36,0.02)); margin:20px 0;"></div>
+
+                <!-- Small print and institutional note -->
+                <p style="margin:0; font-size:12px; color:#8a8a8a;">Si necesita asistencia adicional, responda a este correo o visite nuestras instalaciones para coordinar la asignación de actividades.</p>
+
+                <div style="margin-top:12px; padding:12px; background:#FFF8E8; border-radius:8px; border:1px solid #DBBA6B;">
+                  <p style="margin:0; font-size:13px; color:#1A1924;">Este mensaje ha sido emitido por el <strong>Hogar de Ancianos San Blas</strong> como parte del seguimiento institucional.</p>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- Footer -->
+      <tr>
+        <td style="padding:18px 0; text-align:center; color:#9b9b9b; font-size:12px;">
+          <div style="display:flex; justify-content:center; gap:12px; align-items:center; flex-wrap:wrap;">
+            <span>© Hogar de Ancianos San Blas</span>
+            <span style="color:#DBBA6B;">•</span>
+            <span>Correo generado automáticamente</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
   `;
 }
-
-
-
-
 
   // 🔐 Enlace de restablecimiento de contraseña
   public async sendResetPasswordLink(email: string): Promise<void> {
