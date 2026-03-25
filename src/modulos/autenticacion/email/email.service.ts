@@ -81,6 +81,10 @@ export class EmailService {
     }
   }
 
+  private getLogoUrl(): string {
+  return 'https://hogarsanblas.com/logo_hogar_san_blas.png';
+}
+
 private buildInstitutionalTemplate(params: {
   nombre: string;
   titulo: string;
@@ -101,7 +105,7 @@ private buildInstitutionalTemplate(params: {
     estado,
   } = params;
 
-  const logoBase64 = this.getLogoBase64();
+  const logoUrl = this.getLogoUrl();
   const isAccepted = estado === 'Aceptada';
 
   // Paleta institucional
@@ -135,11 +139,12 @@ private buildInstitutionalTemplate(params: {
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td align="left" style="vertical-align:middle;">
-                      ${
-                        logoBase64
-                          ? `<img src="${logoBase64}" alt="Hogar de Ancianos San Blas" style="display:block; max-height:52px; width:auto; border:0;" />`
-                          : `<div style="font-family: Georgia, 'Times New Roman', serif; font-size:24px; line-height:1.2; color:${brandPrimary}; font-weight:700;">Hogar de Ancianos San Blas</div>`
-                      }
+                      <img
+                        src="${logoUrl}"
+                        alt="Hogar de Ancianos San Blas"
+                        width="160"
+                        style="display:block; width:160px; max-width:160px; height:auto; border:0;"
+                      />
                     </td>
                     <td align="right" style="vertical-align:middle;">
                       <span style="
