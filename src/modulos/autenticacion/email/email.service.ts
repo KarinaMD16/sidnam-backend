@@ -105,44 +105,50 @@ export class EmailService {
   const logoBase64 = this.getLogoBase64();
 
   return `
-    <div style="margin:0; padding:0; background-color:#FDF6F9; font-family: Arial, sans-serif; color:#1A1924;">
+    <div style="margin:0; padding:0; background-color:#FDF6F9; font-family: 'Segoe UI', Arial, sans-serif; color:#1A1924;">
+      
       <!-- Header -->
-      <div style="background-color:#A7074D; padding:32px; text-align:center;">
+      <div style="background-color:#A7074D; padding:40px 20px; text-align:center;">
         ${
           logoBase64
-            ? `<img src="${logoBase64}" alt="Logo Hogar San Blas" style="width:100px; margin-bottom:16px;" />`
-            : ''
+            ? `<img src="${logoBase64}" alt="Logo Hogar San Blas" style="width:80px; margin-bottom:20px;" />`
+            : `<h2 style="color:#DBBA6B; margin:0;">Hogar de Ancianos San Blas</h2>`
         }
-        <h1 style="margin:0; font-size:22px; color:#ffffff;">${titulo}</h1>
-        <p style="margin:8px 0 0 0; font-size:14px; color:#DBBA6B;">${subtitulo}</p>
+        <h1 style="margin:0; font-size:24px; color:#ffffff; font-weight:600;">${titulo}</h1>
+        <p style="margin:6px 0 0 0; font-size:14px; color:#DBBA6B;">${subtitulo}</p>
       </div>
 
       <!-- Body -->
-      <div style="max-width:640px; margin:0 auto; padding:32px; background-color:#ffffff; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
-        <p style="font-size:16px;">Estimado(a) <strong>${nombre}</strong>,</p>
+      <div style="max-width:640px; margin:40px auto; padding:32px; background-color:#ffffff; border-radius:20px; box-shadow:0 6px 20px rgba(0,0,0,0.08);">
+        
+        <p style="font-size:16px; margin-bottom:24px;">Estimado(a) <strong>${nombre}</strong>,</p>
 
-        <div style="margin:24px 0; padding:16px; border-left:5px solid ${colorEstado}; background:#FDF6F9; border-radius:12px;">
+        <!-- Estado -->
+        <div style="padding:20px; border:1px solid ${colorEstado}; border-radius:12px; background:#FDF6F9; margin-bottom:24px;">
           <p style="margin:0; font-size:15px;"><strong>Estado:</strong> <span style="color:${colorEstado}; font-weight:bold;">${estado}</span></p>
           <p style="margin:8px 0 0 0; font-size:15px;"><strong>Proceso:</strong> ${tipoProceso}</p>
         </div>
 
-        <p style="font-size:15px; line-height:1.6;">${mensajePrincipal}</p>
+        <!-- Mensaje principal -->
+        <p style="font-size:15px; line-height:1.6; margin-bottom:20px;">${mensajePrincipal}</p>
 
+        <!-- Mensaje secundario -->
         ${
           mensajeSecundario
-            ? `<p style="font-size:15px; line-height:1.6; color:#444;">${mensajeSecundario}</p>`
+            ? `<p style="font-size:15px; line-height:1.6; color:#444; margin-bottom:20px;">${mensajeSecundario}</p>`
             : ''
         }
 
-        <div style="margin-top:24px; padding:16px; background:#fff8e8; border:1px solid #DBBA6B; border-radius:12px;">
-          <p style="margin:0; font-size:14px; color:#5a4a1a;">
+        <!-- Nota institucional -->
+        <div style="padding:18px; background:#FFF8E8; border:1px solid #DBBA6B; border-radius:12px; margin-top:24px;">
+          <p style="margin:0; font-size:14px; color:#1A1924;">
             Este mensaje ha sido emitido por el <strong>Hogar de Ancianos San Blas</strong> como parte del seguimiento institucional.
           </p>
         </div>
       </div>
 
       <!-- Footer -->
-      <div style="background-color:#1A1924; padding:16px; text-align:center;">
+      <div style="background-color:#1A1924; padding:20px; text-align:center;">
         <p style="margin:0; font-size:12px; color:#ffffff;">
           © Hogar de Ancianos San Blas - Correo generado automáticamente.
         </p>
@@ -150,6 +156,7 @@ export class EmailService {
     </div>
   `;
 }
+
 
 
 
