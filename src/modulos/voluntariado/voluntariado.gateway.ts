@@ -21,29 +21,38 @@ export class VoluntariadoGateway implements OnGatewayInit{
     }
 
     emitSolicitudesPendientesCount(count: number, solicitudPendiente: SolicitudPendienteNotificacion,) {
+
         const nombreCompleto = [
-        solicitudPendiente.nombre,
-        solicitudPendiente.apellido1,
-        solicitudPendiente.apellido2,
+            solicitudPendiente.nombre,
+            solicitudPendiente.apellido1,
+            solicitudPendiente.apellido2,
         ]
-        .filter(Boolean)
-        .join(' ');
+            .filter(Boolean)
+            .join(' ');
+
+        const tipo = solicitudPendiente.tipo ?? 'voluntariado';
 
         this.server.emit('solicitudesPendientesCount', {
-        totalPendientes: count,
-        solicitud: {
+            totalPendientes: count,
+            tipo,
+            solicitud: {
             id: solicitudPendiente.id,
             nombre: nombreCompleto,
             email: solicitudPendiente.email,
             fecha: new Date().toISOString(),
-        },
-        mensaje: `${solicitudPendiente.nombre} envió una nueva solicitud`,
+            tipo,
+            },
+            mensaje:
+            tipo === 'donacion'
+                ? `${solicitudPendiente.nombre} envió una nueva solicitud de donación`
+                : `${solicitudPendiente.nombre} envió una nueva solicitud de voluntariado`,
         });
-    }
-    
-    emitirNomasSolicitudesPendientes() {
+        }
+        
+   emitirNomasSolicitudesPendientes(tipo?: 'voluntariado' | 'donacion') {
         this.server.emit('nomasSolicitudesPendientes', {
             totalPendientes: 0,
+            tipo: tipo ?? 'voluntariado',
             mensaje: 'No hay más solicitudes pendientes por revisar',
             fecha: new Date().toISOString(),
         });
