@@ -11,6 +11,7 @@ import { Usuario } from "src/modulos/gestion-usuario/entities/usuario.entity";
 import { RegistroDonacion } from "../../entities/registroDonacion.entity";
 import { Donador } from "../../entities/donador.entity";
 import { CrearRegistroDto } from "../../dto/crearRegistroDto";
+import { VoluntariadoGateway } from "src/modulos/voluntariado/voluntariado.gateway";
 
 
 
@@ -37,6 +38,8 @@ export class CreateRegistroDonacionUseCase {
             private readonly gestionUsuario: GestionUsuarioService,
 
             private readonly solicitudDonacionGateway: SolicitudDonacionGateway,
+
+            private readonly voluntariadoGateway: VoluntariadoGateway,
         
           ) {}
     
@@ -69,16 +72,20 @@ async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: 
     
     
             if (estado === 'aprobada') {
+                await this.crearSolicitudDonacionOficial(solicitud, usuario);
+                const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
+                await this.emitirTotalSolicitudesPendientes(totalPendientes);
                 solicitud.estado = estado;
                 await this.solicitudPendiente.save(solicitud);
-                await this.crearSolicitudDonacionOficial(solicitud, usuario);
                 return {message: 'Esta solicitud ha sido aceptada'};
             }
     
             if (estado == 'rechazada') {
+                await this.emailService.sendSolicitudDonacionRechazadaEmail(solicitud.email, solicitud.nombre)
                 solicitud.estado = estado;
                 await this.solicitudPendiente.save(solicitud);
-                await this.emailService.sendSolicitudDonacionRechazadaEmail(solicitud.email, solicitud.nombre)
+                const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
+                await this.emitirTotalSolicitudesPendientes(totalPendientes);
                 return {message: 'Esta solicitud ha sido rechazada'};
             }
     
@@ -176,5 +183,22 @@ async updateEstadoSolicitudes(idEstado: number, idSolicitud: number, idUsuario: 
                 await manager.save(registro);
             });
             return {message: 'Registro creado correctamente'}
+        }
+
+        private async emitirTotalSolicitudesPendientes(totalPendientes: number): Promise<void> {
+            const ultimaSolicitudPendiente = await this.solicitudPendiente.findOne({
+                where: { estado: 'pendiente' },
+                order: { id: 'DESC' },
+            }); 
+
+            if(!ultimaSolicitudPendiente){
+                this.voluntariadoGateway.emitirNomasSolicitudesPendientes();
+                return;
+            }
+
+            this.voluntariadoGateway.emitSolicitudesPendientesCount(
+                totalPendientes,
+                ultimaSolicitudPendiente,
+            );
         }
 }

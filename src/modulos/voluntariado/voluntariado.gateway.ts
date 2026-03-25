@@ -3,6 +3,7 @@ import {Server} from 'socket.io'
 import { Repository } from "typeorm";
 import { SolicitudPendiente } from "./entities/solicitudPendiente.entity";
 import { InjectRepository } from "@nestjs/typeorm";
+import { SolicitudPendienteNotificacion } from "./interfaces/SolicitudPendienteNotificacion";
 
 @WebSocketGateway({
     cors: {
@@ -19,7 +20,7 @@ export class VoluntariadoGateway implements OnGatewayInit{
         console.log('Esta corriendo crack')
     }
 
-    emitSolicitudesPendientesCount(count: number, solicitudPendiente: SolicitudPendiente,) {
+    emitSolicitudesPendientesCount(count: number, solicitudPendiente: SolicitudPendienteNotificacion,) {
         const nombreCompleto = [
         solicitudPendiente.nombre,
         solicitudPendiente.apellido1,

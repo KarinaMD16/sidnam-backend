@@ -173,9 +173,9 @@ export class CreateExpedienteUseCase {
             }
     
             if (estado == 'rechazada') {
+                await this.emailService.sendSolicitudRechazadaEmail(solicitud.email, solicitud.nombre)
                 solicitud.estado = estado;
                 await this.solicitudPendiente.save(solicitud);
-                await this.emailService.sendSolicitudRechazadaEmail(solicitud.email, solicitud.nombre)
                 const totalPendientes = await this.solicitudPendiente.count({ where: { estado: 'pendiente' } });
                 await this.emitirTotalSolicitudesPendientes(totalPendientes);
                 return {message: 'Esta solicitud ha sido rechazada'};
