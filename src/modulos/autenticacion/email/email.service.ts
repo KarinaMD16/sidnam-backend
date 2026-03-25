@@ -105,23 +105,23 @@ export class EmailService {
   const logoBase64 = this.getLogoBase64();
 
   return `
-    <div style="margin:0; padding:0; background-color:#ffffff; font-family: Arial, sans-serif; color:#2f2f2f;">
+    <div style="margin:0; padding:0; background-color:#FDF6F9; font-family: Arial, sans-serif; color:#1A1924;">
       <!-- Header -->
-      <div style="background:linear-gradient(135deg, #a10d5e 0%, #7d0e49 100%); padding:32px; text-align:center;">
+      <div style="background-color:#A7074D; padding:32px; text-align:center;">
         ${
           logoBase64
             ? `<img src="${logoBase64}" alt="Logo Hogar San Blas" style="width:100px; margin-bottom:16px;" />`
             : ''
         }
         <h1 style="margin:0; font-size:22px; color:#ffffff;">${titulo}</h1>
-        <p style="margin:8px 0 0 0; font-size:14px; color:#f3d27a;">${subtitulo}</p>
+        <p style="margin:8px 0 0 0; font-size:14px; color:#DBBA6B;">${subtitulo}</p>
       </div>
 
       <!-- Body -->
-      <div style="max-width:640px; margin:0 auto; padding:32px; background-color:#fafafa;">
+      <div style="max-width:640px; margin:0 auto; padding:32px; background-color:#ffffff; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
         <p style="font-size:16px;">Estimado(a) <strong>${nombre}</strong>,</p>
 
-        <div style="margin:24px 0; padding:16px; border-left:5px solid ${colorEstado}; background:#fff; border-radius:12px;">
+        <div style="margin:24px 0; padding:16px; border-left:5px solid ${colorEstado}; background:#FDF6F9; border-radius:12px;">
           <p style="margin:0; font-size:15px;"><strong>Estado:</strong> <span style="color:${colorEstado}; font-weight:bold;">${estado}</span></p>
           <p style="margin:8px 0 0 0; font-size:15px;"><strong>Proceso:</strong> ${tipoProceso}</p>
         </div>
@@ -134,7 +134,7 @@ export class EmailService {
             : ''
         }
 
-        <div style="margin-top:24px; padding:16px; background:#fff8e8; border:1px solid #efd99a; border-radius:12px;">
+        <div style="margin-top:24px; padding:16px; background:#fff8e8; border:1px solid #DBBA6B; border-radius:12px;">
           <p style="margin:0; font-size:14px; color:#5a4a1a;">
             Este mensaje ha sido emitido por el <strong>Hogar de Ancianos San Blas</strong> como parte del seguimiento institucional.
           </p>
@@ -142,7 +142,7 @@ export class EmailService {
       </div>
 
       <!-- Footer -->
-      <div style="background-color:#000; padding:16px; text-align:center;">
+      <div style="background-color:#1A1924; padding:16px; text-align:center;">
         <p style="margin:0; font-size:12px; color:#ffffff;">
           © Hogar de Ancianos San Blas - Correo generado automáticamente.
         </p>
@@ -150,6 +150,7 @@ export class EmailService {
     </div>
   `;
 }
+
 
 
   // 🔐 Enlace de restablecimiento de contraseña
