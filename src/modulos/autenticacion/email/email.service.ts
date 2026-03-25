@@ -134,39 +134,22 @@ private buildInstitutionalTemplate(params: {
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:640px;">
 
             <!-- Header de marca -->
-            <tr>
+           <tr>
               <td style="padding:0 0 18px 0;">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-                  <tr>
-                    <td align="left" style="vertical-align:middle;">
-                      <img
-                        src="${logoUrl}"
-                        alt="Hogar de Ancianos San Blas"
-                        width="160"
-                        style="display:block; width:160px; max-width:160px; height:auto; border:0;"
-                      />
-                    </td>
-                    <td align="right" style="vertical-align:middle;">
-                      <span style="
-                        display:inline-block;
-                        font-family:Arial, Helvetica, sans-serif;
-                        font-size:12px;
-                        line-height:1;
-                        color:${stateText};
-                        background:${stateBg};
-                        border:1px solid ${stateBorder};
-                        border-radius:999px;
-                        padding:9px 14px;
-                        font-weight:600;
-                      ">
-                        ${badgeText}
-                      </span>
-                    </td>
-                  </tr>
-                </table>
+                <img
+                  src="${logoUrl}"
+                  alt="Hogar de Ancianos San Blas"
+                  width="105"
+                  style="
+                    display:block;
+                    width:105px;
+                    max-width:105px;
+                    height:auto;
+                    border:0;
+                  "
+                />
               </td>
             </tr>
-
             <!-- Card principal -->
             <tr>
               <td style="
