@@ -84,8 +84,8 @@ export class ReporteDonacionesService {
           <td>${this.escape(r.aprobadaPor ?? 'Sin asignar')}</td>
           <td class="center">${this.sn(r.recibida)}</td>
           <td>${this.fmt(r.recibidaEn)}</td>
-          <td>${this.escape(r.descripcion ?? '')}</td>
-          <td>${this.escape(r.observaciones ?? '')}</td>
+          <td class="wrap-cell">${this.escape(r.descripcion ?? '')}</td>
+          <td class="wrap-cell">${this.escape(r.observaciones ?? '')}</td>
         </tr>
       `;
     }).join('');
@@ -95,6 +95,36 @@ export class ReporteDonacionesService {
       metaLines: [
         `Mes: <strong>${escapePdfHtml(mesNombre)}</strong> | Corte por: <strong>Fecha de aprobación</strong>`,
       ],
+      extraStyles: `
+        .donations-detail-table {
+          table-layout: fixed;
+          margin-top: 0;
+        }
+
+        .donations-detail-table th,
+        .donations-detail-table td {
+          font-size: 10px;
+          line-height: 1.35;
+          white-space: normal;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+
+        .donations-detail-table .wrap-cell {
+          white-space: pre-wrap;
+        }
+
+        .donations-detail-table col.cedula { width: 8%; }
+        .donations-detail-table col.donador { width: 13%; }
+        .donations-detail-table col.tipo { width: 9%; }
+        .donations-detail-table col.anonimo { width: 5%; }
+        .donations-detail-table col.aprobada-en { width: 10%; }
+        .donations-detail-table col.aprobada-por { width: 10%; }
+        .donations-detail-table col.recibida { width: 6%; }
+        .donations-detail-table col.recibida-en { width: 10%; }
+        .donations-detail-table col.descripcion { width: 15%; }
+        .donations-detail-table col.observaciones { width: 14%; }
+      `,
       bodyHtml: `
         <div class="two-col section">
           <div class="box">
@@ -124,7 +154,19 @@ export class ReporteDonacionesService {
 
         <div class="section">
           <div class="section-title">Detalle</div>
-          <table>
+          <table class="donations-detail-table">
+            <colgroup>
+              <col class="cedula" />
+              <col class="donador" />
+              <col class="tipo" />
+              <col class="anonimo" />
+              <col class="aprobada-en" />
+              <col class="aprobada-por" />
+              <col class="recibida" />
+              <col class="recibida-en" />
+              <col class="descripcion" />
+              <col class="observaciones" />
+            </colgroup>
             <thead>
               <tr>
                 <th>Cédula</th>
