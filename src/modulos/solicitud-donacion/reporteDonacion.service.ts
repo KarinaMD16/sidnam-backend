@@ -135,9 +135,9 @@ export class ReporteDonacionesService {
           word-break: normal;
         }
 
-        .donations-detail-table col.cedula { width: 11%; }
-        .donations-detail-table col.donador { width: 11%; }
-        .donations-detail-table col.tipo { width: 9%; }
+        .donations-detail-table col.cedula { width: 12%; }
+        .donations-detail-table col.donador { width: 10%; }
+        .donations-detail-table col.tipo { width: 8%; }
         .donations-detail-table col.anonimo { width: 5%; }
         .donations-detail-table col.aprobada-en { width: 10%; }
         .donations-detail-table col.aprobada-por { width: 10%; }
