@@ -12,7 +12,7 @@ import { AuthGuard } from '../autenticacion/guard/auth.guard';
 
 
 
-@UseGuards(AuthGuard)
+
 @Controller('facturas-proveedores')
 export class FacturasProveedoresController {
 
