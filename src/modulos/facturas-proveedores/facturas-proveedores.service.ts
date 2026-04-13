@@ -153,6 +153,14 @@ export class FacturasProveedoresService {
 
     async createFactura(createFactura: CreateFacturaDto): Promise<{message: string}> {
         
+        const facturaExistente = await this.facturaRepository.findOne({
+            where: { numero_factura: createFactura.numero_factura }
+        })
+
+        if(facturaExistente){
+            throw new BadRequestException('Ya existe una factura con ese número.')
+        }
+        
         const proveedor = await this.proveedorRepository.findOneBy({ id_proveedor: createFactura.proveedor_id });
         if (!proveedor) {
             throw new NotFoundException('Proveedor no encontrado');
@@ -253,7 +261,24 @@ export class FacturasProveedoresService {
         })
 
         if(!factura){
-            throw new NotFoundException('No se encontro la factura')
+            throw new NotFoundException('No se encontró la factura')
+        }
+
+        const fechaEmitidaResultante = actualizarFactura.fecha_emitida ?? factura.fecha_emitida;
+        const fechaPagoResultante = actualizarFactura.fecha_pago ?? factura.fecha_pago;
+
+        if (fechaPagoResultante && fechaEmitidaResultante && new Date(fechaPagoResultante) < new Date(fechaEmitidaResultante)) {
+            throw new BadRequestException('La fecha de pago no puede ser anterior a la fecha de emisión');
+        }
+
+        if(actualizarFactura.numero_factura){
+            const facturaConMismoNumero = await this.facturaRepository.findOne({
+                where: { numero_factura: actualizarFactura.numero_factura }
+            })
+
+            if(facturaConMismoNumero && facturaConMismoNumero.id_factura !== idFactura){
+                throw new BadRequestException('Ya existe una factura con ese número.')
+            }
         }
 
         if(actualizarFactura.numero_factura){
