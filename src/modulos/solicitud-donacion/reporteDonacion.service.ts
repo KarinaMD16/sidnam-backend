@@ -76,7 +76,7 @@ export class ReporteDonacionesService {
       const nombreDonador = [d?.nombre, d?.apellido1, d?.apellido2].filter(Boolean).join(' ');
       return `
         <tr>
-          <td>${this.escape(d?.cedula ?? '')}</td>
+          <td class="cedula-cell">${this.escape(d?.cedula ?? '')}</td>
           <td>${this.escape(nombreDonador)}</td>
           <td>${this.escape(r.tipoDonacion ?? '')}</td>
           <td class="center">${this.sn(r.anonimo)}</td>
@@ -113,6 +113,12 @@ export class ReporteDonacionesService {
         .donations-detail-table th {
           font-size: 9px;
           line-height: 1.2;
+          white-space: normal;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+
+        .donations-detail-table th.nowrap-header {
           white-space: nowrap;
           overflow-wrap: normal;
           word-break: normal;
@@ -120,6 +126,12 @@ export class ReporteDonacionesService {
 
         .donations-detail-table .wrap-cell {
           white-space: pre-wrap;
+        }
+
+        .donations-detail-table .cedula-cell {
+          white-space: nowrap;
+          overflow-wrap: normal;
+          word-break: normal;
         }
 
         .donations-detail-table col.cedula { width: 8%; }
@@ -143,10 +155,10 @@ export class ReporteDonacionesService {
                 <tr><td>Donadores únicos</td><td class="right">${
                   new Set(registros.map(r => r.donador?.cedula ?? r.donador?.email ?? String(r.donador?.id ?? ''))).size
                 }</td></tr>
-                <tr><td>Recibidas (Sí)</td><td class="right">${recSi}</td></tr>
-                <tr><td>Recibidas (No)</td><td class="right">${recNo}</td></tr>
-                <tr><td>Anónimas (Sí)</td><td class="right">${anSi}</td></tr>
-                <tr><td>Anónimas (No)</td><td class="right">${anNo}</td></tr>
+                <tr><td>Recibidas</td><td class="right">${recSi}</td></tr>
+                <tr><td>No recibidas</td><td class="right">${recNo}</td></tr>
+                <tr><td>Anónimas</td><td class="right">${anSi}</td></tr>
+                <tr><td>No anónimas</td><td class="right">${anNo}</td></tr>
               </tbody>
             </table>
           </div>
@@ -177,7 +189,7 @@ export class ReporteDonacionesService {
             </colgroup>
             <thead>
               <tr>
-                <th>Cédula</th>
+                <th class="nowrap-header">Cédula</th>
                 <th>Donador</th>
                 <th>Tipo</th>
                 <th>Anón.</th>
@@ -186,7 +198,7 @@ export class ReporteDonacionesService {
                 <th>Recibida</th>
                 <th>Recibida en</th>
                 <th>Descripción</th>
-                <th>Observaciones</th>
+                <th class="nowrap-header">Observaciones</th>
               </tr>
             </thead>
             <tbody>${rows}</tbody>
