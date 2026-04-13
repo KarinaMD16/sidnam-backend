@@ -110,6 +110,14 @@ export class ReporteDonacionesService {
           word-break: break-word;
         }
 
+        .donations-detail-table th {
+          font-size: 9px;
+          line-height: 1.2;
+          white-space: nowrap;
+          overflow-wrap: normal;
+          word-break: normal;
+        }
+
         .donations-detail-table .wrap-cell {
           white-space: pre-wrap;
         }
