@@ -30,6 +30,11 @@ export class ResidenteDto {
    edad: number;
 
    @Expose()
+   @Transform(({ obj }) => {
+     const tipo = obj.estado_civil;
+     const match = EstadoCivilOptios.find(opt => opt.value === tipo);
+     return match ? { id: match.id, nombre: match.nombre } : null;
+   })
    estado_civil: 'Casado' | 'Soltero'
 
    @Expose()
