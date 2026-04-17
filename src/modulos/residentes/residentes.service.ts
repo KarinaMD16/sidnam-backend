@@ -289,6 +289,10 @@ export class ResidentesService {
       throw new NotFoundException('Expediente no encontrado');
     }
 
+    if (expediente.estado === EstadoExpediente.Inactivo) {
+      throw new BadRequestException('No se puede actualizar un expediente inactivo');
+    }
+
     if (actualizarExpediente.cedula &&actualizarExpediente.encargados?.some(enc => enc.cedula === actualizarExpediente.cedula)) {
       throw new BadRequestException(
         'La cédula del residente no puede coincidir con la de ningún encargado enviado'
