@@ -14,7 +14,7 @@ export class AdministracionMedicamento {
   @ManyToOne(() => Medicamentos, med => med.administracionMedicamentos)
   medicamento: Medicamentos;
 
-  @Column()
+  @Column('decimal', { precision: 10, scale: 2 })
   cantidad: number;
 
   @ManyToOne(() => Unidad_Medida, unidad => unidad.administracionMedicamentos)
