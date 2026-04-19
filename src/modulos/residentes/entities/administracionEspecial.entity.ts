@@ -8,7 +8,7 @@ export class AdministracionesEspeciales {
   @PrimaryGeneratedColumn()
   id_administracion_especial: number;
 
-  @Column()
+  @Column('decimal', { precision: 10, scale: 2 })
   cantidad: number;
 
   @Column({ type: 'time' })
