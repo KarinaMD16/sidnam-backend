@@ -7,6 +7,7 @@ import { Galeria } from './entities/galeria.entity';
 import { configureCloudinary } from 'src/common/cloudinary/cloudinary.config';
 import { uploadBufferToCloudinary } from 'src/common/services/cloudinary-buffer.service';
 import { UpdateCategoriaDto } from './dto/updateCategoriaDto';
+import { optimizeCloudinaryUrl } from 'src/common/cloudinary/cloudinary-url.helper';
 
 
 @Injectable()
@@ -22,6 +23,18 @@ export class GaleriaService {
          private readonly galeriaRepository: Repository<Galeria>,
         
     ){}
+
+    private optimizeImageUrl<T extends { imagenUrl?: string | null }>(item: T): T {
+      if (item.imagenUrl) {
+        item.imagenUrl = optimizeCloudinaryUrl(item.imagenUrl);
+      }
+
+      return item;
+    }
+
+    private optimizeImageUrls<T extends { imagenUrl?: string | null }>(items: T[]): T[] {
+      return items.map((item) => this.optimizeImageUrl(item));
+    }
 
     //Categorias
     async createCategoria(createCAtegoria: CategoriaDto): Promise<Categoria> {
@@ -68,25 +81,25 @@ export class GaleriaService {
     const { secure_url } = await uploadBufferToCloudinary(file.buffer, `galeria/${categoriaId}`);
 
     const nueva = this.galeriaRepository.create({
-      imagenUrl: secure_url,
+      imagenUrl: optimizeCloudinaryUrl(secure_url),
       categoria,
     });
 
-    return this.galeriaRepository.save(nueva);
+    return this.optimizeImageUrl(await this.galeriaRepository.save(nueva));
   }
 
     async findAllImagenes(page?: number, limit?: number): Promise<Galeria[]>{
 
         if (page && limit) {
-            return this.galeriaRepository.find({
+            return this.optimizeImageUrls(await this.galeriaRepository.find({
                 skip: (page - 1) * limit,
                 take: limit,
                 order: { id: 'DESC' },
                 select: ['id', 'imagenUrl', 'categoriaId'],
-            });
+            }));
         }
         
-        return this.galeriaRepository.find();
+        return this.optimizeImageUrls(await this.galeriaRepository.find());
     }
 
     async findByCategoriaId(categoriaId: number, page?: number, limit?: number): Promise<Galeria[]> {
@@ -99,19 +112,18 @@ export class GaleriaService {
       }
 
         if (page && limit) {
-            return this.galeriaRepository.find({
+            return this.optimizeImageUrls(await this.galeriaRepository.find({
                 where: { categoriaId },
                 skip: (page - 1) * limit,
                 take: limit,
                 order: { id: 'DESC' },
                 select: ['id', 'imagenUrl', 'categoriaId'],
-            });
+            }));
         }
       
-      return this.galeriaRepository.find({
+      return this.optimizeImageUrls(await this.galeriaRepository.find({
         where: { categoriaId },
-
-      });   
+      }));   
     }
 
     async removeImagen(id: number): Promise<{ message: string }> {
