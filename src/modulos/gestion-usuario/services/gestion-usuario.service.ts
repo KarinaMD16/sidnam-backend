@@ -15,6 +15,7 @@ import { UsuarioPreviewDto } from '../dto/getUsuariosPreviewsDto';
 import { Accion } from '../entities/accion.entity';
 import { PerfilUsuario } from '../dto/GetPerfilDto';
 import { uploadBufferToCloudinary } from 'src/common/services/cloudinary-buffer.service';
+import { optimizeCloudinaryUrl } from 'src/common/cloudinary/cloudinary-url.helper';
 
 @Injectable()
 export class GestionUsuarioService {
@@ -29,6 +30,14 @@ export class GestionUsuarioService {
         @InjectRepository(Accion)
         private readonly accionRepository: Repository<Accion>
     ){}
+
+    private optimizeUserImage<T extends { imagenUrl?: string | null }>(item: T): T {
+      if (item.imagenUrl) {
+        item.imagenUrl = optimizeCloudinaryUrl(item.imagenUrl);
+      }
+
+      return item;
+    }
 
     async saveUsuario(usuario: Usuario){
         await this.usuariosRepository.save(usuario)
@@ -384,9 +393,9 @@ export class GestionUsuarioService {
       throw new NotFoundException('Usuario no encontrado')
     }
 
-    return plainToInstance(PerfilUsuario, usuario, {
+    return this.optimizeUserImage(plainToInstance(PerfilUsuario, usuario, {
       excludeExtraneousValues: true,
-    });
+    }));
   }
 
   async createImagenUsuario(file: Express.Multer.File, usuarioId: number): Promise<{message: string}> {
@@ -395,7 +404,7 @@ export class GestionUsuarioService {
 
     const { secure_url } = await uploadBufferToCloudinary(file.buffer, `usuario/${usuarioId}`);
 
-    usuario.imagenUrl = secure_url; 
+    usuario.imagenUrl = optimizeCloudinaryUrl(secure_url); 
 
     await this.usuariosRepository.save(usuario)
     

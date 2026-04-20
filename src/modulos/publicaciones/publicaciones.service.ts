@@ -13,6 +13,7 @@ import { updateEventosDto } from './dto/updateEventosDto';
 import { HandleEstadoEventoDto } from './dto/handleEstadoEventoDto';
 import { uploadBufferToCloudinary } from 'src/common/services/cloudinary-buffer.service';
 import { parseFechaLocal } from 'src/common/utils/parseFechaLocal';
+import { optimizeCloudinaryUrl } from 'src/common/cloudinary/cloudinary-url.helper';
 
 
 @Injectable()
@@ -49,6 +50,18 @@ export class PublicacionesService {
         return parseFechaLocal(fecha) >= this.getTodayInCostaRica();
     }
 
+    private optimizeImageUrl<T extends { imagenUrl?: string | null }>(item: T): T {
+        if (item.imagenUrl) {
+            item.imagenUrl = optimizeCloudinaryUrl(item.imagenUrl);
+        }
+
+        return item;
+    }
+
+    private optimizeImageUrls<T extends { imagenUrl?: string | null }>(items: T[]): T[] {
+        return items.map((item) => this.optimizeImageUrl(item));
+    }
+
     private async syncExpiredEventos(): Promise<void> {
         const today = this.getTodayInCostaRica();
         const eventosActivos = await this.eventosRepository.find({
@@ -77,10 +90,10 @@ export class PublicacionesService {
 
      const nuevoProyecto = this.proyectosRepository.create({
       ...dto,
-     imagenUrl: secure_url,
+     imagenUrl: optimizeCloudinaryUrl(secure_url),
      });
 
-     return await this.proyectosRepository.save(nuevoProyecto);
+     return this.optimizeImageUrl(await this.proyectosRepository.save(nuevoProyecto));
     }
 
    async updateProyecto(id: number, updateProyectoDto: updateProyectoDto, file?: Express.Multer.File): Promise<Proyectos> {
@@ -89,7 +102,7 @@ export class PublicacionesService {
 
         if (file) {
           const { secure_url } = await uploadBufferToCloudinary(file.buffer, 'publicaciones/proyectos');
-          proyecto.imagenUrl = secure_url;
+          proyecto.imagenUrl = optimizeCloudinaryUrl(secure_url);
         }
 
         for (const [key, value] of Object.entries(updateProyectoDto)) {
@@ -99,7 +112,7 @@ export class PublicacionesService {
     }
         await this.proyectosRepository.save(proyecto);
 
-        return proyecto;
+        return this.optimizeImageUrl(proyecto);
     }
 
     async removeProyecto(id: number): Promise<{message: string}> {
@@ -147,7 +160,7 @@ export class PublicacionesService {
             return { data: [], total }; 
         }
 
-        return { data, total };
+        return { data: this.optimizeImageUrls(data), total };
     }
 
     async findAllProyectosInactivos(page?: number, limit?: number): Promise<{ data: Partial<Proyectos>[]; total: number }> {
@@ -180,7 +193,7 @@ export class PublicacionesService {
         throw new NotFoundException(`Proyecto con id ${id} no encontrado`);
       }
 
-      return proyecto;
+      return this.optimizeImageUrl(proyecto);
     }
 
     //Donaciones
@@ -191,10 +204,10 @@ export class PublicacionesService {
 
     const nuevaDonacion = this.donacionesRepository.create({
     ...dto,
-    imagenUrl: secure_url,
+    imagenUrl: optimizeCloudinaryUrl(secure_url),
     });
 
-    return await this.donacionesRepository.save(nuevaDonacion);
+    return this.optimizeImageUrl(await this.donacionesRepository.save(nuevaDonacion));
    }
 
    async updateDonacion(id: number, dto: updateDonacionDto, file?: Express.Multer.File): Promise<Donacion> {
@@ -205,7 +218,7 @@ export class PublicacionesService {
   if (file) {
     
     const { secure_url} = await uploadBufferToCloudinary(file.buffer, 'publicaciones/donaciones');
-    donacion.imagenUrl = secure_url;
+    donacion.imagenUrl = optimizeCloudinaryUrl(secure_url);
   }
 
   for (const [key, value] of Object.entries(dto)) {
@@ -215,7 +228,7 @@ export class PublicacionesService {
 }
   await this.donacionesRepository.save(donacion);
 
-  return donacion;
+  return this.optimizeImageUrl(donacion);
 }
 
     async removeDonacion(id: number): Promise<{message: string}> {
@@ -264,7 +277,7 @@ export class PublicacionesService {
             return { data: [], total }; 
         }
 
-        return { data, total };
+        return { data: this.optimizeImageUrls(data), total };
     }
 
     async findAllDonacionInactivas(page?: number, limit?: number): Promise<{ data: Partial<Donacion>[]; total: number }> {
@@ -298,7 +311,7 @@ export class PublicacionesService {
         throw new NotFoundException(`Donación con id ${id} no encontrada`);
     }
 
-     return donacion;
+     return this.optimizeImageUrl(donacion);
     }
 
 
@@ -309,11 +322,11 @@ export class PublicacionesService {
 
   const nuevoEvento = this.eventosRepository.create({
     ...dto,
-    imagenUrl: secure_url,
+    imagenUrl: optimizeCloudinaryUrl(secure_url),
     isActive: this.isEventoActivoPorFecha(dto.fecha),
   });
 
-  return await this.eventosRepository.save(nuevoEvento);
+  return this.optimizeImageUrl(await this.eventosRepository.save(nuevoEvento));
 }
 
    async updateEventos(id: number, updateEvento: updateEventosDto, file?: Express.Multer.File): Promise<Eventos> {
@@ -322,7 +335,7 @@ export class PublicacionesService {
         
     if (file) {
         const { secure_url } = await uploadBufferToCloudinary(file.buffer, 'publicaciones/eventos');
-        evento.imagenUrl = secure_url;
+        evento.imagenUrl = optimizeCloudinaryUrl(secure_url);
      }
 
         for (const [key, value] of Object.entries(updateEvento)) {
@@ -335,7 +348,7 @@ export class PublicacionesService {
 
     await this.eventosRepository.save(evento);
 
-    return evento;
+    return this.optimizeImageUrl(evento);
        
   }
 
@@ -398,7 +411,7 @@ export class PublicacionesService {
             return { data: [], total }; 
         }
 
-        return { data, total };
+        return { data: this.optimizeImageUrls(data), total };
     }
 
     async findAllEventosInactivos(page?: number, limit?: number): Promise<{ data: Partial<Eventos>[]; total: number }> {
@@ -433,6 +446,6 @@ export class PublicacionesService {
         throw new NotFoundException(`Evento con id ${id} no encontrado`);
        }
 
-       return evento;
+       return this.optimizeImageUrl(evento);
     }
 }
