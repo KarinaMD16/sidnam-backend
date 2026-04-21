@@ -351,7 +351,7 @@ export class FacturasProveedoresService {
         );
 
         if (tienePendientes) {
-           throw new BadRequestException(`No se puede archivar al proveedor con id ${id} porque tiene facturas pendientes.`);
+           throw new BadRequestException(`No se puede archivar al proveedor ${proveedor.nombre} porque tiene facturas pendientes.`);
         }
 
         proveedor.estado = Estado_Proveedor.inactivo;
