@@ -247,10 +247,10 @@ export class GestionUsuarioService {
 
   }
 
-  async activarUsuario(id: number): Promise<{message: string}> {
+  async activarUsuario(id: number, usuarioId: number): Promise<{ message: string }> {
 
-    const usuario = await this.usuariosRepository.findOne({
-      where: { id },
+    const usuarioAdministrador = await this.usuariosRepository.findOne({
+      where: { id: usuarioId },
       relations: {
         rol: {
           rolPermisoAcciones: {
@@ -261,20 +261,37 @@ export class GestionUsuarioService {
       },
     });
 
-    if(!usuario){
-      throw new NotFoundException('Usuario no encontrado');
+    if (!usuarioAdministrador) {
+      throw new NotFoundException('Usuario administrador no encontrado');
     }
 
-    const tieneAccionActualizarEnSeguridad = usuario.rol.rolPermisoAcciones.some(
+    if (usuarioAdministrador.estado === Estado_Usuario.inactivo) {
+      throw new BadRequestException('El usuario administrador se encuentra inactivo');
+    }
+
+    const permisos = usuarioAdministrador.rol?.rolPermisoAcciones ?? [];
+
+    const tieneAccionActualizarEnSeguridad = permisos.some(
       (item) =>
         item.permiso?.modulo === 'Seguridad' &&
-        (item.permiso?.seccion === 'Usuarios' ||
-          item.permiso?.seccion === 'Roles') &&
+        item.permiso?.seccion === 'Usuarios' &&
         item.accion?.accion === 'Actualizar',
     );
 
     if (!tieneAccionActualizarEnSeguridad) {
-        throw new BadRequestException('El rol del usuario no tiene permisos para ser activado');
+      throw new ForbiddenException('No tienes permisos para activar usuarios');
+    }
+
+    const usuario = await this.usuariosRepository.findOne({
+      where: { id },
+    });
+
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    if (usuario.estado === Estado_Usuario.activo) {
+      throw new BadRequestException('El usuario ya se encuentra activo');
     }
 
     usuario.estado = Estado_Usuario.activo;
