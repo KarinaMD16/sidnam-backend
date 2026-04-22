@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from '../entities/usuario.entity';
 import { In, Repository } from 'typeorm';
@@ -191,10 +191,14 @@ export class GestionUsuarioService {
     });
   }
 
-  async desactivarUsuario(id: number): Promise<{message: string}> {
+  async desactivarUsuario(id: number, usuarioId: number): Promise<{message: string}> {
 
-    const usuario = await this.usuariosRepository.findOne({
-      where: { id },
+    if(id === usuarioId){
+      throw new BadRequestException('No puedes desactivar tu propio usuario');
+    }
+
+    const usuarioAdministrador = await this.usuariosRepository.findOne({
+      where: { id: usuarioId },
       relations: {
         rol: {
           rolPermisoAcciones: {
@@ -205,20 +209,35 @@ export class GestionUsuarioService {
       },
     });
 
+    if (!usuarioAdministrador) {
+      throw new NotFoundException('Usuario administrador no encontrado');
+    }
+
+    if(usuarioAdministrador.estado === Estado_Usuario.inactivo){
+      throw new BadRequestException('El usuario administrador se encuentra inactivo');
+    }
+
+    const usuario = await this.usuariosRepository.findOne({
+      where: { id },
+    });
+
     if (!usuario) {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    const tieneAccionActualizarEnSeguridad = usuario.rol.rolPermisoAcciones.some(
+    if(usuario.estado === Estado_Usuario.inactivo){
+      throw new BadRequestException('El usuario ya se encuentra inactivo');
+    }
+
+    const tieneAccionActualizarEnSeguridad = usuarioAdministrador.rol.rolPermisoAcciones.some(
       (item) =>
         item.permiso?.modulo === 'Seguridad' &&
-        (item.permiso?.seccion === 'Usuarios' ||
-          item.permiso?.seccion === 'Roles') &&
-        item.accion?.accion === 'Actualizar',
+        item.permiso?.seccion === 'Usuarios' &&
+        item.accion?.accion === 'Actualizar'
     );
 
     if (!tieneAccionActualizarEnSeguridad){
-        throw new BadRequestException('El rol del usuario no tiene permisos para ser desactivado');
+        throw new ForbiddenException('El rol del usuario no tiene permisos para ser desactivado');
     }
 
     usuario.estado = Estado_Usuario.inactivo;

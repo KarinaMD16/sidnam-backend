@@ -85,8 +85,9 @@ export class GestionUsuarioController {
     }
 
     @Patch('usuarios/desactivar/:id')
-    desactivarUsuario(@Param('id', ParseIntPipe) id: number) {
-        return this.userService.desactivarUsuario(id);
+    @UseGuards(AuthGuard)
+    desactivarUsuario(@Param('id', ParseIntPipe) id: number, @Req() req,) {
+        return this.userService.desactivarUsuario(id, req.user.id);
     }
 
     @Patch('usuarios/activar/:id')
