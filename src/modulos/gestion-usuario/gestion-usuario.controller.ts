@@ -91,8 +91,9 @@ export class GestionUsuarioController {
     }
 
     @Patch('usuarios/activar/:id')
-    activarUsuario(@Param('id', ParseIntPipe) id: number) {
-        return this.userService.activarUsuario(id);
+    @UseGuards(AuthGuard)
+    activarUsuario(@Param('id', ParseIntPipe) id: number, @Req() req,) {
+        return this.userService.activarUsuario(id, req.user.id);
     }
 
     @Patch('usuarios/:id')
