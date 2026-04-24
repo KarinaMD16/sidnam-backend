@@ -39,7 +39,7 @@ export class PublicacionesController {
     return this.publicacionesService.findAllProyectosInactivos(page, limit);
   }
 
-  
+  @UseGuards(AuthGuard)
   @Post('createProyecto')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -62,7 +62,7 @@ export class PublicacionesController {
     return this.publicacionesService.createProyecto(dto, file);
   }
 
-  
+  @UseGuards(AuthGuard)
   @Patch('updateProyecto/:id')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -121,7 +121,7 @@ export class PublicacionesController {
     return this.publicacionesService.findAllDonacionInactivas(page, limit);
   }
 
-
+@UseGuards(AuthGuard)
   @Post('createDonacion')
 @UseInterceptors(FileInterceptor('imagen'))
 @ApiConsumes('multipart/form-data')
@@ -144,7 +144,7 @@ async createDonacion(
   return this.publicacionesService.createDonacion(dto, file);
 }
 
-  
+  @UseGuards(AuthGuard)
   @Patch('updateDonacion/:id')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -205,7 +205,7 @@ async updateDonacion(
     return this.publicacionesService.findAllEventosInactivos(page, limit);
   }
 
-
+  @UseGuards(AuthGuard)
   @Post('createEvento')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
@@ -229,6 +229,7 @@ async updateDonacion(
   }
 
  
+  @UseGuards(AuthGuard)
   @Patch('updateEvento/:id')
   @UseInterceptors(FileInterceptor('imagen'))
   @ApiConsumes('multipart/form-data')
