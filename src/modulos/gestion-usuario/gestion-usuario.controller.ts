@@ -10,7 +10,7 @@ import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { assertValidImageUpload } from 'src/common/utils/imageUploadValidation';
 
 
-
+UseGuards(AuthGuard)
 @Controller('gestion-usuario')
 export class GestionUsuarioController {
 

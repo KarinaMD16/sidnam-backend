@@ -78,11 +78,13 @@ export class GaleriaController {
         return this.galeriaService.findByCategoriaId(categoriaId);
     }
     
+    @UseGuards(AuthGuard)
     @Delete('removeImagen/:id')
      async removeImagen(@Param('id', ParseIntPipe) id: number) {
      return this.galeriaService.removeImagen(id);
     }
 
+    @UseGuards(AuthGuard)
     @Patch('updateCategoria/:imagenId')
     async updateCategoriaImagen(
     @Param('imagenId', ParseIntPipe) imagenId: number,
@@ -91,6 +93,8 @@ export class GaleriaController {
       return this.galeriaService.updateCategoriaImagen(imagenId, dto.categoriaId);
     }
 
+
+    @UseGuards(AuthGuard)
     @Patch('updateCategoriasGaleria/:id')
     updateCategoria(
     @Param('id', ParseIntPipe) id: number,
