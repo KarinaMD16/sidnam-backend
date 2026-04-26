@@ -44,6 +44,7 @@ export class ReporteDonacionesService {
 
     await this.pdfHtmlService.generarDesdeHtml(html, res, {
       filename,
+      landscape: true,
       waitUntil: 'networkidle0', 
       ensureAssets: true,        
     });
@@ -193,7 +194,7 @@ export class ReporteDonacionesService {
                 <th class="nowrap-header">Cédula</th>
                 <th>Donador</th>
                 <th>Tipo</th>
-                <th>Anón.</th>
+                <th>Anónimo.</th>
                 <th>Aprob./Creada en</th>
                 <th>Aprob./Creada por</th>
                 <th>Recibida</th>

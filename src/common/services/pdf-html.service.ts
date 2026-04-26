@@ -10,6 +10,7 @@ export interface PdfGenOptions {
   waitUntil?: PuppeteerLifeCycleEvent;
   timeout?: number;
   format?: PaperFormat;
+  landscape?: boolean;
   margin?: PDFOptions['margin'];
   ensureAssets?: boolean;
   disposition?: Disposition;
@@ -60,6 +61,7 @@ export class PdfHtmlService implements OnApplicationShutdown {
       waitUntil = defaultWait,
       timeout = 30000,
       format = defaultFormat,
+      landscape = false,
       margin = { top: '40px', bottom: '40px', left: '30px', right: '30px' } as PDFOptions['margin'],
       ensureAssets = false,
       disposition = 'attachment',
@@ -85,6 +87,7 @@ export class PdfHtmlService implements OnApplicationShutdown {
 
       const pdfBuffer = await page.pdf({
         format,
+        landscape,
         printBackground: true,
         margin,
       });
