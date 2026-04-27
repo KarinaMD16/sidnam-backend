@@ -31,6 +31,11 @@ export class GestionUsuarioController {
         return this.userService.getRoles();
     }
 
+    @Get('roles/all')
+    getAllRolesAdmin() {
+        return this.userService.getAllRoles();
+    }
+
     @Get('acciones')
     getAllAcciones(){
         return this.permisosService.getAcciones();
