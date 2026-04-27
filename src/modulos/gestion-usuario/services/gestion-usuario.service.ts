@@ -28,7 +28,8 @@ export class GestionUsuarioService {
         private readonly rolRepository: Repository<RolUsuario>,
 
         @InjectRepository(Accion)
-        private readonly accionRepository: Repository<Accion>
+        private readonly accionRepository: Repository<Accion>,
+
     ){}
 
     private optimizeUserImage<T extends { imagenUrl?: string | null }>(item: T): T {
@@ -119,7 +120,8 @@ export class GestionUsuarioService {
     async getRoles(): Promise<GetRolesDto[]> {
 
         const roles = await this.rolRepository.find({
-          order: { estado: 'DESC' }
+          order: { estado: 'DESC' },
+          where: { estado: true }
         });
         
         const dto = plainToInstance(GetRolesDto, roles, { excludeExtraneousValues: true });
@@ -292,6 +294,10 @@ export class GestionUsuarioService {
 
     if (usuario.estado === Estado_Usuario.activo) {
       throw new BadRequestException('El usuario ya se encuentra activo');
+    }
+
+    if(usuario.rol.estado === false){
+      throw new BadRequestException('El rol del usuario se encuentra inactivo, no se puede activar el usuario');
     }
 
     usuario.estado = Estado_Usuario.activo;
