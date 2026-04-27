@@ -1,6 +1,10 @@
 {
   "name": "sidnam-api",
   "version": "0.0.1",
+  "engines": {
+    "node": "20.x",
+    "npm": "10.x"
+  },
   "description": "",
   "author": "",
   "private": true,
@@ -58,7 +62,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/multer": "^2.0.0",
-    "@types/node": "^22.16.3",
+    "@types/node": "^20.17.0",
     "@types/nodemailer": "^6.4.17",
     "@types/passport": "^1.0.17",
     "@types/passport-jwt": "^4.0.1",
