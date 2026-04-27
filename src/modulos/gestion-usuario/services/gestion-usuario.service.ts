@@ -297,6 +297,7 @@ export class GestionUsuarioService {
 
     const usuario = await this.usuariosRepository.findOne({
       where: { id },
+      relations: ['rol']
     });
 
     if (!usuario) {
