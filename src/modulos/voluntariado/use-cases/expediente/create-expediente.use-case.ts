@@ -222,15 +222,29 @@ export class CreateExpedienteUseCase {
             }
 
             if (voluntario) {
-            await manager.delete('Contacto_emergencia', {
-                voluntario: voluntario.id,
-            });
+                voluntario.nombre = solicitud.nombre;
+                voluntario.apellido1 = solicitud.apellido1;
+                voluntario.apellido2 = solicitud.apellido2;
+                voluntario.email = solicitud.email;
+                voluntario.telefono = solicitud.telefono;
+                voluntario.ocupacion = solicitud.ocupacion;
+                voluntario.direccion = solicitud.direccion;
+                voluntario.sexo = solicitud.sexo;
+                voluntario.experienciaLaboral = solicitud.experienciaLaboral;
 
-            const nuevosContactos = solicitud.contactosEmergencia.map((c) => ({
-                nombre: c.nombre,
-                telefono: c.telefono,
-                voluntario,
-            }));
+                await manager.save(Voluntario, voluntario);
+
+                await manager.delete('Contacto_emergencia', {
+                    voluntario: { id: voluntario.id },
+                });
+
+                const nuevosContactos = solicitud.contactosEmergencia.map((c) => ({
+                    nombre: c.nombre,
+                    telefono: c.telefono,
+                    voluntario,
+                }));
+
+                await manager.save('Contacto_emergencia', nuevosContactos);
 
             await manager.save('Contacto_emergencia', nuevosContactos);
             } else {
