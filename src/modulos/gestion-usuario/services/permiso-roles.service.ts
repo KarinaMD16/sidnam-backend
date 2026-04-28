@@ -9,6 +9,8 @@ import { plainToInstance } from "class-transformer";
 import { GetPermisosDto } from "../dto/getPermisosDto";
 import { RolPermisoAccion } from "../entities/rolPermisoAccion.entity";
 import { GetRolesPermisosAccionesDto } from "../dto/getRolesPermisosAccionesDto";
+import { Usuario } from "../entities/usuario.entity";
+import { Estado_Usuario } from "src/common/enums/modulos.enum";
 
 @Injectable()
 export class PermisosService implements OnModuleInit {
@@ -24,6 +26,10 @@ export class PermisosService implements OnModuleInit {
 
     @InjectRepository(RolPermisoAccion)
     private readonly rpaRepository: Repository<RolPermisoAccion>,
+
+    @InjectRepository(Usuario)
+    private readonly usuarioRepository: Repository<Usuario>
+
   ) {}
 
   async onModuleInit() {
@@ -199,9 +205,19 @@ export class PermisosService implements OnModuleInit {
       throw new NotFoundException("Rol no encontrado");
     }
 
-    rol.estado = false;
-    await this.rolRepository.save(rol);
-    return {message: 'Rol desactivado correctamente'};
+    await this.rolRepository.update(
+      { id_rol: rolId },
+      { estado: false },
+    );
+
+    await this.usuarioRepository.update(
+      { rol: { id_rol: rolId } },
+      { estado: Estado_Usuario.inactivo },
+    );
+
+    return {
+      message: 'Rol y usuarios asociados desactivados correctamente',
+    };
   }
 
   async activarRol(rolId: number): Promise<{message: string}>{
