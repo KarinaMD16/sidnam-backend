@@ -20,6 +20,7 @@ export class AutenticacionController {
   constructor(private readonly authService: AutenticacionService) {}
 
  
+  @UseGuards(AuthGuard)
   @Post('register')
   registerAdministrador(@Body() registerDto: RegisterDto) {
     return this.authService.crearUsuario(registerDto);
@@ -54,6 +55,7 @@ export class AutenticacionController {
     return { accessToken, id };
     }
 
+  @UseGuards(AuthGuard)
   @Post('refresh')
   async refresh(
     @Req() req: Request,
@@ -63,6 +65,7 @@ export class AutenticacionController {
     return this.authService.refresh(refreshToken, res);
   }
 
+  @UseGuards(AuthGuard)
   @Post('logout')
   async logout(
     @Req() req: Request,
