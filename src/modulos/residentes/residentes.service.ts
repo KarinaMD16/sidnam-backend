@@ -260,23 +260,32 @@ export class ResidentesService {
     return dtos;
   }
 
-  async findPreviewExpedienteByCedula(cedula: string): Promise<ExpedienteResidentePreviewDto>{
+  async findPreviewExpedienteByCedula(cedula: string): Promise<ExpedienteResidentePreviewDto> {
 
-    const expediente = await this.expedienteResidenteRepository.findOne({
-      where: {residente: {cedula: cedula}},
-      relations: ['residente'],
-    })
-
-    if(!cedula){
+    if (!cedula || !cedula.trim()) {
       throw new BadRequestException('Cédula es requerida');
     }
 
-    if(!expediente){
+    const cedulaNormalizada = cedula.trim().toLowerCase().replace(/\s+/g, '');
+
+    const expediente = await this.expedienteResidenteRepository
+      .createQueryBuilder('expediente')
+      .leftJoinAndSelect('expediente.residente', 'residente')
+      .where(
+        "LOWER(REPLACE(TRIM(residente.cedula), ' ', '')) LIKE :cedula",
+        { cedula: `%${cedulaNormalizada}%` }
+      )
+      .getOne();
+
+    if (!expediente) {
       throw new NotFoundException('Expediente no encontrado');
     }
 
-    return plainToInstance(ExpedienteResidentePreviewDto, expediente, { excludeExtraneousValues: true });
-
+    return plainToInstance(
+      ExpedienteResidentePreviewDto,
+      expediente,
+      { excludeExtraneousValues: true },
+    );
   }
 
   async actualizarInformacionGeneralExpediente(idExpediente: number, actualizarExpediente: Partial<ActualizarExpediente>): Promise<{ message: string }> {
