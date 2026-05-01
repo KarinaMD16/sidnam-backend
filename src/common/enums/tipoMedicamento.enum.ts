@@ -13,3 +13,8 @@ export const getTiposMedicamentos = (id: number): tipo_medicamento | null => {
   const option = TipoMedicamentoOpts.find(opt => opt.id === id);
   return option ? option.value : null;
 };
+
+export const getNombreTipoMedicamento = (id: number): string | null => {
+  const option = TipoMedicamentoOpts.find(opt => opt.id === id);
+  return option ? option.nombre : null;
+};

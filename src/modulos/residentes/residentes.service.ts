@@ -39,7 +39,7 @@ import { CreateMedicamentoDto } from './dto/createMedicamentoDto';
 import { CreateAdministracionEspecialDto } from './dto/createAdministracionEspecialDto';
 import { AdministracionesEspeciales } from './entities/administracionEspecial.entity';
 import { AdministracionMedicamento } from './entities/administracioneMedicamento';
-import { getTiposMedicamentos, TipoMedicamentoOpts } from 'src/common/enums/tipoMedicamento.enum';
+import { getNombreTipoMedicamento, getTiposMedicamentos, TipoMedicamentoOpts } from 'src/common/enums/tipoMedicamento.enum';
 import { Libro_Campo } from './entities/libroCampo.entity';
 import { EstadoExpediente, EstadoExpedienteOptions, getEstadoExpedientesById } from 'src/common/enums/estadosExpedientes.enum';
 import e from 'express';
@@ -567,6 +567,12 @@ export class ResidentesService {
       throw new NotFoundException('Tipo de medicamento no encontrado');
     }
 
+    const nombreTipoMedicamento = getNombreTipoMedicamento(idTipoMedicamento);
+
+    if (!nombreTipoMedicamento){
+      throw new NotFoundException('Nombre del tipo de medicamento no encontrado');
+    }
+
     const nombreMinuscula = createMedicamento.nombre.toLowerCase();
 
     const medicamentoExistente = await this.medicamentoRepository.findOne({
@@ -578,7 +584,7 @@ export class ResidentesService {
 
 
     if (medicamentoExistente) {
-        throw new BadRequestException('El medicamento ya existe para este tipo');
+        throw new BadRequestException(`El '${nombreTipoMedicamento}' "${createMedicamento.nombre}" ya existe`);
     }
     const nuevoMedicamento = this.medicamentoRepository.create({ nombre: nombreMinuscula, tipo: tipoMedicamento });
 
