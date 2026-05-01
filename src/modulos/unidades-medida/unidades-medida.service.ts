@@ -23,30 +23,33 @@ export class UnidadesMedidaService {
         }));
     }
 
-    async asociarUnidadATipo(idtipoMedicamento: number, createUnidadMedida: CreateUnidadMedidaDto){
-
+    async asociarUnidadATipo(idtipoMedicamento: number, createUnidadMedida: CreateUnidadMedidaDto,) {
+        
         const tipo = getTipoUnidadMedidaById(idtipoMedicamento);
 
         if (!tipo) {
-        throw new BadRequestException(
-            'Tipo de unidad de medida no es válido'
-        );
+            throw new BadRequestException('Tipo de unidad de medida no es válido');
         }
 
-        const unidadTipoRepetida = await this.unidadMedidaRepository.findOne({
-            where: {tipo}
-        })
+        const unidadTipoRepetida = await this.unidadMedidaRepository
+            .createQueryBuilder('unidad')
+            .where('unidad.tipo = :tipo', { tipo })
+            .andWhere(
+            "LOWER(REPLACE(TRIM(unidad.nombre), ' ', '')) = LOWER(REPLACE(TRIM(:nombre), ' ', ''))",
+            { nombre: createUnidadMedida.nombre },
+            )
+            .getOne();
 
-        if(unidadTipoRepetida?.nombre.toLowerCase().replace(/\s+/g, '') == createUnidadMedida.nombre.toLowerCase().replace(/\s+/g, '')){
-            throw new BadRequestException('Unidad de medida repetida')
+        if (unidadTipoRepetida) {
+            throw new BadRequestException('Unidad de medida repetida');
         }
 
         const unidadMedida = this.unidadMedidaRepository.create({
-        ...createUnidadMedida,
-            tipo
+            ...createUnidadMedida,
+            nombre: createUnidadMedida.nombre.trim(),
+            tipo,
         });
-    
-        
+
         return this.unidadMedidaRepository.save(unidadMedida);
     }
 
