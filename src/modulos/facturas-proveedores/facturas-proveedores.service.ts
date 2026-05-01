@@ -211,20 +211,23 @@ export class FacturasProveedoresService {
         return plainToInstance(MostrarProveedoresSelect, proveedores, { excludeExtraneousValues: true });
     }
 
-    async getFacturasPorNumero(numeroFactura: number): Promise<MostrarFacturaDto>{
+    async getFacturasPorNumero(numeroFactura: string): Promise<MostrarFacturaDto[]> {
+        const facturas = await this.facturaRepository
+            .createQueryBuilder('factura')
+            .leftJoinAndSelect('factura.proveedor', 'proveedor')
+            .leftJoinAndSelect('proveedor.area', 'area')
+            .where('CAST(factura.numero_factura AS CHAR) LIKE :numeroFactura', {
+            numeroFactura: `%${numeroFactura}%`,
+            })
+            .getMany();
 
-        const facturaNumero = await this.facturaRepository.findOne({
-            where: {numero_factura: numeroFactura},
-            relations: ['proveedor', 'proveedor.area']
-        })
-
-        if(!facturaNumero){
-            throw new NotFoundException('Numero de factura no encontrado')
+        if (!facturas.length) {
+            throw new NotFoundException('Número de factura no encontrado');
         }
 
-        const dto = plainToInstance(MostrarFacturaDto, facturaNumero, {excludeExtraneousValues: true})
-
-        return dto
+        return plainToInstance(MostrarFacturaDto, facturas, {
+            excludeExtraneousValues: true,
+        });
     }
 
     getEstadosFacturas() {

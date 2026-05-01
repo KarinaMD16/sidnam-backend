@@ -78,8 +78,8 @@ export class FacturasProveedoresController {
     }
 
     @Get('facturas/numero/:numeroFactura')
-    getFacturaPorNumero(@Param('numeroFactura', ParseIntPipe) numeroFactura: number){
-        return this.facturasproveedoresService.getFacturasPorNumero(numeroFactura)
+    getFacturaPorNumero(@Param('numeroFactura') numeroFactura: string) {
+    return this.facturasproveedoresService.getFacturasPorNumero(numeroFactura);
     }
 
     @Get('facturas/estados')
