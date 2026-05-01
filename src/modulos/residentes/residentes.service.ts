@@ -584,7 +584,7 @@ export class ResidentesService {
 
 
     if (medicamentoExistente) {
-        throw new BadRequestException(`El ${nombreTipoMedicamento} "${createMedicamento.nombre}" ya ha sido registrado anterioir`);
+        throw new BadRequestException(`El ${nombreTipoMedicamento} "${createMedicamento.nombre}" ya ha sido registrado anteriormente`);
     }
     const nuevoMedicamento = this.medicamentoRepository.create({ nombre: nombreMinuscula, tipo: tipoMedicamento });
 
