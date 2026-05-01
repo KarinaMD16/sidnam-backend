@@ -877,9 +877,26 @@ export class ResidentesService {
     return this.consultaEbaisRepository.save(consulta);
   }
 
-  async createTipoConsulta(createTipoConsulta: createTipoConsultaDto): Promise<{message: string}> {
-    const nuevoTipoConsulta = this.tipoConsultaRepository.create(createTipoConsulta);
+  async createTipoConsulta(createTipoConsulta: createTipoConsultaDto): Promise<{ message: string }> {
+
+    const tipoConsultaExistente = await this.tipoConsultaRepository
+      .createQueryBuilder('tipo')
+      .where('LOWER(TRIM(tipo.nombre)) = LOWER(TRIM(:nombre))', {
+        nombre: createTipoConsulta.nombre,
+      })
+      .getOne();
+
+    if (tipoConsultaExistente) {
+      throw new BadRequestException(`El tipo de consulta ${createTipoConsulta.nombre} ya fue registrado anteriormente`);
+    }
+
+    const nuevoTipoConsulta = this.tipoConsultaRepository.create({
+      ...createTipoConsulta,
+      nombre: createTipoConsulta.nombre.trim(), 
+    });
+
     await this.tipoConsultaRepository.save(nuevoTipoConsulta);
+
     return { message: 'Tipo de consulta creado' };
   }
 
