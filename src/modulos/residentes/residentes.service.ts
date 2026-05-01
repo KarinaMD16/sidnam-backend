@@ -584,7 +584,7 @@ export class ResidentesService {
 
 
     if (medicamentoExistente) {
-        throw new BadRequestException(`El '${nombreTipoMedicamento}' "${createMedicamento.nombre}" ya existe`);
+        throw new BadRequestException(`El ${nombreTipoMedicamento} "${createMedicamento.nombre}" ya existe`);
     }
     const nuevoMedicamento = this.medicamentoRepository.create({ nombre: nombreMinuscula, tipo: tipoMedicamento });
 
