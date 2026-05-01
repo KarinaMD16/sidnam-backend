@@ -333,7 +333,7 @@ export class GestionUsuarioService {
     return { mesage: 'Usuario actualizado correctamente' };
   }
 
-  async updateRol(idRol: number, updateRol: UpdateRolDto): Promise<{message: string}> {
+  async updateRol(idRol: number, updateRol: UpdateRolDto): Promise<{ message: string }> {
 
     const rol = await this.rolRepository.findOneBy({ id_rol: idRol });
 
@@ -341,7 +341,26 @@ export class GestionUsuarioService {
       throw new NotFoundException('Rol no encontrado');
     }
 
-    Object.assign(rol, updateRol);
+    if (updateRol.nombre) {
+      const rolExistente = await this.rolRepository
+        .createQueryBuilder('rol')
+        .where(
+          "LOWER(REPLACE(TRIM(rol.nombre), ' ', '')) = LOWER(REPLACE(TRIM(:nombre), ' ', ''))",
+          { nombre: updateRol.nombre }
+        )
+        .andWhere('rol.id_rol != :idRol', { idRol }) 
+        .getOne();
+
+      if (rolExistente) {
+        throw new BadRequestException('El rol ya existe');
+      }
+    }
+
+    Object.assign(rol, {
+      ...updateRol,
+      nombre: updateRol.nombre?.trim() ?? rol.nombre, 
+    });
+
     await this.rolRepository.save(rol);
 
     return { message: 'Rol actualizado correctamente' };
