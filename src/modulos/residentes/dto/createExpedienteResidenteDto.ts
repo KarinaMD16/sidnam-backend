@@ -2,6 +2,7 @@
 import { IsNotEmpty, IsEmail, IsEnum, IsDateString, IsOptional, IsNumber, ValidateNested, ArrayMinSize } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Sexo } from 'src/common/enums/rol.enum';
+import { IsAdultoMayor } from 'src/common/validators/is-adulto-mayor.validator';
 
 
 export class CreateEncargadoDto {
@@ -44,6 +45,7 @@ export class CreateResidenteDto {
   sexo: Sexo;
 
   @IsDateString()
+  @IsAdultoMayor()
   fecha_nacimiento: Date;
 
   @IsNumber()
