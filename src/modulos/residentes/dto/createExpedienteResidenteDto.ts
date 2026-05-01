@@ -3,6 +3,7 @@ import { IsNotEmpty, IsEmail, IsEnum, IsDateString, IsOptional, IsNumber, Valida
 import { Type } from 'class-transformer';
 import { Sexo } from 'src/common/enums/rol.enum';
 import { IsAdultoMayor } from 'src/common/validators/is-adulto-mayor.validator';
+import { FechaIngresoResidenteValida } from 'src/common/validators/fecha-ingreso-residente.validator';
 
 
 export class CreateEncargadoDto {
@@ -66,6 +67,7 @@ export class CreateResidenteDto {
   encargados: CreateEncargadoDto[];
 }
 
+@FechaIngresoResidenteValida()
 export class  CreateExpedienteCompletoDto {
   @IsNotEmpty()
   tipo_pension: number;
