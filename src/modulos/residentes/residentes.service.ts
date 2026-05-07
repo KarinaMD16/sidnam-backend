@@ -674,16 +674,34 @@ export class ResidentesService {
       };
   }
 
-  async obtenerNotasPorExpediente(expedienteId: number): Promise<{ id: number; titulo: string; nota: string; fecha: string }[]> {
-      const notasPadre = await this.notaEnfermeriaRepository.find({
+  async obtenerNotasPorExpediente(
+      expedienteId: number,
+      page?: number,
+      limit?: number,
+  ): Promise<{ id: number; titulo: string; nota: string; fecha: string }[]> {
+
+      const queryOptions: any = {
           where: {
               expediente: { id_expediente: expedienteId },
               notaPadre: IsNull(),
           },
           order: { fecha: 'ASC' },
-      });
+      };
 
-      const resultado: { id: number; titulo: string; nota: string; fecha: string }[] = [];
+    
+      if (page && limit) {
+          queryOptions.skip = (page - 1) * limit;
+          queryOptions.take = limit;
+      }
+
+      const notasPadre = await this.notaEnfermeriaRepository.find(queryOptions);
+
+      const resultado: {
+          id: number;
+          titulo: string;
+          nota: string;
+          fecha: string;
+      }[] = [];
 
       for (const notaPadre of notasPadre) {
           const notaCompleta = await this.obtenerNotaCompleta(notaPadre.id);
