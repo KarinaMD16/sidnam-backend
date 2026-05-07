@@ -1058,6 +1058,7 @@ export class ResidentesService {
       idConsultaPadre: number,
     ): Promise<{
       id_consulta_ebais: number;
+      titulo: string;
       descripcion: string;
       fecha_consulta: Date;
     }> {
@@ -1080,6 +1081,7 @@ export class ResidentesService {
 
       return {
         id_consulta_ebais: consultaPadre.id_consulta_ebais,
+        titulo: consultaPadre.titulo,
         descripcion: consultas.map(c => c.descripcion || '').join(''),
         fecha_consulta: consultaPadre.fecha_consulta,
       };
@@ -1176,6 +1178,7 @@ export class ResidentesService {
     idConsultaPadre: number,
   ): Promise<{
     id_consulta_especialista: number;
+    titulo: string;
     descripcion: string;
     fecha_consulta: Date;
     tipoConsulta: Tipo_Consulta;
@@ -1203,6 +1206,7 @@ export class ResidentesService {
       descripcion: consultas.map(c => c.descripcion || '').join(''),
       fecha_consulta: consultaPadre.fecha_consulta,
       tipoConsulta: consultaPadre.tipoConsulta,
+      titulo: consultaPadre.titulo,
     };
   }
 
@@ -1377,6 +1381,7 @@ export class ResidentesService {
 
     const consultasCompletas: {
       id_consulta_ebais: number;
+      titulo: string;
       descripcion: string;
       fecha_consulta: Date;
     }[] = [];
