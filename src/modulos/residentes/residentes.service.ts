@@ -712,7 +712,13 @@ export class ResidentesService {
       };
   }
 
-    async crearNotaLibroCampo(expedienteId: number, descripcionCompleta: string, problematica?: string, fecha_actividad?: string, acuerdo_alcanzado?: string): Promise<Libro_Campo> {
+    async crearNotaLibroCampo(
+    expedienteId: number,
+    descripcionCompleta: string,
+    problematica?: string,
+    fecha_actividad?: string,
+    acuerdo_alcanzado?: string,
+  ): Promise<Libro_Campo> {
     const expediente = await this.expedienteResidenteRepository.findOne({
       where: { id_expediente: expedienteId },
     });
@@ -721,18 +727,40 @@ export class ResidentesService {
       throw new NotFoundException('Expediente no encontrado');
     }
 
+    const fragmentosDescripcion: string[] = [];
+    const fragmentosAcuerdo: string[] = [];
+
+    for (let i = 0; i < descripcionCompleta.length; i += this.MAX_SEGMENT_LENGTH) {
+      fragmentosDescripcion.push(
+        descripcionCompleta.substring(i, i + this.MAX_SEGMENT_LENGTH),
+      );
+    }
+
+    if (acuerdo_alcanzado) {
+      for (let i = 0; i < acuerdo_alcanzado.length; i += this.MAX_SEGMENT_LENGTH) {
+        fragmentosAcuerdo.push(
+          acuerdo_alcanzado.substring(i, i + this.MAX_SEGMENT_LENGTH),
+        );
+      }
+    }
+
+    const totalFragmentos = Math.max(
+      fragmentosDescripcion.length,
+      fragmentosAcuerdo.length,
+    );
+
     let notaPadre: Libro_Campo | undefined = undefined;
     let primeraNota: Libro_Campo | undefined = undefined;
 
-    for (let i = 0; i < descripcionCompleta.length; i += this.MAX_SEGMENT_LENGTH) {
-      const fragmento = descripcionCompleta.substring(i, i + this.MAX_SEGMENT_LENGTH);
-
+    for (let i = 0; i < totalFragmentos; i++) {
       const nota = this.libroCampoRepository.create({
         expediente,
         problematica_abordada: problematica,
         fecha_actividad: fecha_actividad ? new Date(fecha_actividad) : undefined,
-        acuerdo_alcanzado: acuerdo_alcanzado,
-        descripcion: fragmento,
+
+        descripcion: fragmentosDescripcion[i] || '',
+        acuerdo_alcanzado: fragmentosAcuerdo[i] || '',
+
         notaPadre,
       });
 
@@ -751,11 +779,20 @@ export class ResidentesService {
     return primeraNota;
   }
 
-  async obtenerNotaLibroCompleta(idNotaPadre: number): Promise<{ id: number; descripcion: string; problematica?: string; acuerdoAlcanzado?: string; fechaActividad?: string; fecha: string }> {
+  async obtenerNotaLibroCompleta(
+    idNotaPadre: number,
+  ): Promise<{
+    id: number;
+    descripcion: string;
+    problematica?: string;
+    acuerdoAlcanzado?: string;
+    fechaActividad?: string;
+    fecha: string;
+  }> {
     const notas = await this.libroCampoRepository.find({
       where: [
-        { id_libro_campo: idNotaPadre }, 
-        { notaPadre: { id_libro_campo: idNotaPadre } }
+        { id_libro_campo: idNotaPadre },
+        { notaPadre: { id_libro_campo: idNotaPadre } },
       ],
       order: { id_libro_campo: 'ASC' },
     });
@@ -765,13 +802,20 @@ export class ResidentesService {
     }
 
     const notaPadre = notas[0];
-    const descripcionCompleta = notas.map(n => n.descripcion).join('');
+
+    const descripcionCompleta = notas
+      .map(n => n.descripcion || '')
+      .join('');
+
+    const acuerdoAlcanzadoCompleto = notas
+      .map(n => n.acuerdo_alcanzado || '')
+      .join('');
 
     return {
       id: idNotaPadre,
-      descripcion: descripcionCompleta, 
+      descripcion: descripcionCompleta,
       problematica: notaPadre.problematica_abordada,
-      acuerdoAlcanzado: notaPadre.acuerdo_alcanzado,
+      acuerdoAlcanzado: acuerdoAlcanzadoCompleto,
       fechaActividad: notaPadre.fecha_actividad?.toISOString(),
       fecha: notaPadre.fecha.toISOString(),
     };
