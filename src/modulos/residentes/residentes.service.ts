@@ -1000,22 +1000,89 @@ export class ResidentesService {
     return primeraCuracion;
   }
 
-  async createConsultaEbais(createConsulta: createConsultaEbaisDto, id: number): Promise<Consulta_Ebais> {
+  async createConsultaEbais(
+      createConsulta: createConsultaEbaisDto,
+      id: number,
+    ): Promise<Consulta_Ebais> {
 
-    const expediente = await this.expedienteResidenteRepository.findOne({
-      where: { id_expediente: id }
-    })
+      const expediente = await this.expedienteResidenteRepository.findOne({
+        where: { id_expediente: id },
+      });
 
-    if(!expediente){
-      throw new NotFoundException('Expediente no encontrado');
+      if (!expediente) {
+        throw new NotFoundException('Expediente no encontrado');
+      }
+
+      const fragmentos: string[] = [];
+
+      for (
+        let i = 0;
+        i < createConsulta.descripcion.length;
+        i += this.MAX_SEGMENT_LENGTH
+      ) {
+        fragmentos.push(
+          createConsulta.descripcion.substring(
+            i,
+            i + this.MAX_SEGMENT_LENGTH,
+          ),
+        );
+      }
+
+      let consultaPadre: Consulta_Ebais | undefined = undefined;
+      let primeraConsulta: Consulta_Ebais | undefined = undefined;
+
+      for (const fragmento of fragmentos) {
+        const consulta = this.consultaEbaisRepository.create({
+          ...createConsulta,
+          descripcion: fragmento,
+          expediente,
+          notaPadre: consultaPadre,
+        });
+
+        await this.consultaEbaisRepository.save(consulta);
+
+        if (!consultaPadre) {
+          consultaPadre = consulta;
+          primeraConsulta = consulta;
+        }
+      }
+
+      if (!primeraConsulta) {
+        throw new BadRequestException('No se pudo crear la consulta Ebais');
+      }
+
+      return primeraConsulta;
     }
 
-    const consulta = this.consultaEbaisRepository.create({
-      ...createConsulta,
-      expediente
-    });
+    async obtenerConsultaEbaisCompleta(
+      idConsultaPadre: number,
+    ): Promise<{
+      id_consulta_ebais: number;
+      descripcion: string;
+      fecha_consulta: Date;
+    }> {
 
-    return this.consultaEbaisRepository.save(consulta);
+      const consultas = await this.consultaEbaisRepository.find({
+        where: [
+          { id_consulta_ebais: idConsultaPadre },
+          { notaPadre: { id_consulta_ebais: idConsultaPadre } },
+        ],
+        order: {
+          id_consulta_ebais: 'ASC',
+        },
+      });
+
+      if (!consultas || consultas.length === 0) {
+        throw new NotFoundException('Consulta Ebais no encontrada');
+      }
+
+      const consultaPadre = consultas[0];
+
+      return {
+        id_consulta_ebais: consultaPadre.id_consulta_ebais,
+        descripcion: consultas.map(c => c.descripcion || '').join(''),
+        fecha_consulta: consultaPadre.fecha_consulta,
+      };
   }
 
   async createTipoConsulta(createTipoConsulta: createTipoConsultaDto): Promise<{ message: string }> {
@@ -1290,32 +1357,48 @@ export class ResidentesService {
   }
 
   async getConsultaEbais(
-      idExpediente: number,
-      page?: number,
-      limit?: number,
+    idExpediente: number,
+    page?: number,
+    limit?: number,
   ): Promise<{ data: MostrarConsultaEbais[]; total: number }> {
 
-      const [consultas, total] = await this.consultaEbaisRepository.findAndCount({
-          where: {
-              expediente: { id_expediente: idExpediente },
-          },
-          skip: page && limit ? (page - 1) * limit : 0,
-          take: limit,
-          order: {
-              id_consulta_ebais: 'DESC',
-          },
+    const [consultasPadre, total] =
+      await this.consultaEbaisRepository.findAndCount({
+        where: {
+          expediente: { id_expediente: idExpediente },
+          notaPadre: IsNull(),
+        },
+        skip: page && limit ? (page - 1) * limit : 0,
+        take: limit,
+        order: {
+          id_consulta_ebais: 'DESC',
+        },
       });
 
-      const data = plainToInstance(
-          MostrarConsultaEbais,
-          consultas,
-          { excludeExtraneousValues: true },
+    const consultasCompletas: {
+      id_consulta_ebais: number;
+      descripcion: string;
+      fecha_consulta: Date;
+    }[] = [];
+
+    for (const consultaPadre of consultasPadre) {
+      const consultaCompleta = await this.obtenerConsultaEbaisCompleta(
+        consultaPadre.id_consulta_ebais,
       );
 
-      return {
-          data,
-          total,
-      };
+      consultasCompletas.push(consultaCompleta);
+    }
+
+    const data = plainToInstance(
+      MostrarConsultaEbais,
+      consultasCompletas,
+      { excludeExtraneousValues: true },
+    );
+
+    return {
+      data,
+      total,
+    };
   }
 
   async createUnidadMedida(createUnidadMedidaDto: CreateUnidadMedidaDto){
