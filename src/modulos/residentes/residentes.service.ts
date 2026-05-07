@@ -933,33 +933,71 @@ export class ResidentesService {
     return dtos;
   }
 
-  async createCuracion(createCuracionDto: CreateCuracionDto, id: number): Promise<Curaciones> {
+    async createCuracion(
+    createCuracionDto: CreateCuracionDto,
+    id: number,
+  ): Promise<Curaciones> {
 
     const expediente = await this.expedienteResidenteRepository.findOne({
-      where: { id_expediente: id }
-    })
+      where: { id_expediente: id },
+    });
 
-    if(!expediente){
+    if (!expediente) {
       throw new NotFoundException('Expediente no encontrado');
     }
 
-    const curacion = this.curacionesRepository.create({
-      ...createCuracionDto,
-      expediente
-    });
+    const fragmentos: string[] = [];
+
+    for (
+      let i = 0;
+      i < createCuracionDto.descripcion.length;
+      i += this.MAX_SEGMENT_LENGTH
+    ) {
+      fragmentos.push(
+        createCuracionDto.descripcion.substring(
+          i,
+          i + this.MAX_SEGMENT_LENGTH,
+        ),
+      );
+    }
+
+    let curacionPadre: Curaciones | undefined = undefined;
+    let primeraCuracion: Curaciones | undefined = undefined;
+
+    for (const fragmento of fragmentos) {
+
+      const curacion = this.curacionesRepository.create({
+        titulo: createCuracionDto.titulo,
+        fecha_curacion: createCuracionDto.fecha_curacion,
+        descripcion: fragmento,
+        expediente,
+        notaPadre: curacionPadre,
+      });
+
+      await this.curacionesRepository.save(curacion);
+
+      if (!curacionPadre) {
+        curacionPadre = curacion;
+        primeraCuracion = curacion;
+      }
+    }
 
     const historial = this.historialCuracionesRepository.create({
       residente: { id_expediente: expediente.id_expediente },
       titulo: createCuracionDto.titulo,
       descripcion: createCuracionDto.descripcion,
-      fecha_curacion: createCuracionDto.fecha_curacion
+      fecha_curacion: createCuracionDto.fecha_curacion,
     });
 
     await this.historialCuracionesRepository.save(historial);
 
-    return this.curacionesRepository.save(curacion);
+    if (!primeraCuracion) {
+      throw new BadRequestException(
+        'No se pudo registrar la curación',
+      );
+    }
 
-    
+    return primeraCuracion;
   }
 
   async createConsultaEbais(createConsulta: createConsultaEbaisDto, id: number): Promise<Consulta_Ebais> {
@@ -1082,32 +1120,85 @@ export class ResidentesService {
   }
 
   async getCuraciones(
-      idExpediente: number,
-      page?: number,
-      limit?: number,
+    idExpediente: number,
+    page?: number,
+    limit?: number,
   ): Promise<{ data: MostrarCuracionDto[]; total: number }> {
 
-      const [curaciones, total] = await this.curacionesRepository.findAndCount({
-          where: {
-              expediente: { id_expediente: idExpediente },
-          },
-          skip: page && limit ? (page - 1) * limit : 0,
-          take: limit,
-          order: {
-              id_curacion: 'DESC',
-          },
+    const [curacionesPadre, total] =
+      await this.curacionesRepository.findAndCount({
+        where: {
+          expediente: { id_expediente: idExpediente },
+          notaPadre: IsNull(),
+        },
+        skip: page && limit ? (page - 1) * limit : 0,
+        take: limit,
+        order: {
+          id_curacion: 'DESC',
+        },
       });
 
-      const data = plainToInstance(
-          MostrarCuracionDto,
-          curaciones,
-          { excludeExtraneousValues: true },
+    const curacionesCompletas: {
+      id_curacion: number;
+      titulo: string;
+      descripcion: string;
+      fecha_curacion: Date;
+    }[] = [];
+
+    for (const curacionPadre of curacionesPadre) {
+
+      const curacionCompleta = await this.obtenerCuracionCompleta(
+        curacionPadre.id_curacion,
       );
 
-      return {
-          data,
-          total,
-      };
+      curacionesCompletas.push(curacionCompleta);
+    }
+
+    const data = plainToInstance(
+      MostrarCuracionDto,
+      curacionesCompletas,
+      { excludeExtraneousValues: true },
+    );
+
+    return {
+      data,
+      total,
+    };
+  }
+
+  async obtenerCuracionCompleta(
+    idCuracionPadre: number,
+  ): Promise<{
+    id_curacion: number;
+    titulo: string;
+    descripcion: string;
+    fecha_curacion: Date;
+  }> {
+
+    const curaciones = await this.curacionesRepository.find({
+      where: [
+        { id_curacion: idCuracionPadre },
+        { notaPadre: { id_curacion: idCuracionPadre } },
+      ],
+      order: {
+        id_curacion: 'ASC',
+      },
+    });
+
+    if (!curaciones || curaciones.length === 0) {
+      throw new NotFoundException('Curación no encontrada');
+    }
+
+    const curacionPadre = curaciones[0];
+
+    return {
+      id_curacion: curacionPadre.id_curacion,
+      titulo: curacionPadre.titulo,
+      descripcion: curaciones
+        .map(c => c.descripcion || '')
+        .join(''),
+      fecha_curacion: curacionPadre.fecha_curacion,
+    };
   }
 
   async getConsultaEbais(

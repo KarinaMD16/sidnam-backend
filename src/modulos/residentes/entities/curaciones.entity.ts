@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, CreateDateColumn, ManyToOne} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, CreateDateColumn, ManyToOne, OneToMany} from 'typeorm';
 import { Expediente_Residente } from './expedientes.entity';
 
 @Entity()
@@ -9,7 +9,7 @@ export class Curaciones{
   @Column({ nullable: true })
   titulo: string;
 
-  @Column({ nullable: false })
+  @Column({ type: 'text', nullable: false })
   descripcion: string;
 
   @Column({nullable: false})
@@ -20,4 +20,10 @@ export class Curaciones{
 
   @ManyToOne(() => Expediente_Residente, expediente => expediente.curaciones, { onDelete: 'CASCADE' })
   expediente: Expediente_Residente;
+
+  @ManyToOne(() => Curaciones, nota => nota.segmentosHijos, { nullable: true })
+  notaPadre: Curaciones;
+
+  @OneToMany(() => Curaciones, nota => nota.notaPadre)
+  segmentosHijos: Curaciones[];
 }
