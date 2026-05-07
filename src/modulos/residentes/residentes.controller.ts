@@ -168,11 +168,31 @@ export class ResidentesController {
     }
 
     @Get('expedientes/libro-campo/:idExpediente')
-        async obtenerNotasLibroPorExpediente(@Param('idExpediente', ParseIntPipe) idExpediente: number): Promise<{id: number;descripcion: string;problematica?: string;acuerdoAlcanzado?: string;fechaActividad?: string;fecha: string;}[]> {
-        const notas = await this.residentesService.obtenerNotasLibroPorExpediente(idExpediente);
+    async obtenerNotasLibroPorExpediente(
+        @Param('idExpediente', ParseIntPipe) idExpediente: number,
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    ): Promise<{
+        data: {
+            id: number;
+            descripcion: string;
+            problematica?: string;
+            acuerdoAlcanzado?: string;
+            fechaActividad?: string;
+            fecha: string;
+        }[];
+        total: number;
+    }> {
+        const notas = await this.residentesService.obtenerNotasLibroPorExpediente(
+            idExpediente,
+            page,
+            limit,
+        );
 
-        if (!notas || notas.length === 0) {
-            throw new NotFoundException('No se encontraron notas del libro de campo para este expediente');
+        if (!notas || notas.data.length === 0) {
+            throw new NotFoundException(
+                'No se encontraron notas del libro de campo para este expediente',
+            );
         }
 
         return notas;

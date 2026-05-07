@@ -778,33 +778,64 @@ export class ResidentesService {
   }
 
 
-  async obtenerNotasLibroPorExpediente(expedienteId: number): Promise<{ id: number; descripcion: string; problematica?: string; acuerdoAlcanzado?: string; fechaActividad?: string; fecha: string }[]> {
-    const notasPadre = await this.libroCampoRepository.find({
-      where: {
-        expediente: { id_expediente: expedienteId },
-        notaPadre: IsNull(),
-      },
-      order: { fecha: 'ASC' },
-    });
+  async obtenerNotasLibroPorExpediente(
+      expedienteId: number,
+      page?: number,
+      limit?: number,
+  ): Promise<{
+      data: {
+          id: number;
+          descripcion: string;
+          problematica?: string;
+          acuerdoAlcanzado?: string;
+          fechaActividad?: string;
+          fecha: string;
+      }[];
+      total: number;
+  }> {
+      const skip = page && limit ? (page - 1) * limit : undefined;
 
-    const resultado: {id: number; descripcion: string; problematica?: string; acuerdoAlcanzado?: string; fechaActividad?: string; fecha: string;}[] = [];
-
-    for (const notaPadre of notasPadre) {
-      const notaCompleta = await this.obtenerNotaLibroCompleta(notaPadre.id_libro_campo);
-
-      const fechaCreacion = new Date(notaCompleta.fecha).toLocaleDateString('es-CR'); 
-      const fechaActividad = notaCompleta.fechaActividad
-        ? new Date(notaCompleta.fechaActividad).toLocaleDateString('es-CR')
-        : undefined;
-
-      resultado.push({
-        ...notaCompleta,
-        fecha: fechaCreacion,
-        fechaActividad,
+      const [notasPadre, total] = await this.libroCampoRepository.findAndCount({
+          where: {
+              expediente: { id_expediente: expedienteId },
+              notaPadre: IsNull(),
+          },
+          order: { fecha: 'ASC' },
+          skip,
+          take: limit,
       });
-    }
 
-    return resultado;
+      const data: {
+          id: number;
+          descripcion: string;
+          problematica?: string;
+          acuerdoAlcanzado?: string;
+          fechaActividad?: string;
+          fecha: string;
+      }[] = [];
+
+      for (const notaPadre of notasPadre) {
+          const notaCompleta = await this.obtenerNotaLibroCompleta(
+              notaPadre.id_libro_campo,
+          );
+
+          const fechaCreacion = new Date(notaCompleta.fecha).toLocaleDateString('es-CR');
+
+          const fechaActividad = notaCompleta.fechaActividad
+              ? new Date(notaCompleta.fechaActividad).toLocaleDateString('es-CR')
+              : undefined;
+
+          data.push({
+              ...notaCompleta,
+              fecha: fechaCreacion,
+              fechaActividad,
+          });
+      }
+
+      return {
+          data,
+          total,
+      };
   }
 
    async getExpedienteEnfermeria(idExpediente: number) {
