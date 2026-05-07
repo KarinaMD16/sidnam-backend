@@ -144,26 +144,20 @@ export class ResidentesController {
         );
     }
 
-   @Get('expedientes/notas-enfermeria/:id')
+  @Get('expedientes/notas-enfermeria/:id')
     async obtenerNotasPorExpediente(
-        @Param('id') expedienteId: number,
-
-        @Query('page', new ParseIntPipe({ optional: true }))
-        page?: number,
-
-        @Query('limit', new ParseIntPipe({ optional: true }))
-        limit?: number,
-    ): Promise<{ id: number; titulo: string; nota: string; fecha: string }[]> {
-
-        if (page && limit) {
-            return this.residentesService.obtenerNotasPorExpediente(
-                expedienteId,
-                page,
-                limit,
-            );
-        }
-
-        return this.residentesService.obtenerNotasPorExpediente(expedienteId);
+        @Param('id', ParseIntPipe) expedienteId: number,
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    ): Promise<{
+        data: { id: number; titulo: string; nota: string; fecha: string }[];
+        total: number;
+    }> {
+        return this.residentesService.obtenerNotasPorExpediente(
+            expedienteId,
+            page,
+            limit,
+        );
     }
 
     @Get('expedientes/nota/:id')

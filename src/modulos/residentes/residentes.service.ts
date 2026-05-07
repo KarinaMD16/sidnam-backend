@@ -674,29 +674,27 @@ export class ResidentesService {
       };
   }
 
-  async obtenerNotasPorExpediente(
+    async obtenerNotasPorExpediente(
       expedienteId: number,
       page?: number,
       limit?: number,
-  ): Promise<{ id: number; titulo: string; nota: string; fecha: string }[]> {
+  ): Promise<{
+      data: { id: number; titulo: string; nota: string; fecha: string }[];
+      total: number;
+  }> {
+      const skip = page && limit ? (page - 1) * limit : undefined;
 
-      const queryOptions: any = {
+      const [notasPadre, total] = await this.notaEnfermeriaRepository.findAndCount({
           where: {
               expediente: { id_expediente: expedienteId },
               notaPadre: IsNull(),
           },
           order: { fecha: 'ASC' },
-      };
+          skip,
+          take: limit,
+      });
 
-    
-      if (page && limit) {
-          queryOptions.skip = (page - 1) * limit;
-          queryOptions.take = limit;
-      }
-
-      const notasPadre = await this.notaEnfermeriaRepository.find(queryOptions);
-
-      const resultado: {
+      const data: {
           id: number;
           titulo: string;
           nota: string;
@@ -705,10 +703,13 @@ export class ResidentesService {
 
       for (const notaPadre of notasPadre) {
           const notaCompleta = await this.obtenerNotaCompleta(notaPadre.id);
-          resultado.push(notaCompleta);
+          data.push(notaCompleta);
       }
 
-      return resultado;
+      return {
+          data,
+          total,
+      };
   }
 
     async crearNotaLibroCampo(expedienteId: number, descripcionCompleta: string, problematica?: string, fecha_actividad?: string, acuerdo_alcanzado?: string): Promise<Libro_Campo> {
