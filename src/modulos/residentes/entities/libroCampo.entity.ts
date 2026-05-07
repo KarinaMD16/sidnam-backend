@@ -18,7 +18,7 @@ export class Libro_Campo {
   @Column('text', { nullable: false })
   descripcion: string;
 
-  @Column({ nullable: false })
+  @Column('text', { nullable: false })
   acuerdo_alcanzado: string;
 
   @ManyToOne(() => Libro_Campo, nota => nota.segmentosHijos, { nullable: true })
