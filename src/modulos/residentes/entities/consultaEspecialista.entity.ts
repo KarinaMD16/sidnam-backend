@@ -10,7 +10,7 @@ export class Consulta_Especialista{
   @Column({ nullable: true })
   titulo: string;
 
-  @Column({ nullable: false })
+  @Column({type: 'text', nullable: false })
   descripcion: string;
 
   @Column({nullable: false})
@@ -24,5 +24,13 @@ export class Consulta_Especialista{
 
   @ManyToOne(() => Tipo_Consulta, tipoConsulta => tipoConsulta.consultas, { onDelete: 'CASCADE' })
   tipoConsulta: Tipo_Consulta;
+
+  @ManyToOne(() => Consulta_Especialista, consulta => consulta.segmentosHijos, {
+  nullable: true,
+  })
+  notaPadre: Consulta_Especialista;
+
+  @OneToMany(() => Consulta_Especialista, consulta => consulta.notaPadre)
+  segmentosHijos: Consulta_Especialista[];
 
 }

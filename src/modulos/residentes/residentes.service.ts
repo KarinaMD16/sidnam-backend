@@ -1041,31 +1041,102 @@ export class ResidentesService {
     return { message: 'Tipo de consulta creado' };
   }
 
-  async asociarTipoConusltaAConsulta(id_tipo_consulta: number, id_expediente: number, createConsulta: CreateConsultaEspecialista){
-    
-    const expediente = await this.expedienteResidenteRepository.findOne({
-      where: {id_expediente: id_expediente}
-    })
+  async asociarTipoConusltaAConsulta(
+    id_tipo_consulta: number,
+    id_expediente: number,
+    createConsulta: CreateConsultaEspecialista,
+  ): Promise<Consulta_Especialista> {
 
-    if(!expediente){
+    const expediente = await this.expedienteResidenteRepository.findOne({
+      where: { id_expediente },
+    });
+
+    if (!expediente) {
       throw new NotFoundException('Expediente no encontrado');
     }
 
     const tipoConsulta = await this.tipoConsultaRepository.findOne({
-      where: { id_tipo_consulta: id_tipo_consulta }
-    })
+      where: { id_tipo_consulta },
+    });
 
-    if(!tipoConsulta){
+    if (!tipoConsulta) {
       throw new NotFoundException('Tipo de consulta no encontrado');
     }
 
-    const consultaEspecialista = this.consultaEspecialistaRepository.create({
-      ...createConsulta,
-      expediente,
-      tipoConsulta
+    const fragmentos: string[] = [];
+
+    for (
+      let i = 0;
+      i < createConsulta.descripcion.length;
+      i += this.MAX_SEGMENT_LENGTH
+    ) {
+      fragmentos.push(
+        createConsulta.descripcion.substring(
+          i,
+          i + this.MAX_SEGMENT_LENGTH,
+        ),
+      );
+    }
+
+    let consultaPadre: Consulta_Especialista | undefined = undefined;
+    let primeraConsulta: Consulta_Especialista | undefined = undefined;
+
+    for (const fragmento of fragmentos) {
+      const consultaEspecialista = this.consultaEspecialistaRepository.create({
+        ...createConsulta,
+        descripcion: fragmento,
+        expediente,
+        tipoConsulta,
+        notaPadre: consultaPadre,
+      });
+
+      await this.consultaEspecialistaRepository.save(consultaEspecialista);
+
+      if (!consultaPadre) {
+        consultaPadre = consultaEspecialista;
+        primeraConsulta = consultaEspecialista;
+      }
+    }
+
+    if (!primeraConsulta) {
+      throw new BadRequestException('No se pudo crear la consulta especialista');
+    }
+
+    return primeraConsulta;
+  }
+
+  async obtenerConsultaEspecialistaCompleta(
+    idConsultaPadre: number,
+  ): Promise<{
+    id_consulta_especialista: number;
+    descripcion: string;
+    fecha_consulta: Date;
+    tipoConsulta: Tipo_Consulta;
+  }> {
+
+    const consultas = await this.consultaEspecialistaRepository.find({
+      where: [
+        { id_consulta_especialista: idConsultaPadre },
+        { notaPadre: { id_consulta_especialista: idConsultaPadre } },
+      ],
+      relations: ['tipoConsulta'],
+      order: {
+        id_consulta_especialista: 'ASC',
+      },
     });
 
-    return this.consultaEspecialistaRepository.save(consultaEspecialista);
+    if (!consultas || consultas.length === 0) {
+      throw new NotFoundException('Consulta especialista no encontrada');
+    }
+
+    const consultaPadre = consultas[0];
+
+    return {
+      id_consulta_especialista: consultaPadre.id_consulta_especialista,
+      descripcion: consultas.map(c => c.descripcion || '').join(''),
+      fecha_consulta: consultaPadre.fecha_consulta,
+      tipoConsulta: consultaPadre.tipoConsulta,
+    };
   }
 
   getBitacoras() {
@@ -1080,43 +1151,60 @@ export class ResidentesService {
   }
   
   async getConsultasEspecialistas(
-      idTipoConsulta: number,
-      idExpediente: number,
-      page?: number,
-      limit?: number,
-  ): Promise<{ data: MostrarConsultaEspecialistaDto[]; total: number }> {
+  idTipoConsulta: number,
+  idExpediente: number,
+  page?: number,
+  limit?: number,
+): Promise<{ data: MostrarConsultaEspecialistaDto[]; total: number }> {
 
-      const Tipo_Consulta = await this.tipoConsultaRepository.findOne({
-          where: { id_tipo_consulta: idTipoConsulta },
+  const tipoConsulta = await this.tipoConsultaRepository.findOne({
+    where: { id_tipo_consulta: idTipoConsulta },
+  });
+
+  if (!tipoConsulta) {
+    throw new NotFoundException('Tipo de consulta no encontrada');
+  }
+
+  const [consultasPadre, total] =
+      await this.consultaEspecialistaRepository.findAndCount({
+        where: {
+          expediente: { id_expediente: idExpediente },
+          tipoConsulta: { id_tipo_consulta: idTipoConsulta },
+          notaPadre: IsNull(),
+        },
+        relations: ['tipoConsulta'],
+        skip: page && limit ? (page - 1) * limit : 0,
+        take: limit,
+        order: {
+          id_consulta_especialista: 'DESC',
+        },
       });
 
-      if (!Tipo_Consulta) {
-          throw new NotFoundException('Tipo de consulta no encontrada');
-      }
+    const consultasCompletas: {
+      id_consulta_especialista: number;
+      descripcion: string;
+      fecha_consulta: Date;
+      tipoConsulta: Tipo_Consulta;
+    }[] = [];
 
-      const [consultas, total] = await this.consultaEspecialistaRepository.findAndCount({
-          where: {
-              expediente: { id_expediente: idExpediente },
-              tipoConsulta: { id_tipo_consulta: idTipoConsulta },
-          },
-          relations: ['tipoConsulta'],
-          skip: page && limit ? (page - 1) * limit : 0,
-          take: limit,
-          order: {
-              id_consulta_especialista: 'DESC',
-          },
-      });
-
-      const data = plainToInstance(
-          MostrarConsultaEspecialistaDto,
-          consultas,
-          { excludeExtraneousValues: true },
+    for (const consultaPadre of consultasPadre) {
+      const consultaCompleta = await this.obtenerConsultaEspecialistaCompleta(
+        consultaPadre.id_consulta_especialista,
       );
 
-      return {
-          data,
-          total,
-      };
+      consultasCompletas.push(consultaCompleta);
+    }
+
+    const data = plainToInstance(
+      MostrarConsultaEspecialistaDto,
+      consultasCompletas,
+      { excludeExtraneousValues: true },
+    );
+
+    return {
+      data,
+      total,
+    };
   }
 
   async getCuraciones(
