@@ -239,8 +239,18 @@ export class ResidentesController {
     }
 
     @Get('expedientes/enfermeria/consultasEspecialistas/:idTipoConsulta/:idExpediente')
-    async getConsultasEspecialistas(@Param('idTipoConsulta', ParseIntPipe) idTipoConsulta: number, @Param('idExpediente', ParseIntPipe) idExpediente: number) {
-        return this.residentesService.getConsultasEspecialistas(idTipoConsulta, idExpediente);
+    async getConsultasEspecialistas(
+        @Param('idTipoConsulta', ParseIntPipe) idTipoConsulta: number,
+        @Param('idExpediente', ParseIntPipe) idExpediente: number,
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    ) {
+        return this.residentesService.getConsultasEspecialistas(
+            idTipoConsulta,
+            idExpediente,
+            page,
+            limit,
+        );
     }
 
     @Get('tipos-consulta')
@@ -249,13 +259,29 @@ export class ResidentesController {
     }
 
     @Get('expedientes/enfermeria/curaciones/:idExpediente')
-    async getCuraciones(@Param('idExpediente', ParseIntPipe) idExpediente: number) {
-        return this.residentesService.getCuraciones(idExpediente);
+    async getCuraciones(
+        @Param('idExpediente', ParseIntPipe) idExpediente: number,
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    ) {
+        return this.residentesService.getCuraciones(
+            idExpediente,
+            page,
+            limit,
+        );
     }
 
     @Get('expedientes/enfermeria/consultasEbais/:idExpediente')
-    async getConsultasEbais(@Param('idExpediente', ParseIntPipe) idExpediente: number) {
-        return this.residentesService.getConsultaEbais(idExpediente);
+    async getConsultasEbais(
+        @Param('idExpediente', ParseIntPipe) idExpediente: number,
+        @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+        @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    ) {
+        return this.residentesService.getConsultaEbais(
+            idExpediente,
+            page,
+            limit,
+        );
     }
 
     @Post('expedientes/enfermeria/unidades-medida')

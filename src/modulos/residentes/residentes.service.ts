@@ -997,40 +997,102 @@ export class ResidentesService {
     return this.tipoConsultaRepository.find();
   }
   
-  async getConsultasEspecialistas(idTipoConsulta: number, idExpediente: number) {
-    const consultas = await this.consultaEspecialistaRepository.find({
-      where: {
-        expediente: { id_expediente: idExpediente },
-        tipoConsulta: { id_tipo_consulta: idTipoConsulta },
-      },
-      relations: ['tipoConsulta'],
-    });
+  async getConsultasEspecialistas(
+      idTipoConsulta: number,
+      idExpediente: number,
+      page?: number,
+      limit?: number,
+  ): Promise<{ data: MostrarConsultaEspecialistaDto[]; total: number }> {
 
-    const Tipo_Consulta = await this.tipoConsultaRepository.findOne({
-      where: { id_tipo_consulta: idTipoConsulta }
-    });
+      const Tipo_Consulta = await this.tipoConsultaRepository.findOne({
+          where: { id_tipo_consulta: idTipoConsulta },
+      });
 
-    if(!Tipo_Consulta){
-      throw new NotFoundException('Tipo de consulta no encontrada');
-    }
+      if (!Tipo_Consulta) {
+          throw new NotFoundException('Tipo de consulta no encontrada');
+      }
 
-    return plainToInstance(MostrarConsultaEspecialistaDto, consultas, { excludeExtraneousValues: true });
+      const [consultas, total] = await this.consultaEspecialistaRepository.findAndCount({
+          where: {
+              expediente: { id_expediente: idExpediente },
+              tipoConsulta: { id_tipo_consulta: idTipoConsulta },
+          },
+          relations: ['tipoConsulta'],
+          skip: page && limit ? (page - 1) * limit : 0,
+          take: limit,
+          order: {
+              id_consulta_especialista: 'DESC',
+          },
+      });
+
+      const data = plainToInstance(
+          MostrarConsultaEspecialistaDto,
+          consultas,
+          { excludeExtraneousValues: true },
+      );
+
+      return {
+          data,
+          total,
+      };
   }
 
-  async getCuraciones(idExpediente: number) {
-    const curaciones = await this.curacionesRepository.find({
-      where: { expediente: { id_expediente: idExpediente } },
-    });
+  async getCuraciones(
+      idExpediente: number,
+      page?: number,
+      limit?: number,
+  ): Promise<{ data: MostrarCuracionDto[]; total: number }> {
 
-    return plainToInstance(MostrarCuracionDto, curaciones, { excludeExtraneousValues: true });
+      const [curaciones, total] = await this.curacionesRepository.findAndCount({
+          where: {
+              expediente: { id_expediente: idExpediente },
+          },
+          skip: page && limit ? (page - 1) * limit : 0,
+          take: limit,
+          order: {
+              id_curacion: 'DESC',
+          },
+      });
+
+      const data = plainToInstance(
+          MostrarCuracionDto,
+          curaciones,
+          { excludeExtraneousValues: true },
+      );
+
+      return {
+          data,
+          total,
+      };
   }
 
-  async getConsultaEbais(idExpediente: number) {
-    const consultas = await this.consultaEbaisRepository.find({
-      where: { expediente: { id_expediente: idExpediente } },
-    });
+  async getConsultaEbais(
+      idExpediente: number,
+      page?: number,
+      limit?: number,
+  ): Promise<{ data: MostrarConsultaEbais[]; total: number }> {
 
-    return plainToInstance(MostrarConsultaEbais, consultas, { excludeExtraneousValues: true });
+      const [consultas, total] = await this.consultaEbaisRepository.findAndCount({
+          where: {
+              expediente: { id_expediente: idExpediente },
+          },
+          skip: page && limit ? (page - 1) * limit : 0,
+          take: limit,
+          order: {
+              id_consulta_ebais: 'DESC',
+          },
+      });
+
+      const data = plainToInstance(
+          MostrarConsultaEbais,
+          consultas,
+          { excludeExtraneousValues: true },
+      );
+
+      return {
+          data,
+          total,
+      };
   }
 
   async createUnidadMedida(createUnidadMedidaDto: CreateUnidadMedidaDto){
